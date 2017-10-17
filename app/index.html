@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="myApp" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <base href="/">
+  <title>Station Mapper</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- build:css css/site.css -->
+  <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
+  <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/main.css">
+  <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="app.css">
+  <!-- endbuild -->
+  <!-- build:modernizer js/modernizr.js -->
+  <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
+  <!-- endbuild -->
+</head>
+<body>
+  <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+
+  <div ng-view class="full-page container-fluid"></div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular-route.min.js"></script>
+  <!-- build:remove -->
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/angular-route/angular-route.js"></script>
+  <!-- endbuild -->
+
+  <script src="bower_components/leaflet/dist/leaflet.js"></script>
+  <script src="bower_components/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <script src="bower_components/leaflet-spin/leaflet.spin.js"></script>
+  <script src="bower_components/angular-spinner/dist/angular-spinner.min.js"></script>
+  <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+
+  <!-- build:js js/site.js -->
+  <script src="bower_components/spin.js/spin.js"></script>
+  <script src="app.js"></script>
+  <script src="query/query.module.js"></script>
+  <script src="components/alerts/alert.module.js"></script>
+  <script src="components/map/map.module.js"></script>
+  <script src="components/map/map.js"></script>
+  <script src="components/map/map.directive.js"></script>
+  <script src="components/alerts/alert.js"></script>
+  <script src="directives/showErrors.directive.js"></script>
+  <script src="filters/html.filter.js"></script>
+  <script src="query/query.service.js"></script>
+  <script src="query/queryBuilder.js"></script>
+  <script src="query/query.controller.js"></script>
+  <script src="query/query.routes.js"></script>
+  <script src="query/queryForm.controller.js"></script>
+  <script src="query/queryMap.service.js"></script>
+  <script src="query/queryParams.js"></script>
+  <script src="query/queryResults.js"></script>
+  <script src="query/table/queryTable.controller.js"></script>
+  <script src="query/table/scalyr.js"></script>
+  <script src="query/queryTypesDisplay.filter.js"></script>
+  <script src="query/detail.controller.js"></script>
+  <script src="query/GBIFMapper.service.js"></script>
+  <script src="query/leaflet-omnivore.min.js"></script>
+  <!-- endbuild -->
+
+</body>
+</html>
