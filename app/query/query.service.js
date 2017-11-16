@@ -20,7 +20,7 @@
         function queryJson(query, page) {
             alerts.removeTmp();
             return $http.get("http://api.gbif.org/v1/occurrence/search?limit=300" + "&offset=" + 300*page + "&" + query)
-                .then(queryJsonComplete);
+               .then(queryJsonComplete);
 
             function queryJsonComplete(response) {
                 var results = {
@@ -28,19 +28,14 @@
                     totalElements: 0,
                     data: []
                 };
-
                 if (response.data) {
                     results.size = response.data.limit;
-
                     results.totalElements = response.data.count;
-
                     if (results.totalElements === 0) {
                         alerts.info("No results found.")
                     }
-
                     results.data = response.data.results;
                 }
-
                 return results;
             }
         }

@@ -1,14 +1,19 @@
-(function () {
+(function (angular) {
     'use strict';
 
-    angular.module('map.query')
-        .controller('QueryFormController', QueryFormController);
+    var app = angular.module('map.query');
+    app.directive('taxonEmptyContents',['$filter','$http', taxonEmptyContents]);     
+    app.directive('taxonAutoComplete',['$filter','$http', taxonAutoCompleteDir]);     
+    app.controller('QueryFormController', QueryFormController);
+    app.$inject = ['$scope', 'GBIFMapperService', 'queryParams', 'queryService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts'];
 
-    QueryFormController.$inject = ['GBIFMapperService', 'queryParams', 'queryService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts'];
-
-    function QueryFormController(GBIFMapperService, queryParams, queryService, queryMap, queryResults, usSpinnerService, alerts) {
+    function QueryFormController($scope, GBIFMapperService, queryParams, queryService, queryMap, queryResults, usSpinnerService, alerts) {
         var vm = this;
         var _currentLayer = undefined;
+
+        $scope.ranks =  [ 'GENUS', 'FAMILY', 'ORDER', 'CLASS', 'PHYLUM', 'KINGDOM' ]
+	//vm.params.rank = $scope.ranks[0]
+	queryParams.rank = 'GENUS';
 
         // select lists
         vm.countryCodes = [];
@@ -21,12 +26,12 @@
         vm.spatialLayer = undefined;
         vm.basisOfRecord= undefined;
 
+
         vm.params = queryParams;
         vm.map = queryMap;
 
         vm.queryJson = queryJson;
 	vm.spatialLayerChanged = spatialLayerChanged;
-
         activate();
 
         function activate() {
@@ -91,7 +96,89 @@
                     alerts.error('error fetching spatial layers');
                 });
         }
+   }
 
+   /* dynamically search taxon data */
+   //app.factory('searchTaxonData', function (characters,$http) {
+   //return [{taxon:'Oscar',taxonKey:1000},{taxon:'Olgina',taxonKey:2000},{taxon:'Oliver',taxonKey:3000},{taxon:'Orlando',taxonKey:4000},{taxon:'Osark',taxonKey:5000}, {taxon:'Osos',taxonKey:5000}, {taxon:'Oscarlos',taxonKey:5000}];
+   function searchTaxonData(characters,$http,rank) {
+	   return $http.get("http://api.gbif.org/v1/species/suggest/?q="+characters+"&rank="+rank)
+	       .then(queryJsonComplete);//function(response) {
+	   function queryJsonComplete(response) {
+               return response.data;
+            } 
+   }
+
+   /* directive to handlie click events for the taxon empty contents x button */
+   function taxonEmptyContents($filter,$http) {
+      return {
+        restrict: 'A',
+        scope: true,
+        link: function (scope, elem, attrs) {
+
+            function functionToBeCalled () {
+                scope.$apply(function(){
+	        	scope.queryFormVm.params.taxonomy = '';
+	        	scope.queryFormVm.params.taxonKey = '';
+	        	scope.queryFormVm.params.selectedTaxonomy = '';
+		});
+            }
+
+            elem.on('click', functionToBeCalled);
+        }
+      };
+   }
+
+   /* Directive for working with taxon-based autocomplete functions */
+   function taxonAutoCompleteDir($filter,$http) {
+         return {
+		require: "ngModel",
+                restrict: 'A',       
+                link: function (scope, elem, attrs, ngModel) {
+                        elem.autocomplete({
+                        source: function (request, response) {
+                            //term has the data typed by the user
+                            var params = request.term;
+			    // TODO: fetch radio button rank
+			    //var rank = scope.queryFormVm.params.rank
+	 		    var rank = (scope.queryFormVm.params.rank).toString().toLowerCase()
+				
+			    // cal searchTaxonData function and wait for response
+			    searchTaxonData(params,$http,rank)
+				.then(function(data) {
+                            	   if (data) { 
+					var result = ''
+					if (rank == "genus")
+                                	    result = $filter('filter')(data, {'genus':params});
+					if (rank == "family")
+                                	    result = $filter('filter')(data, {'family':params});
+					if (rank == "order")
+                                	    result = $filter('filter')(data, {'order':params});
+					if (rank == "class")
+                                	    result = $filter('filter')(data, {'class':params});
+					if (rank == "phylum")
+                                	    result = $filter('filter')(data, {'phylum':params});
+					if (rank == "kingdom")
+                                	    result = $filter('filter')(data, {'kingdom':params});
+                                        angular.forEach(result, function (item) {
+                                               item['value'] = item[rank];
+                                	});                       
+                            	    }
+                                    response(result);
+			    });
+                        },
+                        minLength: 2,                       
+                        select: function (event, ui) {
+                           //force a digest cycle to update taxonKey based on chosen taxon
+                           scope.$apply(function(){
+			    	 var rank = (scope.queryFormVm.params.rank).toString().toLowerCase()
+			         scope.queryFormVm.params.taxonKey = ui['item'][rank+'Key'];
+			         scope.queryFormVm.params.selectedTaxonomy = ui['item'][rank];
+                           });                       
+                        },
+                       
+                    });
+                }
+          };
     }
-
-})();
+})(angular);

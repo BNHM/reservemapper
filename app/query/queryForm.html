@@ -18,12 +18,48 @@
             <label class="control-label">Search Any Term</label>
             <div class="filters row">
                 <div class="col-xs-12">
-            	<input type="text" placeholder="e.g: genus, species, locality terms" ng-model="queryFormVm.params.queryString"
+            	<input type="text" placeholder="e.g: species, locality terms" ng-model="queryFormVm.params.queryString"
                    class="form-control"/>
 		</div>
 	    </div>
         </div>
 
+        <div class="form-group">
+ 	    <label class="control-label">Search by Taxonomy</label>
+
+            <div class="filters row form-control-static">
+                <div class="col-xs-3"> 
+                    <select ng-model="queryFormVm.params.rank" class="form-control input-sm"  ng-selected="GENUS" name="rank" ng-options="x for x in ranks" > 
+			      <option value="GENUS" selected="selected">GENUS</option>
+		    </select>
+		</div>
+                <div class="col-xs-4"> 
+		    <div class="btn-group">
+		        <input type="text" taxon-auto-complete class="form-control" ng-model="queryFormVm.params.taxonomy"  placeholder="taxonomic name" /> 
+		        <span taxon-empty-contents class="glyphicon glyphicon-remove-circle" style="position:absolute; right: 5px;"></span>
+		    </div>
+		</div>
+                <div class="col-xs-4"> <label class="label label-default">{{queryFormVm.params.selectedTaxonomy}} - {{queryFormVm.params.taxonKey}}</label> </div>
+            </div>
+
+        <div class="form-group" show-errors>
+            <label class="control-label">Year Collected</label>
+            <div class="filters row">
+                <div class="col-xs-3">
+                    <input ng-model="queryFormVm.params.fromYear" type="text" placeholder="YYYY" name="fromYear" 
+                       		ng-required="queryFormVm.params.toYear"
+                       		class="form-control input-sm"/>
+		</div>
+                <div class="col-xs-1">
+			to
+		</div>
+                <div class="col-xs-3">
+                    <input ng-model="queryFormVm.params.toYear" type="text" placeholder="YYYY" name="toYear"
+                       ng-required="queryFormVm.params.fromYear"
+                   	class="form-control input-sm"/>
+	        </div>
+	    </div>
+        </div>
         <div class="form-group dwc-terms">
             <label class="control-label">Darwin Core Terms</label>
             <div class="row filters">
@@ -44,20 +80,6 @@
             </div>
         </div>
 
-        <div class="form-group" show-errors>
-            <label class="control-label">Year Collected</label>
-            <div class="filters row">
-                <div class="col-xs-12">
-                    <input ng-model="queryFormVm.params.fromYear" type="text" placeholder="YYYY" name="fromYear" 
-                       		ng-required="queryFormVm.params.toYear"
-                       		class="form-control input-sm"/>
-		    to
-                    <input ng-model="queryFormVm.params.toYear" type="text" placeholder="YYYY" name="toYear"
-                       ng-required="queryFormVm.params.fromYear"
-                   	class="form-control input-sm"/>
-	        </div>
-	    </div>
-        </div>
 
         <div class="form-group">
             <button type="submit" class="btn pull-left btn-primary"><span
@@ -70,3 +92,8 @@
 	&nbsp;
 	<label class="information-text">This site was made possible by a grant from the University of California Division of Agriculture and Natural Resources.  Species occurrence data are harvested from the <a href="http://www.gbif.org/">Global Biodiversity Information Facility</a> and includes data from <a href="https://bnhm.berkeley.edu/">Berkeley Natural History Museums</a> and other institutions. Field Station-specific spatial layers (will be) harvested from the <a href="https://holos.berkeley.edu/">Berkeley EcoEngine.</a></label>
 </div>
+<script>
+//$("#genusClear").click(function(){
+ //   $("#genus").val('');
+//});
+</script>

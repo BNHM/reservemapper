@@ -9,9 +9,7 @@
     function queryParams(QueryBuilder) {
         var defaultParams = {
             queryString: null,
-            genus: null,
-            locality: null,
-            family: null,
+            taxonKey: null,
             institutionCode: null,
             collectionCode: null,
             basisOfRecord: null,
@@ -41,6 +39,9 @@
             if (params.queryString) {
                 builder.add("q", params.queryString);
             }
+            if (params.taxonKey) {
+               builder.add("taxonKey", params.taxonKey);
+            }
 
             if (params.country) {
                 builder.add("country", params.country);
@@ -49,21 +50,10 @@
                 builder.add("basisOfRecord", params.basisOfRecord);
             }
 
-            if (params.genus) {
-                builder.add("genusKey", params.genus);
-            }
-
             if (params.locality) {
                 builder.add("locality", params.locality);
             }
 
-            if (params.family) {
-                builder.add("familyKey", params.family);
-            }
-
-            if (params.species) {
-                builder.add("speciesKey", params.species);
-            }
             if (params.institutionCode) {
                 builder.add("institutionCode", params.institutionCode);
             }
