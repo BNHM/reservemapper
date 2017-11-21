@@ -10,7 +10,6 @@ gulp.task('default', ['copy-assets'], function() {
         .pipe(usemin({
             assetsDir: 'app',
             css: [minifyCss(), 'concat'],
-            js: [uglify, 'concat'],
             modernizer: [],
             minJs: []
         }))
@@ -25,6 +24,14 @@ gulp.task('copy-assets', function() {
     gulp.src('app/bower_components/leaflet/dist/images/**/*')
         .pipe(gulp.dest('public/css/images/'));
 
+    gulp.src('app/bower_components/jquery/dist/jquery.min.js')
+        .pipe(gulp.dest('public/bower_components/jquery/dist/'));
+    gulp.src('app/bower_components/jquery-ui/jquery-ui.min.js')
+        .pipe(gulp.dest('public/bower_components/jquery-ui/'));
+    gulp.src('app/bower_components/angular/angular.min.js')
+        .pipe(gulp.dest('public/bower_components/angular/'));
+    gulp.src('app/bower_components/angular-route/angular-route.min.js')
+        .pipe(gulp.dest('public/bower_components/angular-route/'));
     gulp.src('app/bower_components/leaflet/dist/leaflet.js')
         .pipe(gulp.dest('public/bower_components/leaflet/dist/'));
     gulp.src('app/bower_components/leaflet.markercluster/dist/leaflet.markercluster.js')
