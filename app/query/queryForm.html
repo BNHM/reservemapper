@@ -5,9 +5,9 @@
             <label class="control-label">Select Area of Interest</label>
             <div class="filters row">
                 <div class="col-xs-12">
-                    <select ng-model="queryFormVm.spatialLayer" class="form-control input-sm" required name="spatial"
+                    <select ng-model="queryFormVm.spatialLayer" class="form-control input-sm has-error" name="spatial"
 			    ng-change="queryFormVm.spatialLayerChanged()"
-                            ng-options="v as k for (k, v) in queryFormVm.spatialLayers">
+                            ng-options="v as k for (k, v) in queryFormVm.spatialLayers" required>
                         <option value="">-- Select a Zoom Layer --</option>
                     </select>
                 </div>

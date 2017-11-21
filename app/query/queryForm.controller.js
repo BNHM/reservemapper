@@ -5,7 +5,7 @@
     app.directive('taxonEmptyContents',['$filter','$http', taxonEmptyContents]);     
     app.directive('taxonAutoComplete',['$filter','$http', taxonAutoCompleteDir]);     
     app.controller('QueryFormController', QueryFormController);
-    app.$inject = ['$scope', 'GBIFMapperService', 'queryParams', 'queryService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts'];
+    app.$inject = ['$rootScope', 'GBIFMapperService', 'queryParams', 'queryService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts'];
 
     function QueryFormController($scope, GBIFMapperService, queryParams, queryService, queryMap, queryResults, usSpinnerService, alerts) {
         var vm = this;
@@ -33,10 +33,6 @@
         vm.queryJson = queryJson;
 	vm.spatialLayerChanged = spatialLayerChanged;
         activate();
-
-        $scope.catchtaxonblur = function() {
-            alert('blur!');
-        }
 
         function activate() {
             // getCountryCodes();
@@ -103,8 +99,6 @@
    }
 
    /* dynamically search taxon data */
-   //app.factory('searchTaxonData', function (characters,$http) {
-   //return [{taxon:'Oscar',taxonKey:1000},{taxon:'Olgina',taxonKey:2000},{taxon:'Oliver',taxonKey:3000},{taxon:'Orlando',taxonKey:4000},{taxon:'Osark',taxonKey:5000}, {taxon:'Osos',taxonKey:5000}, {taxon:'Oscarlos',taxonKey:5000}];
    function searchTaxonData(characters,$http,rank) {
 	   return $http.get("http://api.gbif.org/v1/species/suggest/?q="+characters+"&rank="+rank)
 	       .then(queryJsonComplete);//function(response) {

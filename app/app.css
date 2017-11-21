@@ -1,4 +1,7 @@
 /* app css stylesheet */
+:required  {  
+    border-color: rgba(255, 0, 0, 1);
+}
 
 .menu {
     list-style: none;
