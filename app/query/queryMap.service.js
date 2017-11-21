@@ -29,8 +29,7 @@
 		"<strong>basisOfRecord</strong>:  " + resource.basisOfRecord + "<br>" +
 		"<strong>eventDate</strong>:  " + resource.eventDate + "<br>" +
 		"<strong>recordedBy</strong>:  " + resource.recordedBy + "<br>" +
-		"<strong>Genus</strong>:  " + resource.genus + "<br>" +
-                "<strong>Species</strong>:  " + resource.species + "<br>" +
+                "<strong>ScientificName</strong>:  " + resource.scientificName + "<br>" +
                 "<strong>Locality, Country</strong>:  " + resource.locality + ", " + resource.country + "<br>" +
                 "<a href='http://www.gbif.org/occurrence/" + resource.key + "' target='_blank'>Occurrence details from GBIF site</a>";
         }

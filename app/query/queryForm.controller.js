@@ -11,9 +11,9 @@
         var vm = this;
         var _currentLayer = undefined;
 
-        $scope.ranks =  [ 'GENUS', 'FAMILY', 'ORDER', 'CLASS', 'PHYLUM', 'KINGDOM' ]
+        $scope.ranks =  [ 'SPECIES', 'GENUS', 'FAMILY', 'ORDER', 'CLASS', 'PHYLUM', 'KINGDOM' ]
 	//vm.params.rank = $scope.ranks[0]
-	queryParams.rank = 'GENUS';
+	queryParams.rank = 'SPECIES';
 
         // select lists
         vm.countryCodes = [];
@@ -146,6 +146,8 @@
 				.then(function(data) {
                             	   if (data) { 
 					var result = ''
+					if (rank == "species")
+                                	    result = $filter('filter')(data, {'species':params});
 					if (rank == "genus")
                                 	    result = $filter('filter')(data, {'genus':params});
 					if (rank == "family")
@@ -160,7 +162,10 @@
                                 	    result = $filter('filter')(data, {'kingdom':params});
 
                                         angular.forEach(result, function (item) {
-                                               item['value'] = item[rank];
+						if (rank == "species") 
+                                               		item['value'] = item['scientificName'];
+						else
+                                               		item['value'] = item[rank];
                                 	});                       
                             	    }
                                     response(result);
@@ -171,7 +176,7 @@
 			// and then set other key values to empty
                         change: function (event, ui) {
 		            if (ui['item'] == null) {
-				 alert('Must taxon name from list')
+				 alert('Click on name in drop-down list to filter by taxonomy')
 			         scope.queryFormVm.params.taxonomy = ''
 			         scope.queryFormVm.params.taxonKey = ''
 			         scope.queryFormVm.params.selectedTaxonomy = ''
@@ -181,8 +186,13 @@
                            //force a digest cycle to update taxonKey based on chosen taxon
                            scope.$apply(function(){
 			    	 var rank = (scope.queryFormVm.params.rank).toString().toLowerCase()
-			         scope.queryFormVm.params.taxonKey = ui['item'][rank+'Key'];
-			         scope.queryFormVm.params.selectedTaxonomy = ui['item'][rank];
+				 if (rank == "species") {
+			         	scope.queryFormVm.params.taxonKey = ui['item'][rank+'Key'];
+			         	scope.queryFormVm.params.selectedTaxonomy = ui['item']['scientificName'];
+				 } else {
+			         	scope.queryFormVm.params.taxonKey = ui['item'][rank+'Key'];
+			         	scope.queryFormVm.params.selectedTaxonomy = ui['item'][rank];
+				 }
                            });                       
                         },
                        

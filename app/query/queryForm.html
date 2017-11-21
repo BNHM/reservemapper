@@ -28,18 +28,18 @@
  	    <label class="control-label">Search by Taxonomy</label>
 
             <div class="filters row form-control-static">
-                <div class="col-xs-3"> 
-                    <select ng-model="queryFormVm.params.rank" class="form-control input-sm"  ng-selected="GENUS" name="rank" ng-options="x for x in ranks" > 
+                <div class="col-xs-4"> 
+                    <select ng-model="queryFormVm.params.rank" class="form-control input-sm"  ng-selected="SPECIES" name="rank" ng-options="x for x in ranks" > 
 			      <option value="GENUS" selected="selected">GENUS</option>
 		    </select>
 		</div>
-                <div class="col-xs-4"> 
+                <div class="col-xs-6"> 
 		    <div class="btn-group">
 		        <input type="text" taxon-auto-complete class="form-control" ng-model="queryFormVm.params.taxonomy"  placeholder="taxonomic name" /> 
 		        <span taxon-empty-contents class="glyphicon glyphicon-remove-circle" style="position:absolute; right: 5px;"></span>
 		    </div>
 		</div>
-                <div class="col-xs-4"> <label class="label label-default">{{queryFormVm.params.selectedTaxonomy}} - {{queryFormVm.params.taxonKey}}</label> </div>
+                <div class="col-xs-12"> <label class="label label-default">{{queryFormVm.params.selectedTaxonomy}}</label> </div>
             </div>
 
         <div class="form-group" show-errors>
