@@ -34,6 +34,10 @@
 	vm.spatialLayerChanged = spatialLayerChanged;
         activate();
 
+        $scope.catchtaxonblur = function() {
+            alert('blur!');
+        }
+
         function activate() {
             // getCountryCodes();
             getSpatialLayers();
@@ -160,6 +164,7 @@
                                 	    result = $filter('filter')(data, {'phylum':params});
 					if (rank == "kingdom")
                                 	    result = $filter('filter')(data, {'kingdom':params});
+
                                         angular.forEach(result, function (item) {
                                                item['value'] = item[rank];
                                 	});                       
@@ -168,6 +173,16 @@
 			    });
                         },
                         minLength: 2,                       
+			// Detect if user changes values and if ui['item'] (taxonomy) is null
+			// and then set other key values to empty
+                        change: function (event, ui) {
+		            if (ui['item'] == null) {
+				 alert('Must taxon name from list')
+			         scope.queryFormVm.params.taxonomy = ''
+			         scope.queryFormVm.params.taxonKey = ''
+			         scope.queryFormVm.params.selectedTaxonomy = ''
+			    } 
+                        },
                         select: function (event, ui) {
                            //force a digest cycle to update taxonKey based on chosen taxon
                            scope.$apply(function(){
