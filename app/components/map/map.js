@@ -41,7 +41,7 @@
                     {access_token: MAPBOX_TOKEN});
 
                 this._usgsTiles = L.tileLayer.wms('https://basemap.nationalmap.gov/arcgis/services/USGSImageryOnly/MapServer/WMSServer', { layers: 0, maxZoom: 8 });
-                this._esriTopoTiles = L.tileLayer.wms('http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { layers: 0 });
+                this._esriTopoTiles = L.tileLayer.wms('http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { layers: 0 });
 
                 this._clusterLayer = L.markerClusterGroup({chunkedLoading: true});
 
