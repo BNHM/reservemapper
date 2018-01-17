@@ -6,17 +6,36 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "jquery": "~3.2.1",
-    "jquery-ui": "~1.12.1",
-    "angular": "~1.5.0",
-    "angular-route": "~1.5.0",
-    "angular-loader": "~1.5.0",
-    "html5-boilerplate": "^5.3.0",
-    "leaflet": "^1.1.0",
-    "leaflet.markercluster": "^1.0.6",
+    "jquery": "^3.2.1",
+    "jquery-ui": "^1.12.1",
+    "angular": "^1.6.8",
+    "angular-route": "^1.6.8",
+    "angular-loader": "^1.6.8",
+    "html5-boilerplate": "^6.0.1",
+    "leaflet": "^1.3.0",
+    "leaflet.markercluster": "^1.2.0",
     "leaflet-spin": "^1.1.0",
     "bootstrap": "^3.3.7",
     "angular-spinner": "^1.0.1",
+    "ngSanitize": "^0.0.2",
+    "ng-csv": "^0.3.6",
+    "modernizr": "^3.5.0",
     "angular-bootstrap": "^2.5.0"
+  },
+  "authors": [
+    "John Deck <jdeck88@gmail.com>"
+  ],
+  "main": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests"
+  ],
+  "resolutions": {
+    "leaflet": ">= 1.0.3",
+    "html5-boilerplate": "^6.0.1"
   }
 }

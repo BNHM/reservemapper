@@ -7,7 +7,7 @@
     app.controller('QueryFormController', QueryFormController);
     app.$inject = ['$rootScope', 'GBIFMapperService', 'queryParams', 'queryService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts'];
 
-    function QueryFormController($scope, GBIFMapperService, queryParams, queryService, queryMap, queryResults, usSpinnerService, alerts) {
+    function QueryFormController($scope, GBIFMapperService, queryParams, queryService, queryMap, queryResults, usSpinnerService, alerts ) {
         var vm = this;
         var _currentLayer = undefined;
 
@@ -26,6 +26,8 @@
         vm.spatialLayer = undefined;
         vm.basisOfRecord= undefined;
 
+	// Prepare data for Download
+        vm.downloadColumns = ["institutionCode","collectionCode","basisOfRecord","phylum","class","order","family","genus","scientificName","eventDate","locality","decimalLatitude","decimalLongitude","key"];
 
         vm.params = queryParams;
         vm.map = queryMap;
@@ -38,6 +40,28 @@
             // getCountryCodes();
             getSpatialLayers();
             getBasisOfRecords();
+        }
+
+	// CSV Download
+	$scope.downloadCsv = function(data) {
+	    var downloadData = [];
+            if (data.length > 0) {
+                angular.forEach(data, function (resource) {
+                    var resourceData = [];
+                    angular.forEach(vm.downloadColumns, function (key) {
+                        var text = resource[key];
+
+                        if (angular.isArray(text)) {
+                            text = text.join(" | ");
+                        } else if (angular.isObject(text)) {
+                            text = (angular.equals({}, text)) ? '' : JSON.stringify(text);
+                        }
+                        resourceData.push((text) ? text.toString() : '');
+                    });
+                    downloadData.push(resourceData);
+                });
+            }
+	    return downloadData;
         }
 
 	function spatialLayerChanged() {

@@ -18,9 +18,10 @@ gulp.task('default', ['copy-assets'], function() {
 });
 
 gulp.task('copy-assets', function() {
+    gulp.src('app/*.png')
+        .pipe(gulp.dest('public/'));
     gulp.src('app/bower_components/bootstrap/dist/fonts/**/*')
         .pipe(gulp.dest('public/fonts/'));
-
     gulp.src('app/bower_components/leaflet/dist/images/**/*')
         .pipe(gulp.dest('public/css/images/'));
 

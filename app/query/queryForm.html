@@ -82,14 +82,20 @@
 
         <div class="form-group">
             <div class="col-xs-3">
-            <button type="submit" class="btn pull-left btn-primary"><span
+                <button type="submit" class="btn pull-left btn-primary"><span
                     class="glyphicon glyphicon-search"></span> Search
-            </button>
+                </button>
 	    </div>
-            <div class="col-xs-3">
-            <button type="button" class="btn pull-left btn-primary" onclick="location.reload();"><span
+            <div class="col-xs-2">
+                <button type="button" class="btn pull-left btn-primary" onclick="location.reload();"><span
                     class="glyphicon"></span>Clear
-            </button>
+                </button>
+	    </div>
+            <div ng-show="vm.queryResults.isSet" class="col-xs-2 download-btn">
+		<!--vm.queryResults.data works here but data is shifted... is there anyway to access the vm.tableData and vm.tableColumns arrays??-->
+                <button type="button" class="btn pull-left btn-primary" ng-csv=downloadCsv(vm.queryResults.data) csv-header=queryFormVm.downloadColumns filename=reservemapper.csv><span
+                    class="glyphicon"></span>Download
+                </button>
 	    </div>
         </div>
     </form>
