@@ -34,6 +34,8 @@
                             alerts.warning('result set is limited to 50000, narrow your search to view all results');
                         }
 
+			// when we are done loading all promises then remove the loading alert and
+			// safely display download button
                         $q.all(promises)
                             .finally(function() {
                                 var a = alerts.getAlerts();
@@ -41,11 +43,17 @@
                                 for (var i = 0; i < a.length; i++) {
                                     if (a[i].msg === 'Loading more results...') {
                                         alerts.remove(a[i]);
+					queryResults.isSet = true;
                                         break;
                                     }
                                 }
                             });
-                    }
+                    } 
+		    // in case we don't need to send multiple requests, we can just
+		    // indicate we're done
+		    else {
+			queryResults.isSet = true;
+		    }
 
                 });
 

@@ -27,7 +27,7 @@
         vm.basisOfRecord= undefined;
 
 	// Prepare data for Download
-        vm.downloadColumns = ["institutionCode","collectionCode","basisOfRecord","phylum","class","order","family","genus","scientificName","eventDate","locality","decimalLatitude","decimalLongitude","key"];
+        vm.downloadColumns = ["basisOfRecord","institutionCode","collectionCode","catalogNumber","continent","country","stateProvince","locality","waterBody","decimalLatitude","decimalLongitude","depth","elevation","eventDate","month","year","scientificName","kingdom","phylum","class","order","family","genus","species","establishmentMeans","repatriated","typeStatus","lastInterpreted","mediaType","protocol","license","publishingCountry","publishingOrg","recordedBy","key"]
 
         vm.params = queryParams;
         vm.map = queryMap;
@@ -49,14 +49,20 @@
                 angular.forEach(data, function (resource) {
                     var resourceData = [];
                     angular.forEach(vm.downloadColumns, function (key) {
-                        var text = resource[key];
+			// display a link to key field
+			if (key == 'key') { 
+			    var text = 'https://www.gbif.org/occurrence/'+resource[key];
+			} 
+			else {
+                            var text = resource[key];
 
-                        if (angular.isArray(text)) {
-                            text = text.join(" | ");
-                        } else if (angular.isObject(text)) {
-                            text = (angular.equals({}, text)) ? '' : JSON.stringify(text);
+                            if (angular.isArray(text)) {
+                                text = text.join(" | ");
+                            } else if (angular.isObject(text)) {
+                                text = (angular.equals({}, text)) ? '' : JSON.stringify(text);
+                            }
                         }
-                        resourceData.push((text) ? text.toString() : '');
+                            resourceData.push((text) ? text.toString() : '');
                     });
                     downloadData.push(resourceData);
                 });
@@ -64,10 +70,16 @@
 	    return downloadData;
         }
 
+	/* when a spatial layer is changed, we need to remove all old data on the map, 
+	clear out data arrays, and then finally zoom into this layer */
 	function spatialLayerChanged() {
-		zoomLayer();
+	    queryMap._clearMap();
+            queryResults.clear();
+	    zoomLayer();
+		
 	}
 
+	/* zoom into a chose layer */
 	function zoomLayer() {
             var l = omnivore.wkt.parse(vm.spatialLayer);
             vm.params.bounds = l.getBounds();
@@ -78,8 +90,8 @@
 
             queryMap.addLayer(l);
             _currentLayer = l;
-
 	}
+
         function queryJson() {
             usSpinnerService.spin('query-spinner');
 
@@ -88,7 +100,16 @@
 
             queryResults.clear();
             GBIFMapperService.query(queryParams.build(), 0)
+		.then(queryJsonSuccess)
+                .catch(queryJsonFailed)
                 .finally(queryJsonFinally);
+
+            function queryJsonSuccess() {
+                $scope.queryForm.$setPristine(true)
+	    }
+            function queryJsonFailed(response) {
+                vm.queryResults.isSet = false;
+            }
 
             function queryJsonFinally() {
                 usSpinnerService.stop('query-spinner');

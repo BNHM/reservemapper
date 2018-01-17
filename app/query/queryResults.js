@@ -22,11 +22,10 @@
 
         function update(data) {
             angular.extend(queryResults, data);
-            queryResults.isSet = true;
         }
 
         function append(data) {
-            queryResults.isSet = true;
+            //queryResults.isSet = true;
             queryResults.size += data.size;
             queryResults.data = queryResults.data.concat(data.data);
 
