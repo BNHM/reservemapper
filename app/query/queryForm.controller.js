@@ -5,9 +5,9 @@
     app.directive('taxonEmptyContents',['$filter','$http', taxonEmptyContents]);     
     app.directive('taxonAutoComplete',['$filter','$http', taxonAutoCompleteDir]);     
     app.controller('QueryFormController', QueryFormController);
-    app.$inject = ['$rootScope', 'GBIFMapperService', 'queryParams', 'queryService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts'];
+    app.$inject = ['$rootScope', 'GBIFMapperService', 'queryParams', 'queryService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
 
-    function QueryFormController($scope, GBIFMapperService, queryParams, queryService, queryMap, queryResults, usSpinnerService, alerts ) {
+    function QueryFormController($scope, GBIFMapperService, queryParams, queryService, queryMap, queryResults, usSpinnerService, alerts , $http) {
         var vm = this;
         var _currentLayer = undefined;
 
@@ -79,17 +79,21 @@
 		
 	}
 
-	/* zoom into a chose layer */
+	/* zoom into a chosen layer */
 	function zoomLayer() {
-            var l = omnivore.wkt.parse(vm.spatialLayer);
+          // Fetch the WKT from the download_layer and set it to vm.spatialLayer
+          $http.get(vm.spatialLayer).then(function(response) {
+            var l = omnivore.wkt.parse(response.data);
             vm.params.bounds = l.getBounds();
 
             if (_currentLayer && l.getBounds() !== _currentLayer.getBounds()) {
-                queryMap.removeLayer(_currentLayer);
+               queryMap.removeLayer(_currentLayer);
             }
 
             queryMap.addLayer(l);
             _currentLayer = l;
+        
+          });
 	}
 
         function queryJson() {
@@ -136,7 +140,19 @@
         function getSpatialLayers() {
             queryService.spatialLayers()
                 .then(function (response) {
-                    vm.spatialLayers = response.data;
+                          // initialize a new object to hold our data
+                           var spatialLayerArray = [];
+                         //loop the results while inserting the download_url as the value and 
+                         //reserve name as the key
+                         response.data.forEach(function(spatialLayer){
+                        // Modify the name to insert spaces before Caps, except for first
+                        var modifiedName=spatialLayer.name.split(".")[0] 
+                        modifiedName = modifiedName.replace(/([A-Z])/g, ' $1').trim()
+                        
+                        // Assign the WKT object that was returned to spatialLayer
+                        spatialLayerArray[modifiedName] = spatialLayer.download_url;
+                    })
+                    vm.spatialLayers = spatialLayerArray;
                 }, function () {
                     alerts.error('error fetching spatial layers');
                 });
