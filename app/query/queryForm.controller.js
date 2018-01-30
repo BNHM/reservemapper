@@ -38,7 +38,7 @@
 
         function activate() {
             // getCountryCodes();
-            getSpatialLayers();
+            processSpatialLayers();
             getBasisOfRecords();
         }
 
@@ -137,8 +137,15 @@
         //         });
         // }
 
+
+        // The following defines a location where we fetch a list of spatial layers
+        // TODO: put this in a configuration file 
         function getSpatialLayers() {
-            queryService.spatialLayers()
+            return $http.get('https://api.github.com/repositories/59048930/contents/wkt');
+        }
+
+        function processSpatialLayers() {
+            getSpatialLayers()
                 .then(function (response) {
                           // initialize a new object to hold our data
                            var spatialLayerArray = [];

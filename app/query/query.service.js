@@ -11,8 +11,7 @@
         var queryService = {
             queryJson: queryJson,
             countryCodes: countryCodes,
-            basisOfRecords: basisOfRecords,
-            spatialLayers: spatialLayers
+            basisOfRecords: basisOfRecords
         };
 
         return queryService;
@@ -71,11 +70,5 @@
                 });
         }
 
-
-        // The following defines a location where we fetch a list of spatial layers
-        // TODO: put this in a configuration file 
-        function spatialLayers() {
-            return $http.get('https://api.github.com/repositories/59048930/contents/wkt');
-        }
     }
     })();
