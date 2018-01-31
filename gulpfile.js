@@ -44,8 +44,8 @@ gulp.task('copy-assets', function() {
     gulp.src('app/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js')
         .pipe(gulp.dest('public/bower_components/angular-bootstrap/'));
 
-    gulp.src('app/query/spatialLayers.json')
-        .pipe(gulp.dest('public/query/'));
+     // gulp.src('app/query/spatialLayers.json')
+     //   .pipe(gulp.dest('public/query/'));
 });
 
 gulp.task('clean', function(cb) {
