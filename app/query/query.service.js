@@ -11,15 +11,14 @@
         var queryService = {
             queryJson: queryJson,
             countryCodes: countryCodes,
-            basisOfRecords: basisOfRecords,
-            spatialLayers: spatialLayers
+            basisOfRecords: basisOfRecords
         };
 
         return queryService;
 
         function queryJson(query, page) {
             alerts.removeTmp();
-            return $http.get("http://api.gbif.org/v1/occurrence/search?limit=300" + "&offset=" + 300*page + "&" + query)
+            return $http.get("http://api.gbif.org/v1/occurrence/search?limit=300" + "&offset=" + 300 * page + "&" + query)
                .then(queryJsonComplete);
 
             function queryJsonComplete(response) {
@@ -42,14 +41,14 @@
 
         function basisOfRecords() {
             return $http.get('http://api.gbif.org/v1/enumeration/basic/BasisOfRecord')
-                .then(function(response) {
+                .then(function (response) {
                     var records = [];
 
-                    angular.forEach(response.data, function(c) {
+                    angular.forEach(response.data, function (c) {
                         records.push({
                             'name': c,
                             'record': c
-                          });
+                        });
                     });
 
                     return records;
@@ -57,22 +56,19 @@
         }
         function countryCodes() {
             return $http.get('http://api.gbif.org/v1/enumeration/country')
-                .then(function(response) {
+                .then(function (response) {
                     var codes = [];
 
-                    angular.forEach(response.data, function(c) {
+                    angular.forEach(response.data, function (c) {
                         codes.push({
                             'name': c.title,
                             'code': c.iso2
-                            });
+                        });
                     });
 
                     return codes;
                 });
         }
 
-        function spatialLayers() {
-            return $http.get('query/spatialLayers.json');
-        }
     }
-})();
+    })();

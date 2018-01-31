@@ -68,6 +68,8 @@ gulp.task('copy-assets', function() {
     gulp.src('app/bower_components/ng-csv/build/ng-csv.min.js')
         .pipe(gulp.dest('public/bower_components/ng-csv/build/'));
 
+     // gulp.src('app/query/spatialLayers.json')
+     //   .pipe(gulp.dest('public/query/'));
 });
 
 gulp.task('clean', function(cb) {
