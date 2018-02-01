@@ -4,36 +4,55 @@
     </div>
 
     <div ng-show="queryTableVm.queryResults.isSet">
-
-        <table class="table table-condensed table-striped table-hover text-nowrap">
-            <thead>
-                <tr class="text-capitalize">
-                    <th sly-repeat="column in queryTableVm.tableColumns">{{ column }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr sly-repeat="resource in queryTableVm.tableData" ng-click="queryTableVm.toGBIF(resource)">
-                    <td uib-popover-html="value | trusted_html"
-                        popover-enable="value.length > 35"
-                        popover-trigger="mouseenter"
-                        ng-class="{hideOverflow: value.length > 35}"
-                        popover-placement="bottom"
-                        popover-append-to-body="true"
-                        sly-repeat="value in resource" ng-bind-html="value | trusted_html">
-                    </td>
-                </tr>
-                <tr ng-show="queryTableVm.queryResults.totalElements == 0" class="h4">
-                    <td class="text-primary" colspan="100">No Samples Found</td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="text-center" ng-show="queryTableVm.queryResults.totalElements > 0">
-            <ul uib-pagination total-items="queryTableVm.queryResults.totalElements" ng-model="queryTableVm.currentPage"
-                ng-change="queryTableVm.updatePage()"
-                max-size="10"
-                force-ellipses="true"
-                boundary-link-numbers="true"
-                items-per-page="queryTableVm.pageSize"></ul>
-        </div>
+	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
+ 		<!--Columns to include:
+		["institutionCode","collectionCode","basisOfRecord","phylum","class","order","family","genus","scientificName","eventDate","locality","decimalLatitude","decimalLongitude","key"];-->
+                 <table class="table">
+                     <thead>
+                     <tr>
+			<th sortable='institutionCode' class="sortable">institutionCode </th>
+			<th sortable='collectionCode' class="sortable">collectionCode </th>
+			<th sortable='basisOfRecord' class="sortable">basisOfRecord</th>
+			<th sortable='phylum' class="sortable">phylum</th>
+			<th sortable='class' class="sortable">class</th>
+			<th sortable='order' class="sortable">order</th>
+			<th sortable='family' class="sortable">family</th>
+			<th sortable='genus' class="sortable">genus</th>
+			<th sortable='scientificName' class="sortable">scientificName</th>
+			<th sortable='eventDate' class="sortable">eventDate</th>
+			<th sortable='locality' class="sortable">locality</th>
+			<th sortable='decimalLatitude' class="sortable">decimalLatitude</th>
+			<th sortable='decimalLongitude' class="sortable">decimalLongitude</th>
+                     </tr>
+                     </thead>
+                     <tbody>
+			<tr grid-item ng-click="queryTableVm.toGBIF(item.key)">
+                        	<td ng-bind-html="item.institutionCode"></td>
+                        	<td ng-bind-html="item.collectionCode"></td>
+                        	<td ng-bind-html="item.basisOfRecord"></td>
+                        	<td ng-bind-html="item.phylum"></td>
+                        	<td ng-bind-html="item.class"></td>
+                        	<td ng-bind-html="item.order"></td>
+                        	<td ng-bind-html="item.family"></td>
+                        	<td ng-bind-html="item.genus"></td>
+                        	<td ng-bind-html="item.scientificName | limitTo: 64"></td>
+                        	<td ng-bind-html="item.eventDate"></td>
+                        	<td ng-bind-html="item.locality | limitTo: 40"></td>
+                        	<td ng-bind-html="item.decimalLatitude"></td>
+                        	<td ng-bind-html="item.decimalLongitude"></td>
+                    	</tr>
+                     </tbody>
+                 </table>
+		 <div class="form-group">
+                       <grid-pagination max-size="5"
+                             boundary-links="true"
+                             class="pagination-sm"
+                             total-items="paginationOptions.totalItems"
+                             ng-model="paginationOptions.currentPage"
+                             ng-change="reloadGrid()"
+                             items-per-page="paginationOptions.itemsPerPage">
+		     </grid-pagination>
+                  </div>
+ 	</div>
     </div>
 </div>

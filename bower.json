@@ -20,7 +20,8 @@
     "ngSanitize": "^0.0.2",
     "ng-csv": "^0.3.6",
     "modernizr": "^3.5.0",
-    "angular-bootstrap": "^2.5.0"
+    "angular-bootstrap": "^2.5.0",
+    "font-awesome": "^4.7.0"
   },
   "authors": [
     "John Deck <jdeck88@gmail.com>"

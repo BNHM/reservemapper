@@ -39,6 +39,8 @@ gulp.task('copy-assets', function() {
         .pipe(gulp.dest('public/css/images/'));
     gulp.src('app/bower_components/leaflet/dist/leaflet.css')
         .pipe(gulp.dest('public/bower_components/leaflet/dist/'));
+    gulp.src('app/bower_components/font-awesome/css/font-awesome.min.css')
+        .pipe(gulp.dest('public/bower_components/font-awesome/css/'));
     gulp.src('app/bower_components/leaflet.markercluster/dist/*.css')
         .pipe(gulp.dest('public/bower_components/leaflet.markercluster/dist/'));
     gulp.src('app/bower_components/html5-boilerplate/dist/js/vendor/modernizr-3.5.0.min.js')
@@ -67,6 +69,10 @@ gulp.task('copy-assets', function() {
         .pipe(gulp.dest('public/bower_components/angular-sanitize/'));
     gulp.src('app/bower_components/ng-csv/build/ng-csv.min.js')
         .pipe(gulp.dest('public/bower_components/ng-csv/build/'));
+    gulp.src('app/bower_components/angular-data-grid/dist/pagination.min.js')
+        .pipe(gulp.dest('public/bower_components/angular-data-grid/dist/'));
+    gulp.src('app/bower_components/angular-data-grid/dist/dataGrid.min.js')
+        .pipe(gulp.dest('public/bower_components/angular-data-grid/dist/'));
 
      // gulp.src('app/query/spatialLayers.json')
      //   .pipe(gulp.dest('public/query/'));
