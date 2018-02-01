@@ -21,7 +21,8 @@
     "ng-csv": "^0.3.6",
     "modernizr": "^3.5.0",
     "angular-bootstrap": "^2.5.0",
-    "font-awesome": "^4.7.0"
+    "font-awesome": "^4.7.0",
+    "angular-data-grid": "*"
   },
   "authors": [
     "John Deck <jdeck88@gmail.com>"
