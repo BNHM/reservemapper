@@ -15,7 +15,6 @@
         vm.queryResults = queryResults;
 	vm.tableData = []
 
-        vm.tableColumns = ["institutionCode","collectionCode","basisOfRecord","phylum","class","order","family","genus","scientificName","eventDate","locality","decimalLatitude","decimalLongitude","key"];
         vm.toGBIF = toGBIF;
 
 	// Control the angular-data-grid options
