@@ -23,6 +23,8 @@
         // view toggles
         vm.moreSearchOptions = false;
         vm.showMap = true;
+        //vm.showTable = false;
+        //vm.showStats = false;
         vm.spatialLayer = undefined;
         vm.basisOfRecord= undefined;
 

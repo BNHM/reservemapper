@@ -1,6 +1,6 @@
 <div ng-controller="QueryTableController as queryTableVm">
     <div class="help-block" ng-show="!queryTableVm.queryResults.isSet">Click <strong>Search</strong> on sidebar to
-        display query results
+        display table results
     </div>
 
     <div ng-show="queryTableVm.queryResults.isSet">
@@ -23,6 +23,7 @@
 			<th sortable='locality' class="sortable">locality</th>
 			<th sortable='decimalLatitude' class="sortable">decimalLatitude</th>
 			<th sortable='decimalLongitude' class="sortable">decimalLongitude</th>
+			
                      </tr>
                      </thead>
                      <tbody>
@@ -52,7 +53,9 @@
                              ng-change="reloadGrid()"
                              items-per-page="paginationOptions.itemsPerPage">
 		     </grid-pagination>
-                  </div>
+				  </div>
+				  //
  	</div>
     </div>
+
 </div>
