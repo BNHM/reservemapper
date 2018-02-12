@@ -3,6 +3,24 @@
         display stats results
     </div>
 
-    <div ng-app="" ng-show="queryStatsVm.queryResults.isSet">
-        The total number of results is {{ queryStatsVm.totalResults }}
+   <div ng-app="" ng-show="queryStatsVm.queryResults.isSet">
+        <div>The total number of results is {{ queryStatsVm.totalResults }}</div>
+	Stats by Year, Insitution, Locality
+	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
+                 <table class="table">
+                     <thead>
+                     <tr>
+                        <th sortable='count' class="sortable">count</th>
+			<th sortable='name' class="sortable">name</th>
+		     </tr>
+                     </thead>
+                     <tbody>
+                        <tr grid-item>
+                                <td ng-bind-html="item.value"></td>
+                                <td ng-bind-html="item.key"></td>
+			</tr>
+		      </tbody>
+	</div>
    </div>
+
+</div>

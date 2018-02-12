@@ -5,8 +5,6 @@
 
     <div ng-show="queryTableVm.queryResults.isSet">
 	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
- 		<!--Columns to include:
-		["institutionCode","collectionCode","basisOfRecord","phylum","class","order","family","genus","scientificName","eventDate","locality","decimalLatitude","decimalLongitude","key"];-->
                  <table class="table">
                      <thead>
                      <tr>
@@ -23,7 +21,6 @@
 			<th sortable='locality' class="sortable">locality</th>
 			<th sortable='decimalLatitude' class="sortable">decimalLatitude</th>
 			<th sortable='decimalLongitude' class="sortable">decimalLongitude</th>
-			
                      </tr>
                      </thead>
                      <tbody>
@@ -53,9 +50,7 @@
                              ng-change="reloadGrid()"
                              items-per-page="paginationOptions.itemsPerPage">
 		     </grid-pagination>
-				  </div>
-				  //
+	         </div>
  	</div>
     </div>
-
 </div>
