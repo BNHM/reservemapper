@@ -16,11 +16,14 @@
 	<img src='https://bnhmintranet.berkeley.edu/webtools/bnhm_logo_small.gif'>
 	<label>Berkeley Natural History Museums Reserve Mapper</label>
         <div class="btn-group btn-group-sm pull-right query-view-toggle">
-            <button type="button" ng-click="vm.showMap = true" ng-class="{'disabled': vm.showMap}"
+            <button type="button" ng-click="showControl('map')" ng-class="{'disabled': vm.showMap}"
                     class="btn btn-default">Map
             </button>
-            <button type="button" ng-click="vm.showMap = false" ng-class="{'disabled': !vm.showMap}"
+            <button type="button" ng-click="showControl('table')" ng-class="{'disabled': !vm.showMap && !vm.showStats}"
                     class="btn btn-default">Table
+            </button>
+            <button type="button" ng-click="showControl('stats')" ng-class="{'disabled': !vm.showMap && !vm.showTable}" 
+            class="btn btn-default">Statistics
             </button>
         </div>
 
@@ -64,8 +67,14 @@
 
 
         <!-- table -->
-        <div ng-show="!vm.showMap" class="query-table" ng-class="{'full-page-query-table': !vm.showSidebar}"
+        <div ng-show="vm.showTable" class="query-table" ng-class="{'full-page-query-table': !vm.showSidebar}"
              ng-include="'query/table/queryTable.html'"></div>
+
+        <!-- statistics -->
+        <div ng-show="vm.showStats" class="show-stats" ng-class="{'full-page-query-table': !vm.showSidebar}"
+        ng-include="'query/stats/queryStats.html'"></div>
+
+
 
     </div>
 </div>
