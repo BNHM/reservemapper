@@ -1,0 +1,9 @@
+<div ng-controller="QueryStatsController as queryStatsVm">
+    <div class="help-block" ng-show="!queryStatsVm.queryResults.isSet">Click <strong>Search</strong> on sidebar to
+        display stats results
+    </div>
+
+    <div ng-app="" ng-show="queryStatsVm.queryResults.isSet">
+		The total number of resulsts is {{ queryStatsVm.totalResults }}
+    </div>
+</div>
