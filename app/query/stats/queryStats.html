@@ -1,25 +1,33 @@
-<div ng-controller="QueryStatsController as queryStatsVm">
+<div ng-controller="QueryStatsController as queryStatsVm" style='padding:40px'>
     <div class="help-block" ng-show="!queryStatsVm.queryResults.isSet">Click <strong>Search</strong> on sidebar to
         display stats results
     </div>
 
-   <div ng-app="" ng-show="queryStatsVm.queryResults.isSet">
-        <div>The total number of results is {{ queryStatsVm.totalResults }}</div>
-	Stats by Year, Insitution, Locality
+    <div ng-app="" ng-show="queryStatsVm.queryResults.isSet">
+	    <div><label class="control-label">Total results = {{ queryStatsVm.totalResults }}</label></div>
+	    <div><label class="control-label">Group and Count Functions:</label></div>
+
+	<button ng-click="institutionCount()">Collection</button>
+	<button ng-click="basisOfRecordCount()">Basis of Record</button>
+	<button ng-click="yearCount()">Year</button><div>
 	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
                  <table class="table">
                      <thead>
-                     <tr>
-                        <th sortable='count' class="sortable">count</th>
-			<th sortable='name' class="sortable">name</th>
+	  		<tr> 
+                        <th sortable='value' class="sortable" width="50px">count</th>
+			<th sortable='key' class='sortable'>{{queryStatsVm.columnName}}</th>
 		     </tr>
                      </thead>
                      <tbody>
-                        <tr grid-item>
+			      <tr grid-item>
                                 <td ng-bind-html="item.value"></td>
                                 <td ng-bind-html="item.key"></td>
 			</tr>
+			
+						
+			
 		      </tbody>
+
 	</div>
    </div>
 
