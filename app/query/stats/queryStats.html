@@ -5,11 +5,14 @@
 
     <div ng-app="" ng-show="queryStatsVm.queryResults.isSet">
 	    <div><label class="control-label">Total results = {{ queryStatsVm.totalResults }}</label></div>
-	    <div><label class="control-label">Group and Count Functions:</label></div>
+	    <div><label class="control-label">Group and Count by:</label></div>
 
-	<button ng-click="institutionCount()">Collection</button>
-	<button ng-click="basisOfRecordCount()">Basis of Record</button>
-	<button ng-click="yearCount()">Year</button><div>
+	<button class="btn btn-default" ng-click="institutionCount()">Collection</button>
+	<button class="btn btn-default" ng-click="basisOfRecordCount()">Basis of Record</button>
+	<button class="btn btn-default" ng-click="yearCount()">Year</button>
+	<button class="btn btn-default" ng-click="familyCount()">Family</button>
+	<button class="btn btn-default" ng-click="speciesCount()">Genus species</button>
+	<br></br>
 	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
                  <table class="table">
                      <thead>
@@ -30,5 +33,5 @@
 
 	</div>
    </div>
-
 </div>
+

@@ -23,20 +23,25 @@
      	$scope.$watch('queryStatsVm.queryResults.size', function () {
           vm.totalResults=vm.queryResults.totalElements
           vm.total
-	//populate the table by year stats
+	//populate the table with institution stats by default 
 	$scope.institutionCount()
-      //$scope.gridOptions.data = valueTotal('year', 'value', 'ascending')
 	});
-
-	   $scope.yearCount =  function() {
-      	$scope.gridOptions.data = valueTotal('year', null, 'value', 'ascending')
-	    }
+	   
 
 	    $scope.institutionCount = function () {
       	$scope.gridOptions.data = valueTotal('institutionCode', 'collectionCode', 'value', 'ascending') 
 	    }
 	    $scope.basisOfRecordCount = function () {
       	$scope.gridOptions.data = valueTotal('basisOfRecord', null, 'value', 'ascending')
+	    }
+	   $scope.yearCount =  function() {
+      	$scope.gridOptions.data = valueTotal('year', null, 'value', 'ascending')
+	    } 
+	    $scope.familyCount = function () {
+      	$scope.gridOptions.data = valueTotal('family', null, 'value', 'ascending') 
+	    }
+	    $scope.speciesCount = function () {
+      	$scope.gridOptions.data = valueTotal('species', null, 'value', 'ascending') 
 	    }
 // Group on a name and return the number of counts for each name in the dataset
 // parameters are:`
