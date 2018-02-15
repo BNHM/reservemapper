@@ -8,6 +8,7 @@
 
     function mapperService(queryService, queryMap, queryResults, alerts, $q) {
 
+	var maxResults = 1000;
         var mapperService = {
             query: query
         };
@@ -17,8 +18,15 @@
         function query(query, page) {
             return _queryJson(query, page, true)
                 .then(function(results) {
-                    var toFetch = (results.totalElements <= 50000) ? results.totalElements : 50000; //200k is max fetch depth
+                    //var toFetch = (results.totalElements <= 1000) ? results.totalElements : 1000; //200k is max fetch depth
+                    var toFetch;
+		    if (results.totalElements <= maxResults) {
+		    	toFetch = results.totalElements;
+		    } else {
+		    	toFetch = maxResults
+		    }
 
+		    // results.size is the total elements returned in this batch, typically 300
                     if (results.size < toFetch) {
                         var numRequests = Math.floor(toFetch / results.size);
 
@@ -30,8 +38,8 @@
 
                         alerts.info('Loading more results...');
 
-                        if (toFetch === 50000) {
-                            alerts.warning('result set is limited to 50000, narrow your search to view all results');
+                        if (toFetch >= 1000) {
+                            alerts.info('result set is limited to ' + maxResults +', narrow your search to view all results');
                         }
 
 			// when we are done loading all promises then remove the loading alert and

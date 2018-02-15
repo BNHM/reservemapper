@@ -114,7 +114,7 @@
                 $scope.queryForm.$setPristine(true)
 	    }
             function queryJsonFailed(response) {
-                vm.queryResults.isSet = false;
+                queryResults.isSet = false;
             }
 
             function queryJsonFinally() {
