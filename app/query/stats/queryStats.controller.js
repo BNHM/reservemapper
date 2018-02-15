@@ -45,7 +45,9 @@
 		$scope.speciesCount = function () {
       	$scope.gridOptions.data = valueTotal('species', null, 'value', 'ascending') 
 	    }
-
+		$scope.localityCount = function () {
+      	$scope.gridOptions.data = valueTotal('locality', null, 'value', 'ascending') 
+	    }
 // Group on a name and return the number of counts for each name in the dataset
 // parameters are:`
 // 2. a name containing an attribute in the JSON Object
