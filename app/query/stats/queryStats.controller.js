@@ -14,7 +14,6 @@
         var vm = this;
         //var totalResults = vm.totalResult;
         vm.queryResults = queryResults;
-
 	$scope.gridOptions = {
             data: []
         };
@@ -26,7 +25,7 @@
 	//populate the table with institution stats by default 
 	$scope.institutionCount()
 	});
-	   
+	    
 
 	    $scope.institutionCount = function () {
       	$scope.gridOptions.data = valueTotal('institutionCode', 'collectionCode', 'value', 'ascending') 
@@ -37,12 +36,16 @@
 	   $scope.yearCount =  function() {
       	$scope.gridOptions.data = valueTotal('year', null, 'value', 'ascending')
 	    } 
-	    $scope.familyCount = function () {
-      	$scope.gridOptions.data = valueTotal('family', null, 'value', 'ascending') 
+	      $scope.kingdomCount = function () {
+      	$scope.gridOptions.data = valueTotal('kingdom', null, 'value', 'ascending') 
 	    }
-	    $scope.speciesCount = function () {
+		$scope.phylumCount= function () {
+      	$scope.gridOptions.data = valueTotal('phylum', null, 'value', 'ascending') 
+	    }
+		$scope.speciesCount = function () {
       	$scope.gridOptions.data = valueTotal('species', null, 'value', 'ascending') 
 	    }
+
 // Group on a name and return the number of counts for each name in the dataset
 // parameters are:`
 // 2. a name containing an attribute in the JSON Object

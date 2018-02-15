@@ -1,17 +1,21 @@
-<div ng-controller="QueryStatsController as queryStatsVm" style='padding:40px'>
+<div ng-controller="QueryStatsController as queryStatsVm"style='padding:40px'>
     <div class="help-block" ng-show="!queryStatsVm.queryResults.isSet">Click <strong>Search</strong> on sidebar to
         display stats results
     </div>
 
     <div ng-app="" ng-show="queryStatsVm.queryResults.isSet">
-	    <div><label class="control-label">Total results = {{ queryStatsVm.totalResults }}</label></div>
+	    <!--<div><label class="control-label">Total results queried= {{ queryStatsVm.totalResults }} Total results shown= {{ queryStatsVm.queryResults.toFetch }}</label></div>-->
+	    <div><label class="control-label">Total results shown= {{queryStatsVm.queryResults.toFetch}} 
+			    {{queryStatsVm.totalResults=== queryStatsVm.queryResults.toFetch ? "": " out of " +queryStatsVm.totalResults }}
+			    </label></div>
 	    <div><label class="control-label">Group and Count by:</label></div>
 
 	<button class="btn btn-default" ng-click="institutionCount()">Collection</button>
-	<button class="btn btn-default" ng-click="basisOfRecordCount()">Basis of Record</button>
+	<button class="btn btn-default" ng-click="basisOfRecordCount()">BasisofRecord</button>
 	<button class="btn btn-default" ng-click="yearCount()">Year</button>
-	<button class="btn btn-default" ng-click="familyCount()">Family</button>
-	<button class="btn btn-default" ng-click="speciesCount()">Genus species</button>
+	<button class="btn btn-default" ng-click="kingdomCount()">Kingdom</button>
+	<button class="btn btn-default" ng-click="phylumCount()">Phylum</button>
+	<button class="btn btn-default" ng-click="speciesCount()">Species</button>
 	<br></br>
 	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
                  <table class="table">
