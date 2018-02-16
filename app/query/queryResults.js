@@ -15,6 +15,7 @@
             isSet: false,
             update: update,
             append: append,
+            toFetch: 0,
             clear: clear
         };
 

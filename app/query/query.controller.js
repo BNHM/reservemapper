@@ -35,12 +35,33 @@
 
         $scope.$watch('vm.showSidebar', updateMapSize);
         $scope.$watch('vm.showMap', updateMapSize);
+       //$scope.$watch('vm.showStats',showStats);
+
+      // function stats(){
+       //window.print("I would like this to be some text that appears under Stats");
+       //}
+				
 
         function updateMapSize(newVal, oldVal) {
             if (newVal != oldVal) {
                 vm.invalidSize = true;
             }
         }
-    }
 
+        $scope.showControl=function(state){
+            if(state == 'map') {
+                vm.showMap=true;
+                vm.showTable=false;
+                vm.showStats=false;
+            } else if(state == 'table'){
+                vm.showMap=false;
+                vm.showTable=true;
+                vm.showStats=false;
+            } else if(state == 'stats'){
+                vm.showMap=false;
+                vm.showTable=false;
+                vm.showStats=true;
+            }
+        }
+    }
 })();

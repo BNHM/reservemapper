@@ -1,12 +1,10 @@
 <div ng-controller="QueryTableController as queryTableVm">
     <div class="help-block" ng-show="!queryTableVm.queryResults.isSet">Click <strong>Search</strong> on sidebar to
-        display query results
+        display table results
     </div>
 
     <div ng-show="queryTableVm.queryResults.isSet">
 	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
- 		<!--Columns to include:
-		["institutionCode","collectionCode","basisOfRecord","phylum","class","order","family","genus","scientificName","eventDate","locality","decimalLatitude","decimalLongitude","key"];-->
                  <table class="table">
                      <thead>
                      <tr>
@@ -52,7 +50,7 @@
                              ng-change="reloadGrid()"
                              items-per-page="paginationOptions.itemsPerPage">
 		     </grid-pagination>
-                  </div>
+	         </div>
  	</div>
     </div>
 </div>
