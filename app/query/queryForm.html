@@ -5,6 +5,10 @@
             <label class="control-label">Select Area of Interest</label>
             <div class="filters row">
                 <div class="col-xs-12">
+			<form>
+				<input type="radio" name="selector" value="" checked>Query</br>
+				<input type="radio" name="selector" value="">Photos</br>
+			</form>
                     <select ng-model="queryFormVm.spatialLayer" class="form-control input-sm has-error" name="spatial"
 			    ng-change="queryFormVm.spatialLayerChanged()"
                             ng-options="v as k for (k, v) in queryFormVm.spatialLayers" required>
@@ -14,6 +18,7 @@
             </div>
         </div>
 
+        <div class="form-group">
         <div class="form-group">
             <label class="control-label">Search Any Term</label>
             <div class="filters row">
@@ -95,13 +100,23 @@
 			class="btn pull-left btn-primary" 
 			ng-csv=downloadCsv(vm.queryResults.data) 
 			csv-header=queryFormVm.downloadColumns 
-			filename=reservemapper.csv><span
-                    class="glyphicon glyphicon-download-alt"></span> Download
+   			filename=reservemapper.csv><span
+                   class="glyphicon glyphicon-download-alt"></span> Download
                 </button>
 	    </div>
         </div>
+
+        <!--<div class="form-group">
+            <div class="form-group">
+		<button type="button" class="btn pull-left btn-primary" ng-click="queryFormVm.queryPhotos();"><span class="glyphicon glyphicon-refresh"></span> Clear
+                </button>
+	    </div>
+        </div>-->
+
     </form>
 </div>
+
+
 <div class="col-xs-12">
 	&nbsp;
 	<label class="information-text">This site was made possible by a grant from the University of California Division of Agriculture and Natural Resources.  Species occurrence data are harvested from the <a href="http://www.gbif.org/">Global Biodiversity Information Facility</a> and includes data from <a href="https://bnhm.berkeley.edu/">Berkeley Natural History Museums</a> and other institutions. Field Station-specific spatial layers (will be) harvested from the <a href="https://holos.berkeley.edu/">Berkeley EcoEngine.</a></label>

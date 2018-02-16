@@ -5,9 +5,9 @@
     app.directive('taxonEmptyContents',['$filter','$http', taxonEmptyContents]);     
     app.directive('taxonAutoComplete',['$filter','$http', taxonAutoCompleteDir]);     
     app.controller('QueryFormController', QueryFormController);
-    app.$inject = ['$rootScope', 'GBIFMapperService', 'queryParams', 'queryService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
+    app.$inject = ['$rootScope', 'GBIFMapperService', 'photoMapperService', 'queryParams', 'queryService', 'photoService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
 
-    function QueryFormController($scope, GBIFMapperService, queryParams, queryService, queryMap, queryResults, usSpinnerService, alerts , $http) {
+    function QueryFormController($scope, GBIFMapperService, photoMapperService, queryParams, queryService, photoService, queryMap, queryResults,  usSpinnerService, alerts , $http) {
         var vm = this;
         var _currentLayer = undefined;
 
@@ -122,6 +122,29 @@
             }
         }
 
+        function queryPhotos() {
+            usSpinnerService.spin('query-spinner');
+
+	    // zoom to selected layer
+            zoomLayer();
+
+            queryResults.clear();
+            photoMapperService.query(queryParams.build(), 0)
+		.then(queryJsonSuccess)
+                .catch(queryJsonFailed)
+                .finally(queryJsonFinally);
+
+            function queryJsonSuccess() {
+                $scope.queryForm.$setPristine(true)
+	    }
+            function queryJsonFailed(response) {
+                queryResults.isSet = false;
+            }
+
+            function queryJsonFinally() {
+                usSpinnerService.stop('query-spinner');
+            }
+        }
          function getBasisOfRecords() {
              queryService.basisOfRecords()
                  .then(function (records) {
