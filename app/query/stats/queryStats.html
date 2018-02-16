@@ -5,18 +5,18 @@
 
     <div ng-app="" ng-show="queryStatsVm.queryResults.isSet">
 	    <!--<div><label class="control-label">Total results queried= {{ queryStatsVm.totalResults }} Total results shown= {{ queryStatsVm.queryResults.toFetch }}</label></div>-->
-	    <div><label class="control-label">Total results shown= {{queryStatsVm.queryResults.toFetch}} 
-			    {{queryStatsVm.totalResults=== queryStatsVm.queryResults.toFetch ? "": " out of " +queryStatsVm.totalResults }}
+	    <div><label class="control-label">Total results included = {{queryStatsVm.queryResults.toFetch}} 
+			    {{queryStatsVm.totalResults=== queryStatsVm.queryResults.toFetch ? "": " out of " +queryStatsVm.totalResults + " possible"}}
 			    </label></div>
 	    <div><label class="control-label">Group and Count by:</label></div>
 
-	<button class="btn btn-default" ng-click="institutionCount()">Collection</button>
-	<button class="btn btn-default" ng-click="basisOfRecordCount()">BasisofRecord</button>
-	<button class="btn btn-default" ng-click="yearCount()">Year</button>
-	<button class="btn btn-default" ng-click="kingdomCount()">Kingdom</button>
-	<button class="btn btn-default" ng-click="phylumCount()">Phylum</button>
-	<button class="btn btn-default" ng-click="speciesCount()">Species</button>
-	<button class="btn btn-default" ng-click="localityCount()">Locality</button>
+	<button class="btn btn-default btn-sm" ng-click="institutionCount()">Collection</button>
+	<button class="btn btn-default btn-sm" ng-click="basisOfRecordCount()">BasisofRecord</button>
+	<button class="btn btn-default btn-sm" ng-click="yearCount()">Year</button>
+	<button class="btn btn-default btn-sm" ng-click="kingdomCount()">Kingdom</button>
+	<button class="btn btn-default btn-sm" ng-click="phylumCount()">Phylum</button>
+	<button class="btn btn-default btn-sm" ng-click="speciesCount()">Species</button>
+	<button class="btn btn-default btn-sm" ng-click="localityCount()">Locality</button>
 	<br></br>
 	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
                  <table class="table">

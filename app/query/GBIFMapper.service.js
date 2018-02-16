@@ -34,7 +34,7 @@
 
                         var promises = [];
 
-                        for (var i = 0; i < numRequests; i++) {
+                        for (var i = 1; i < numRequests; i++) {
                             promises.push(_queryJson(query, i + 1))
                         }
 
