@@ -14,6 +14,7 @@
         vm.showSidebar = true;
         vm.showMap = true;
         vm.sidebarToggleToolTip = "hide sidebar";
+        vm.queryType = "query";
 
         vm.queryMap = queryMap;
         vm.invalidSize = false;

@@ -21,6 +21,7 @@
         vm.basisOfRecord = [];
 
         // view toggles
+        vm.queryType = "query";
         vm.moreSearchOptions = false;
         vm.showMap = true;
         //vm.showTable = false;
@@ -35,6 +36,7 @@
         vm.map = queryMap;
 
         vm.queryJson = queryJson;
+        vm.queryPhotos = queryPhotos;
 	vm.spatialLayerChanged = spatialLayerChanged;
         activate();
 
@@ -130,7 +132,7 @@
 
             queryResults.clear();
             photoMapperService.query(queryParams.build(), 0)
-		.then(queryJsonSuccess)
+                .then(queryJsonSuccess)
                 .catch(queryJsonFailed)
                 .finally(queryJsonFinally);
 
