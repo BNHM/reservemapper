@@ -71,7 +71,7 @@
         }
 
         function _queryJson(query, page, resetMarkers) {
-            return queryService.queryJson(query, page)
+            return photoService.queryJson(query, page)
                 .then(function (results) {
                     _mapResults(results, resetMarkers);
 

@@ -16,6 +16,7 @@
 
         function queryJson(query, page) {
             alerts.removeTmp();
+	    page = page +1 
             return $http.get("http://ecoengine.berkeley.edu/api/photos/?format=json&page_size=300&page="+page+"&bbox=-124,44,-114,46")
                .then(queryJsonComplete);
 
