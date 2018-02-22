@@ -17,6 +17,12 @@
         function queryJson(query, page) {
             alerts.removeTmp();
 	    page = page +1 
+
+	     // sample query, the way it comes in....
+	     //query = "decimalLongitude=-123.66600525641043,-123.57191049108845&decimalLatitude=39.68616475677514,39.76299236926137"
+	    // the way it should look
+		// bbox = etc.....
+
             return $http.get("https://ecoengine.berkeley.edu/api/photos/?format=json&page_size=300&page="+page+"&bbox=-124,44,-114,46")
                .then(queryJsonComplete);
 

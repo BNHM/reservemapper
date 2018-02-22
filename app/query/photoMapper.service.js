@@ -84,13 +84,13 @@
         }
 
         function _mapResults(results, resetMarkers) {
-		alert('map results');
-           // queryResults.append(results);
-           // if (resetMarkers) {
-           //     queryMap.setMarkers(results.data);
-            //} else {
-             //   queryMap.addMarkers(results.data);
-            //}
+            queryResults.append(results);
+	    queryMap.setPhoto(true); 
+            if (resetMarkers) {
+                queryMap.setMarkers(results.data);
+            } else {
+                queryMap.addMarkers(results.data);
+            }
         }
     }
 })();

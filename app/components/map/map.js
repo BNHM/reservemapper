@@ -8,10 +8,12 @@
 
     function Map(MAPBOX_TOKEN) {
 
+
         function Map(latColumn, lngColumn) {
             this.latColumn = latColumn;
             this.lngColumn = lngColumn;
         }
+
 
         Map.prototype = {
             _markers: [],
@@ -71,9 +73,32 @@
                 this._map.on('move', this._updateMarkerLocations.bind(this));
             },
 
+	    // Set photo option
+	    setPhoto: function(photoOption) {
+                var _this = this;
+	    	this.photoOption = photoOption;
+	    },
+
             addMarkers: function(data, popupContentCallback, zoomTo) {
                 var _this = this;
-                angular.forEach(data, function (resource) {
+
+		// Handle Photos, which have geojson objects passed in
+		if (this.photoOption) {
+                    angular.forEach(data, function (resource) {
+                        var marker = L.geoJSON(resource['geometry'], {
+     			    style: function (feature) {
+         			return feature.properties.style;
+     			    },
+     			    onEachFeature: function (feature, layer) {
+         			//layer.bindPopup(popupContentCallback(resource));
+                            	layer.bindPopup(popupContentCallback(resource));
+     			    }
+ 			});
+                        _this._markers.push(marker);
+                    });
+		// Handle GBIF Query results
+		} else {
+                  angular.forEach(data, function (resource) {
                     var lat = resource[_this.latColumn];
                     // var lng = L.Util.wrapNum(resource[_this.lngColumn], [0,360], true); // center on pacific ocean
                     var lng = resource[_this.lngColumn];
@@ -87,7 +112,8 @@
 
                         _this._markers.push(marker);
                     }
-                });
+                  });
+		}
 
                 this._clusterLayer.addLayers(this._markers);
 
