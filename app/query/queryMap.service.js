@@ -21,7 +21,9 @@
 	        popupContent = function (resource) {
 		    var retString = "<a href='" + resource.remote_resource + "' target='_blank'><img max-height=300 width=200 src='" + resource.media_url + "'></a>";
 			if (resource.observations[0] != null)	
-                        	retString += "<br><b><i>" + resource.observations[0].scientific_name +"</b></i>"
+                        	retString += "<br><strong><i>" + resource.observations[0].scientific_name +"</strong></i>"
+		    		retString += "<br><a href='" + resource.remote_resource + "' target='_blank'>Photo Courtesy of CalPhotos</a> ("+resource.license +")";
+		    		retString += resource.begin_date
 		    return retString;
 		};
 	    else 

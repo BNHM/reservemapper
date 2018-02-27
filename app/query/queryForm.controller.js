@@ -5,9 +5,9 @@
     app.directive('taxonEmptyContents',['$filter','$http', taxonEmptyContents]);     
     app.directive('taxonAutoComplete',['$filter','$http', taxonAutoCompleteDir]);     
     app.controller('QueryFormController', QueryFormController);
-    app.$inject = ['$rootScope', 'GBIFMapperService', 'photoMapperService', 'queryParams', 'queryService', 'photoService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
+    app.$inject = ['$rootScope', 'GBIFMapperService', 'photoMapperService', 'queryParams', 'photoParams', 'queryService', 'photoService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
 
-    function QueryFormController($scope, GBIFMapperService, photoMapperService, queryParams, queryService, photoService, queryMap, queryResults,  usSpinnerService, alerts , $http) {
+    function QueryFormController($scope, GBIFMapperService, photoMapperService, queryParams, photoParams, queryService, photoService, queryMap, queryResults,  usSpinnerService, alerts , $http) {
         var vm = this;
         var _currentLayer = undefined;
 
@@ -88,7 +88,10 @@
           // Fetch the WKT from the download_layer and set it to vm.spatialLayer
           $http.get(vm.spatialLayer).then(function(response) {
             var l = omnivore.wkt.parse(response.data);
-            vm.params.bounds = l.getBounds();
+	    // set bounds for queryParams
+            queryParams.bounds = l.getBounds();
+	    // set bounds for photoParams
+            photoParams.bounds = l.getBounds();
 
             if (_currentLayer && l.getBounds() !== _currentLayer.getBounds()) {
                queryMap.removeLayer(_currentLayer);
@@ -131,7 +134,7 @@
             zoomLayer();
 
             queryResults.clear();
-            photoMapperService.query(queryParams.build(), 0)
+            photoMapperService.query(photoParams.build(), 0)
                 .then(queryJsonSuccess)
                 .catch(queryJsonFailed)
                 .finally(queryJsonFinally);
@@ -147,6 +150,7 @@
                 usSpinnerService.stop('query-spinner');
             }
         }
+
          function getBasisOfRecords() {
              queryService.basisOfRecords()
                  .then(function (records) {
