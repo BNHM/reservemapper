@@ -8,6 +8,7 @@
                  <table class="table">
                      <thead>
                      <tr>
+			<th sortable='collection_code' class="sortable">collection_code</th>
 			<th sortable='scientific_name' class="sortable">scientific_name</th>
 			<th sortable='county' class="sortable">county</th>
 			<th sortable='authors' class="sortable">photographer</th>
@@ -18,6 +19,7 @@
                      <tbody>
 			<!--<tr grid-item ng-click="queryTableVm.toGBIF(item.key)">-->
 			<tr grid-item>
+                        	<td ng-bind-html="item.collection_code"></td>
                         	<td ng-bind-html="item.observations[0].scientific_name"></td>
                         	<td ng-bind-html="item.county"></td>
                         	<td ng-bind-html="item.authors"></td>

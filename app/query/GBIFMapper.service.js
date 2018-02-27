@@ -40,7 +40,7 @@
 
                         alerts.info('Loading more results...');
 
-                        if (queryResults.toFetch >= 1000) {
+                        if (queryResults.toFetch >= maxResults) {
                             alerts.info('result set is limited to ' + maxResults +', narrow your search to view all results');
                         }
 

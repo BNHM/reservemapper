@@ -71,7 +71,7 @@
 
         <!-- statistics -->
         <div ng-show="vm.showStats" class="show-stats" ng-class="{'full-page-query-table': !vm.showSidebar}"
-        ng-include="'query/stats/queryStats.html'"></div>
+        ng-include="'query/stats/' + vm.queryParams.queryType + 'Stats.html'"></div>
 
 
     </div>
