@@ -7,6 +7,8 @@
     queryParams.$inject = ['QueryBuilder'];
 
     function queryParams(QueryBuilder) {
+	this.queryType = "query"
+
         var defaultParams = {
             queryString: null,
             taxonKey: null,

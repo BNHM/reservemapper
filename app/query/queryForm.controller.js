@@ -14,6 +14,7 @@
         $scope.ranks =  [ 'SPECIES', 'GENUS', 'FAMILY', 'ORDER', 'CLASS', 'PHYLUM', 'KINGDOM' ]
 	//vm.params.rank = $scope.ranks[0]
 	queryParams.rank = 'SPECIES';
+	queryParams.queryType = 'query';
 
         // select lists
         vm.countryCodes = [];
@@ -21,7 +22,7 @@
         vm.basisOfRecord = [];
 
         // view toggles
-        vm.queryType = "query";
+        //vm.queryParams.queryType = "query";
         vm.moreSearchOptions = false;
         vm.showMap = true;
         //vm.showTable = false;

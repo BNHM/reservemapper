@@ -1,0 +1,41 @@
+<div ng-controller="QueryTableController as queryTableVm">
+    <div class="help-block" ng-show="!queryTableVm.queryResults.isSet">Click <strong>Search</strong> on sidebar to
+        display table results
+    </div>
+
+    <div ng-show="queryTableVm.queryResults.isSet">
+	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
+                 <table class="table">
+                     <thead>
+                     <tr>
+			<th sortable='scientific_name' class="sortable">scientific_name</th>
+			<th sortable='county' class="sortable">county</th>
+			<th sortable='authors' class="sortable">photographer</th>
+			<th sortable='begin_date' class="sortable">begin_date</th>
+			<th sortable='locality' class="sortable">locality</th>
+                     </tr>
+                     </thead>
+                     <tbody>
+			<!--<tr grid-item ng-click="queryTableVm.toGBIF(item.key)">-->
+			<tr grid-item>
+                        	<td ng-bind-html="item.observations[0].scientific_name"></td>
+                        	<td ng-bind-html="item.county"></td>
+                        	<td ng-bind-html="item.authors"></td>
+                        	<td ng-bind-html="item.begin_date"></td>
+                        	<td ng-bind-html="item.locality"></td>
+                    	</tr>
+                     </tbody>
+                 </table>
+		 <div class="form-group">
+                       <grid-pagination max-size="5"
+                             boundary-links="true"
+                             class="pagination-sm"
+                             total-items="paginationOptions.totalItems"
+                             ng-model="paginationOptions.currentPage"
+                             ng-change="reloadGrid()"
+                             items-per-page="paginationOptions.itemsPerPage">
+		     </grid-pagination>
+	         </div>
+ 	</div>
+    </div>
+</div>
