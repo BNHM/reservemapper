@@ -9,9 +9,16 @@
                         ng-options="v as k for (k, v) in queryFormVm.spatialLayers" required>
                         <option value="">-- Select a Zoom Layer --</option>
                     </select>
-		   <label><input type="radio" name="selector" value="query" ng-model="queryFormVm.params.queryType" checked>Query</label>
-		   <label><input type="radio" name="selector" value="photos" ng-model="queryFormVm.params.queryType">Photos</label> 
- 		</div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Query Type</label>
+            <div class="filters row">
+                <div class="col-xs-12">
+                    <input type="radio" name="selector" value="query" ng-model="queryFormVm.params.queryType" checked> Occurrence
+                    <input type="radio" name="selector" value="photos" ng-model="queryFormVm.params.queryType"> Photo
+                </div>
             </div>
         </div>
         <div ng-show="queryFormVm.params.queryType === 'query'">
@@ -106,7 +113,7 @@
         <div class="form-group">
             <div class="col-xs-12">
                 <button type="submit" class="btn pull-left btn-primary" ng-show="queryFormVm.params.queryType === 'photos'" ng-click="queryFormVm.queryPhotos()">
-                    <span class="glyphicon glyphicon-search"></span> Query Photos
+                    <span class="glyphicon glyphicon-search"></span> Search
                 </button>
             </div>
         </div>
