@@ -2,26 +2,25 @@
     'use strict';
 
     angular.module('map.query')
-        .factory('GBIFMapperService', mapperService);
+        .factory('photoMapperService', photoMapperService);
 
-    mapperService.$inject = ['queryService', 'queryMap', 'queryResults', 'alerts', '$q'];
+    photoMapperService.$inject = ['photoService', 'queryMap', 'queryResults', 'alerts', '$q'];
 
-    function mapperService(queryService, queryMap, queryResults, alerts, $q) {
+    function photoMapperService(photoService, queryMap, queryResults, alerts, $q) {
 
 	// GBIF result-sets come in batches of 300, so we make maxResults some multiple of 300
 	// in order to make the actual results returned match maxResults in cases where maxResults
 	// is needed
 	var maxResults = 15000;
-        var mapperService = {
+        var photoMapperService = {
             query: query
         };
 
-        return mapperService;
+        return photoMapperService;
 
         function query(query, page) {
             return _queryJson(query, page, true)
                 .then(function(results) {
-                    //var toFetch = (results.totalElements <= 1000) ? results.totalElements : 1000; //200k is max fetch depth
 		    if (results.totalElements <= maxResults) {
 		    	queryResults.toFetch = results.totalElements;
 		    } else {
@@ -71,7 +70,7 @@
         }
 
         function _queryJson(query, page, resetMarkers) {
-            return queryService.queryJson(query, page)
+            return photoService.queryJson(query, page)
                 .then(function (results) {
                     _mapResults(results, resetMarkers);
 
@@ -85,7 +84,7 @@
 
         function _mapResults(results, resetMarkers) {
             queryResults.append(results);
-            queryMap.setPhoto(false); 
+	    queryMap.setPhoto(true); 
             if (resetMarkers) {
                 queryMap.setMarkers(results.data);
             } else {

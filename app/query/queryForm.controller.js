@@ -5,15 +5,16 @@
     app.directive('taxonEmptyContents',['$filter','$http', taxonEmptyContents]);     
     app.directive('taxonAutoComplete',['$filter','$http', taxonAutoCompleteDir]);     
     app.controller('QueryFormController', QueryFormController);
-    app.$inject = ['$rootScope', 'GBIFMapperService', 'queryParams', 'queryService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
+    app.$inject = ['$rootScope', 'GBIFMapperService', 'photoMapperService', 'queryParams', 'photoParams', 'queryService', 'photoService', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
 
-    function QueryFormController($scope, GBIFMapperService, queryParams, queryService, queryMap, queryResults, usSpinnerService, alerts , $http) {
+    function QueryFormController($scope, GBIFMapperService, photoMapperService, queryParams, photoParams, queryService, photoService, queryMap, queryResults,  usSpinnerService, alerts , $http) {
         var vm = this;
         var _currentLayer = undefined;
 
         $scope.ranks =  [ 'SPECIES', 'GENUS', 'FAMILY', 'ORDER', 'CLASS', 'PHYLUM', 'KINGDOM' ]
 	//vm.params.rank = $scope.ranks[0]
 	queryParams.rank = 'SPECIES';
+	queryParams.queryType = 'query';
 
         // select lists
         vm.countryCodes = [];
@@ -21,6 +22,7 @@
         vm.basisOfRecord = [];
 
         // view toggles
+        //vm.queryParams.queryType = "query";
         vm.moreSearchOptions = false;
         vm.showMap = true;
         //vm.showTable = false;
@@ -35,6 +37,7 @@
         vm.map = queryMap;
 
         vm.queryJson = queryJson;
+        vm.queryPhotos = queryPhotos;
 	vm.spatialLayerChanged = spatialLayerChanged;
         activate();
 
@@ -86,7 +89,10 @@
           // Fetch the WKT from the download_layer and set it to vm.spatialLayer
           $http.get(vm.spatialLayer).then(function(response) {
             var l = omnivore.wkt.parse(response.data);
-            vm.params.bounds = l.getBounds();
+	    // set bounds for queryParams
+            queryParams.bounds = l.getBounds();
+	    // set bounds for photoParams
+            photoParams.bounds = l.getBounds();
 
             if (_currentLayer && l.getBounds() !== _currentLayer.getBounds()) {
                queryMap.removeLayer(_currentLayer);
@@ -107,6 +113,30 @@
             queryResults.clear();
             GBIFMapperService.query(queryParams.build(), 0)
 		.then(queryJsonSuccess)
+                .catch(queryJsonFailed)
+                .finally(queryJsonFinally);
+
+            function queryJsonSuccess() {
+                $scope.queryForm.$setPristine(true)
+	    }
+            function queryJsonFailed(response) {
+                queryResults.isSet = false;
+            }
+
+            function queryJsonFinally() {
+                usSpinnerService.stop('query-spinner');
+            }
+        }
+
+        function queryPhotos() {
+            usSpinnerService.spin('query-spinner');
+
+	    // zoom to selected layer
+            zoomLayer();
+
+            queryResults.clear();
+            photoMapperService.query(photoParams.build(), 0)
+                .then(queryJsonSuccess)
                 .catch(queryJsonFailed)
                 .finally(queryJsonFinally);
 

@@ -56,7 +56,6 @@
                 ng-class="{'glyphicon-chevron-left': vm.showSidebar, 'glyphicon-chevron-right': !vm.showSidebar}"></span>
         </button>
     </div>
-
     <!-- main content-->
     <div class="query-content">
 
@@ -68,12 +67,11 @@
 
         <!-- table -->
         <div ng-show="vm.showTable" class="query-table" ng-class="{'full-page-query-table': !vm.showSidebar}"
-             ng-include="'query/table/queryTable.html'"></div>
+             ng-include="'query/table/' + vm.queryParams.queryType + 'Table.html'"></div>
 
         <!-- statistics -->
         <div ng-show="vm.showStats" class="show-stats" ng-class="{'full-page-query-table': !vm.showSidebar}"
-        ng-include="'query/stats/queryStats.html'"></div>
-
+        ng-include="'query/stats/' + vm.queryParams.queryType + 'Stats.html'"></div>
 
 
     </div>

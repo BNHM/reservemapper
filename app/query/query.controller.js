@@ -10,6 +10,8 @@
         var vm = this;
         vm.alerts = alerts;
         vm.queryResults = queryResults;
+        vm.queryParams = queryParams;
+        vm.queryParams.queryType = 'query';
 
         vm.showSidebar = true;
         vm.showMap = true;

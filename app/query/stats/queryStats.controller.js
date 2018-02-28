@@ -4,13 +4,13 @@
     angular.module('map.query')
         .controller('QueryStatsController', QueryStatsController);
 
-    QueryStatsController.$inject = ['$scope', '$window', 'queryResults'];
+    QueryStatsController.$inject = ['$scope', '$window', 'queryResults', 'queryParams'];
 
     /**
     Manage the look and feel of the data table.  
     This controller relies heavily on the angular-data-grid package at https://www.npmjs.com/package/angular-data-grid
     */
-    function QueryStatsController($scope, $window, queryResults) {
+    function QueryStatsController($scope, $window, queryResults, queryParams) {
         var vm = this;
         //var totalResults = vm.totalResult;
         vm.queryResults = queryResults;
@@ -20,13 +20,25 @@
 
 	// Watch for when the queryResults size changes, then run this function
      	$scope.$watch('queryStatsVm.queryResults.size', function () {
-          vm.totalResults=vm.queryResults.totalElements
-          vm.total
-	//populate the table with institution stats by default 
-	$scope.institutionCount()
+            vm.totalResults=vm.queryResults.totalElements
+            vm.total
+	    //populate the table with institution stats by default 
+	    if (queryParams.queryType == "query")
+	  	$scope.institutionCount()
+	    else
+	  	$scope.collectionCodeCount()
 	});
 	    
 
+	// CalPhotos Specific Counts
+	    $scope.scientificNameCount= function () {
+      	$scope.gridOptions.data = valueTotal( 'observations[0].scientific_name', null, 'value', 'ascending') 
+	    }
+	    $scope.collectionCodeCount = function () {
+      	$scope.gridOptions.data = valueTotal( 'collection_code', null, 'value', 'ascending') 
+	    }
+
+	// GBIF Counts
 	    $scope.institutionCount = function () {
       	$scope.gridOptions.data = valueTotal('institutionCode', 'collectionCode', 'value', 'ascending') 
 	    }
