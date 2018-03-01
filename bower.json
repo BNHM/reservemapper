@@ -23,7 +23,8 @@
     "angular-bootstrap": "^2.5.0",
     "font-awesome": "^4.7.0",
     "angular-data-grid": "*",
-    "d3": "^4.13.0"
+    "d3": "^4.13.0",
+    "ngModal": "^1.2.2"
   },
   "authors": [
     "John Deck <jdeck88@gmail.com>"
