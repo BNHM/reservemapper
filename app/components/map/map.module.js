@@ -1,5 +1,5 @@
 (function() {
     'use strict';
 
-    angular.module('map.map', []);
+    angular.module('map.map', ['map.query']);
 })();

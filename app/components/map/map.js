@@ -4,16 +4,14 @@
     angular.module('map.map')
         .factory('Map', Map);
 
-    Map.$inject = ['MAPBOX_TOKEN'];
+    Map.$inject = ['$rootScope', 'MAPBOX_TOKEN'];
 
-    function Map(MAPBOX_TOKEN) {
-
+    function Map( $rootScope, MAPBOX_TOKEN) {
 
         function Map(latColumn, lngColumn) {
             this.latColumn = latColumn;
             this.lngColumn = lngColumn;
         }
-
 
         Map.prototype = {
             _markers: [],
@@ -33,6 +31,8 @@
                     maxBoundsViscocity: .5
                 }).fitBounds(startBounds);
 
+//this._map.on('popupopen', function(e) {
+//});
                 this._mapTiles = L.tileLayer('https://api.mapbox.com/v4/mapbox.outdoors/{z}/{x}/{y}.png?access_token={access_token}',
                     {access_token: MAPBOX_TOKEN});
 
@@ -55,7 +55,6 @@
                     // and is recalculated upon every dragstart event, which should essentially keep the lng unbound
                     var nwCorner = [90, centerLng - 1080];
                     var seCorner = [-90, centerLng + 1080];
-
 
                     _this._map.setMaxBounds([nwCorner, seCorner]);
                 });
@@ -90,10 +89,17 @@
          			return feature.properties.style;
      			    },
      			    onEachFeature: function (feature, layer) {
-         			//layer.bindPopup(popupContentCallback(resource));
-                            	layer.bindPopup(popupContentCallback(resource));
+				// set popupcontentcallback for each feature but do not bind it here
+				// use use the marker click function to control how photos are displayed on map
+				layer.popupContentCallback = popupContentCallback(resource)
      			    }
  			});
+			// when marker clicked, show information in the popupContent box
+			marker.on('click', function(m,resource) {
+				var popupContentElement = L.DomUtil.get("popupContent");
+				popupContentElement.innerHTML=m.layer.popupContentCallback
+			});
+
                         _this._markers.push(marker);
                     });
 		// Handle GBIF Query results

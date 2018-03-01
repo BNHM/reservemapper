@@ -4,9 +4,9 @@
     angular.module('map.query')
         .controller('QueryController', QueryController);
 
-    QueryController.$inject = ['$scope', 'queryParams', 'queryResults', 'queryMap', 'alerts'];
+    QueryController.$inject = ['$rootScope', '$scope', 'queryParams', 'queryResults', 'queryMap', 'alerts'];
 
-    function QueryController($scope, queryParams, queryResults, queryMap, alerts) {
+    function QueryController($rootScope, $scope, queryParams, queryResults, queryMap, alerts ) {
         var vm = this;
         vm.alerts = alerts;
         vm.queryResults = queryResults;
@@ -16,6 +16,8 @@
         vm.showSidebar = true;
         vm.showMap = true;
         vm.sidebarToggleToolTip = "hide sidebar";
+
+        vm.showPopup= true;
 
         vm.queryMap = queryMap;
         vm.invalidSize = false;

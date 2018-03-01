@@ -64,6 +64,9 @@
         <!-- map -->
         <leaflet-map ng-show="vm.showMap" map="vm.queryMap" invalidate-size="vm.invalidSize" class="angular-leaflet-map"></leaflet-map>
 
+	<div ng-show="vm.showPopup">
+		<div id='popupContent'></div>
+	</div>
 
         <!-- table -->
         <div ng-show="vm.showTable" class="query-table" ng-class="{'full-page-query-table': !vm.showSidebar}"

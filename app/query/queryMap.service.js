@@ -7,7 +7,7 @@
 	queryMap.$inject = ['Map'];
 
 	function queryMap(Map) {
-
+		
 		var popupContent;
 		function QueryMap(latColumn, lngColumn) {
 			Map.call(this, latColumn, lngColumn);
@@ -17,14 +17,23 @@
 
 		QueryMap.prototype.setPhoto = function (photoOption) {
 			this.photoOption = photoOption
+			// NOTE: this is a hack.  Ran into trouble using popup boxes so ended up having to wrap the marker events
+			// in a call to a div tag.  Then, ran into more troubles trying to pass scope of the close command into the
+			// map.map module and having that effectively switch the showPopup variable to off, which lived inside another
+			// module.  
+			var closeDiv = "<div style='float:right;' onclick='document.getElementById(\"popupContent\").innerHTML = \"\";'>X&nbsp;&nbsp;</div>"
+
 			if (photoOption)
 				popupContent = function (resource) {
-					var retString = "<a href='" + resource.remote_resource + "' target='_blank'><img max-height=300 width=200 src='" + resource.media_url + "'></a>";
+					var retString = "<div style='float:left'>"
+					retString += "<a href='" + resource.remote_resource + "' target='_blank'><img height=200 src='" + resource.media_url + "'></a>";
+					retString += "</div><div style='float:left'>"
 					if (resource.observations[0] != null)
-						retString += "<br><strong><i>" + resource.observations[0].scientific_name + "</strong></i>"
-					retString += "<br><a href='" + resource.remote_resource + "' target='_blank'>Photo Courtesy of CalPhotos</a> (" + resource.license + ")";
-					retString += resource.begin_date
-					return retString;
+						retString += "<strong><i>" + resource.observations[0].scientific_name + "</strong></i>" 
+					retString += "<br><a href='" + resource.remote_resource + "' target='_blank'>Photo Courtesy of CalPhotos</a>" 
+					retString += "<br>license: "+ resource.license 
+					retString += "<br>photo taken on " + resource.begin_date + "</div>"
+					return retString + closeDiv;
 				};
 			else
 				popupContent = function (resource) {
