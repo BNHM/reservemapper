@@ -64,7 +64,8 @@
         <!-- map -->
         <leaflet-map ng-show="vm.showMap" map="vm.queryMap" invalidate-size="vm.invalidSize" class="angular-leaflet-map"></leaflet-map>
 
-	<div ng-show="vm.showPopup">
+	<!--Status of showing this popup is always true,it is hidden by removing content -->
+	<div ng-show="true">
 		<div id='popupContent'></div>
 	</div>
 

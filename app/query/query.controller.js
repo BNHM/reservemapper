@@ -4,9 +4,9 @@
     angular.module('map.query')
         .controller('QueryController', QueryController);
 
-    QueryController.$inject = ['$rootScope', '$scope', 'queryParams', 'queryResults', 'queryMap', 'alerts'];
+    QueryController.$inject = ['$rootScope', '$scope', 'queryParams', 'queryResults', 'queryMap', 'alerts', 'photoViewer'];
 
-    function QueryController($rootScope, $scope, queryParams, queryResults, queryMap, alerts ) {
+    function QueryController($rootScope, $scope, queryParams, queryResults, queryMap, alerts,photoViewer ) {
         var vm = this;
         vm.alerts = alerts;
         vm.queryResults = queryResults;
@@ -16,8 +16,6 @@
         vm.showSidebar = true;
         vm.showMap = true;
         vm.sidebarToggleToolTip = "hide sidebar";
-
-        vm.showPopup= true;
 
         vm.queryMap = queryMap;
         vm.invalidSize = false;
@@ -59,10 +57,12 @@
                 vm.showStats=false;
             } else if(state == 'table'){
                 vm.showMap=false;
+		photoViewer.clear();
                 vm.showTable=true;
                 vm.showStats=false;
             } else if(state == 'stats'){
                 vm.showMap=false;
+		photoViewer.clear();
                 vm.showTable=false;
                 vm.showStats=true;
             }

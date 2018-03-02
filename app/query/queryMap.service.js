@@ -2,7 +2,15 @@
 	'use strict';
 
 	angular.module('map.query')
-		.factory('queryMap', queryMap);
+		.factory('queryMap', queryMap)
+        	.factory('photoViewer', function() {
+			return {
+     				clear: function(){
+					document.getElementById("popupContent").innerHTML = ""
+					return true;
+     				}
+  			};
+        	});
 
 	queryMap.$inject = ['Map'];
 
@@ -13,6 +21,7 @@
 			Map.call(this, latColumn, lngColumn);
 		}
 
+
 		QueryMap.prototype = Object.create(Map.prototype);
 
 		QueryMap.prototype.setPhoto = function (photoOption) {
@@ -21,18 +30,24 @@
 			// in a call to a div tag.  Then, ran into more troubles trying to pass scope of the close command into the
 			// map.map module and having that effectively switch the showPopup variable to off, which lived inside another
 			// module.  
-			var closeDiv = "<div style='float:right;' onclick='document.getElementById(\"popupContent\").innerHTML = \"\";'>X&nbsp;&nbsp;</div>"
+			//var closeDiv = "<a href='#'><div class='remove glyphicon glyphicon-remove glyphicon-white' style='float:right;color: #777;padding:5px' onclick='document.getElementById(\"popupContent\").innerHTML = \"\";'></div></a>"
+			var closeDiv = "<a href='#'><div class='remove glyphicon glyphicon-remove glyphicon-white' style='float:right;color: #777;padding:5px' onclick='document.getElementById(\"popupContent\").innerHTML = \"\"'></div></a>"
 
 			if (photoOption)
 				popupContent = function (resource) {
 					var retString = "<div style='float:left'>"
-					retString += "<a href='" + resource.remote_resource + "' target='_blank'><img height=200 src='" + resource.media_url + "'></a>";
+					retString += "<a href='" + resource.media_url+ "' target='_blank'><img hspace=5 height=200 src='" + resource.media_url + "'></a>";
 					retString += "</div><div style='float:left'>"
 					if (resource.observations[0] != null)
 						retString += "<strong><i>" + resource.observations[0].scientific_name + "</strong></i>" 
 					retString += "<br><a href='" + resource.remote_resource + "' target='_blank'>Photo Courtesy of CalPhotos</a>" 
 					retString += "<br>license: "+ resource.license 
-					retString += "<br>photo taken on " + resource.begin_date + "</div>"
+					retString += "<br>photo taken on " + resource.begin_date 
+					if (resource.authors )
+						retString += "<br>by " + resource.authors 
+					if (resource.locality)
+						retString += "<br>at " + resource.locality
+					retString += "</div>"
 					return retString + closeDiv;
 				};
 			else

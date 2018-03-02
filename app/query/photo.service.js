@@ -29,7 +29,7 @@
                     data: []
                 };
                 if (response.data) {
-                    results.size = response.data.limit;
+                    results.size = response.data.results.length;
                     results.totalElements = response.data.count;
                     if (results.totalElements === 0) {
                         alerts.info("No results found.")
