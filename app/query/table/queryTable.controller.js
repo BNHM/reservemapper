@@ -16,6 +16,7 @@
 	vm.tableData = []
 
         vm.toGBIF = toGBIF;
+        vm.toCalphotos = toCalphotos;
 
 	// Control the angular-data-grid options
 	$scope.gridOptions = {
@@ -26,10 +27,12 @@
         };
 
     	// When a user clicks on a row, send them to the GBIF record for this row
-     	//function toGBIF(resource) {
+     	function toCalphotos(key) {
+            //$window.open("https://calphotos.berkeley.edu/cgi/img_query?enlarge=0000+3333+0531+0442" + key);
+            $window.open(key)
+     	}
+    	// When a user clicks on a row, send them to the GBIF record for this row
      	function toGBIF(key) {
-            //var keyIndex = vm.tableColumns.indexOf("key");
-            //$window.open("http://www.gbif.org/occurrence/" + resource[keyIndex]);
             $window.open("http://www.gbif.org/occurrence/" + key);
      	}
 
