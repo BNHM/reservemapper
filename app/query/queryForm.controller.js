@@ -5,9 +5,9 @@
     app.directive('taxonEmptyContents', ['$filter', '$http', taxonEmptyContents]);
     app.directive('taxonAutoComplete', ['$filter', '$http', taxonAutoCompleteDir]);
     app.controller('QueryFormController', QueryFormController);
-    app.$inject = ['$rootScope', 'GBIFMapperService', 'photoMapperService', 'queryParams', 'photoParams', 'queryService', 'photoService', 'photoViewer', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
+    app.$inject = ['$rootScope', '$location', 'GBIFMapperService', 'photoMapperService', 'queryParams', 'photoParams', 'queryService', 'photoService', 'photoViewer', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
 
-    function QueryFormController($scope, GBIFMapperService, photoMapperService, queryParams, photoParams, queryService, photoService, photoViewer, queryMap, queryResults, usSpinnerService, alerts, $http ) {
+    function QueryFormController($scope, $location, GBIFMapperService, photoMapperService, queryParams, photoParams, queryService, photoService, photoViewer, queryMap, queryResults, usSpinnerService, alerts, $http ) {
         var vm = this;
         var _currentLayer = undefined;
 
@@ -89,7 +89,8 @@
 	    photoViewer.clear();
             // Fetch the WKT from the download_layer and set it to vm.spatialLayer
             $http.get(vm.spatialLayer).then(function (response) {
-                var l = omnivore.wkt.parse(response.data);
+                //var l = omnivore.wkt.parse(response.data);
+                var l = L.geoJSON(response.data);
                 // set bounds for queryParams
                 queryParams.bounds = l.getBounds();
                 // set bounds for photoParams
@@ -174,7 +175,17 @@
         // The following defines a location where we fetch a list of spatial layers
         // TODO: put this in a configuration file 
         function getSpatialLayers() {
-            return $http.get('https://api.github.com/repositories/59048930/contents/wkt');
+            //return $http.get('https://api.github.com/repositories/59048930/contents/wkt');
+	    var spatialLayerBase = 'https://api.github.com/repositories/59048930/contents/'
+	    var spatialLayerDirectory = ''
+	    if ($location.search().layers == 'undefined' || $location.search().layers == null)
+		// default directory for Univ. of California Reserves
+	    	spatialLayerDirectory = spatialLayerBase + 'json/'
+	    else
+		// try a custom directory of geojson files
+	    	spatialLayerDirectory = spatialLayerBase + $location.search().layers.replace(/%22/g,'').replace(/"/g,'')
+            //return $http.get('https://api.github.com/repositories/59048930/contents/cpad/State/CaliforniaDepartmentofParksandRecreation');
+            return $http.get(spatialLayerDirectory)
         }
 
         function processSpatialLayers() {
