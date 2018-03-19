@@ -28,6 +28,8 @@
         //vm.showTable = false;
         //vm.showStats = false;
         vm.spatialLayer = undefined;
+	// Set default spatialLayerTitle
+        vm.spatialLayerTitle = "University of California Natural Reserve";
         vm.basisOfRecord = undefined;
 
         // Prepare data for Download
@@ -178,13 +180,18 @@
             //return $http.get('https://api.github.com/repositories/59048930/contents/wkt');
 	    var spatialLayerBase = 'https://api.github.com/repositories/59048930/contents/'
 	    var spatialLayerDirectory = ''
-	    if ($location.search().layers == 'undefined' || $location.search().layers == null)
-		// default directory for Univ. of California Reserves
+	    // Set title for layer drop down box
+	    if ($location.search().title == 'undefined' || $location.search().title == null) {
+        	vm.spatialLayerTitle = "Area of Interest"
+	    } else {
+        	vm.spatialLayerTitle = $location.search().title 
+	    }
+   	    // Set the spatialLayerDiretory either defaulting to the Univ. of California reserves, or user specified directory
+	    if ($location.search().layers == 'undefined' || $location.search().layers == null) {
 	    	spatialLayerDirectory = spatialLayerBase + 'json/'
-	    else
-		// try a custom directory of geojson files
+	    } else {
 	    	spatialLayerDirectory = spatialLayerBase + $location.search().layers.replace(/%22/g,'').replace(/"/g,'')
-            //return $http.get('https://api.github.com/repositories/59048930/contents/cpad/State/CaliforniaDepartmentofParksandRecreation');
+	   }
             return $http.get(spatialLayerDirectory)
         }
 

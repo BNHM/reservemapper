@@ -3,7 +3,7 @@
     <form method="POST" name="queryForm">
 
         <div class="form-group dwc-terms" show-errors>
-            <label class="control-label">Select Area of Interest</label>
+            <label class="control-label">Select {{queryFormVm.spatialLayerTitle}}</label>
             <div class="filters row">
                 <div class="col-xs-12">
                     <select ng-model="queryFormVm.spatialLayer" class="form-control input-sm has-error" name="spatial" ng-change="queryFormVm.spatialLayerChanged()"
@@ -135,9 +135,9 @@
 </div>
 <div class="col-xs-12">
     <label class="information-text">Powered by
-        <a href='https://holos.berkeley.edu/'>
-            <img src='/holosLogo.png'>
-        </a>
+        <a href='https://holos.berkeley.edu/' target='_blank'><img height=30 src='/images/holosLogo.png'></a>&nbsp;&nbsp;
+        <a href='https://gbif.org/' target='_blank'><img height=40 src='/images/gbifLogo.png'></a>&nbsp;&nbsp;
+        <a href='https://calphotos.berkeley.edu/' target='_blank'><img height=35 src='/images/calphotosLogo.png'></a>
     </label>
 </div>
 <script>
