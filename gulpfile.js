@@ -75,6 +75,10 @@ gulp.task('copy-assets', function() {
         .pipe(gulp.dest('public/bower_components/angular-data-grid/dist/'));
     gulp.src('app/bower_components/d3/d3.min.js')
         .pipe(gulp.dest('public/bower_components/d3/'));
+    gulp.src('app/bower_components/ngModal/dist/ng-modal.js')
+        .pipe(gulp.dest('public/bower_components/ngModal/dist/'));
+    gulp.src('app/bower_components/ngModal/dist/ng-modal.css')
+        .pipe(gulp.dest('public/bower_components/ngModal/dist/'));
 
      // gulp.src('app/query/spatialLayers.json')
      //   .pipe(gulp.dest('public/query/'));
