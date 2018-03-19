@@ -198,7 +198,7 @@
                     response.data.forEach(function (spatialLayer) {
                         // Modify the name to insert spaces before Caps, except for first
                         var modifiedName = spatialLayer.name.split(".")[0]
-                        modifiedName = modifiedName.replace(/([A-Z])/g, ' $1').trim()
+                        modifiedName = modifiedName.replace(/([A-Z])/g, ' $1').trim().replace(/\+/g,'')
 
                         // Assign the WKT object that was returned to spatialLayer
                         spatialLayerArray[modifiedName] = spatialLayer.download_url;
