@@ -46,7 +46,7 @@
                 this._esriTopoTiles = L.tileLayer.wms('http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { layers: 0 });
 
                 this._clusterLayer = L.markerClusterGroup({chunkedLoading: true});
-
+		
                 var _this = this;
                 this._map.on('dragstart', function () {
                     var centerLng = _this._map.getCenter().lng;
@@ -83,6 +83,7 @@
 
 		// Handle Photos, which have geojson objects passed in
 		if (this.photoOption) {
+		
                     angular.forEach(data, function (resource) {
                         var marker = L.geoJSON(resource['geometry'], {
      			    style: function (feature) {
@@ -94,13 +95,32 @@
 				layer.popupContentCallback = popupContentCallback(resource)
      			    }
  			});
+			
 			// when marker clicked, show information in the popupContent box
 			marker.on('click', function(m,resource) {
 				var popupContentElement = L.DomUtil.get("popupContent");
 				popupContentElement.innerHTML=m.layer.popupContentCallback
 			});
 
-                        _this._markers.push(marker);
+			//isolate the click event for this cluster layer  
+			_this._clusterLayer.on('clusterclick', function(m,resource){
+				var popupContentElement = L.DomUtil.get("popupContent");
+				var length = m.layer.getChildCount()
+				var markerChildren = m.layer.getAllChildMarkers()
+				
+				for (var i = 0; i < length; i ++){
+				console.log(markerChildren)
+					popupContentElement.innerHTML=markerChildren[i].popupContentCallback
+					var newDiv = document.createElement("div")
+					var newContent = document.createTextNode("hi there, im a new div")
+					newDiv.appendChild(newContent)
+					document.body.appendChild(newDiv)
+					var cln = popupContentElement.cloneNode(true)
+					newDiv.appendChild(cln)
+					}	
+				})
+			    
+			    _this._markers.push(marker);
                     });
 		// Handle GBIF Query results
 		} else {
