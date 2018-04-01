@@ -45,7 +45,11 @@
                 this._usgsTiles = L.tileLayer.wms('https://basemap.nationalmap.gov/arcgis/services/USGSImageryOnly/MapServer/WMSServer', { layers: 0, maxZoom: 8 });
                 this._esriTopoTiles = L.tileLayer.wms('http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { layers: 0 });
 
-                this._clusterLayer = L.markerClusterGroup({chunkedLoading: true});
+                this._clusterLayer = L.markerClusterGroup(
+    {chunkedLoading: true,
+    spiderfyOnMaxZoom: false, 
+    showCoverageOnHover: false, 
+    zoomToBoundsOnClick: false });
 		
                 var _this = this;
                 this._map.on('dragstart', function () {
@@ -84,6 +88,7 @@
 		// Handle Photos, which have geojson objects passed in
 		if (this.photoOption) {
 		
+		    var count = 0;
                     angular.forEach(data, function (resource) {
                         var marker = L.geoJSON(resource['geometry'], {
      			    style: function (feature) {
@@ -92,7 +97,7 @@
      			    onEachFeature: function (feature, layer) {
 				// set popupcontentcallback for each feature but do not bind it here
 				// use use the marker click function to control how photos are displayed on map
-				layer.popupContentCallback = popupContentCallback(resource)
+				layer.popupContentCallback = popupContentCallback(resource,count++)
      			    }
  			});
 			
@@ -102,26 +107,42 @@
 				popupContentElement.innerHTML=m.layer.popupContentCallback
 			});
 
-			//isolate the click event for this cluster layer  
-			_this._clusterLayer.on('clusterclick', function(m,resource){
-				var popupContentElement = L.DomUtil.get("popupContent");
-				var length = m.layer.getChildCount()
-				var markerChildren = m.layer.getAllChildMarkers()
-				
-				for (var i = 0; i < length; i ++){
-				console.log(markerChildren)
-					popupContentElement.innerHTML=markerChildren[i].popupContentCallback
-					var newDiv = document.createElement("div")
-					var newContent = document.createTextNode("hi there, im a new div")
-					newDiv.appendChild(newContent)
-					document.body.appendChild(newDiv)
-					var cln = popupContentElement.cloneNode(true)
-					newDiv.appendChild(cln)
-					}	
-				})
-			    
 			    _this._markers.push(marker);
                     });
+
+		    // Once done adding markers to the _this.markers array THEN create the clusterLayer clusterclick option
+	           // this function was contained in the loop above, meaning it was added for EVERY marker... we only want it
+		    // for each group.
+		    _this._clusterLayer.on('clusterclick', function(m,resource){
+			var popupContentElement = L.DomUtil.get("popupContent");
+			var length = m.layer.getChildCount()
+			var markerChildren = m.layer.getAllChildMarkers()
+			
+			// NOTE: use examples from http://jsfiddle.net/hsJbu/
+			// The elements that are added from the popupContentCallback contain information like div class="25", div class="24"
+			// Use the code from the examples in the link above to hide/show the elements
+			for (var i = 0; i < length; i ++){
+				// Updates the innerHTML with this marker
+				popupContentElement.innerHTML += markerChildren[i].popupContentCallback
+			}	
+			// Navigation Controls... display these just once
+			// next button (use something more fancy later)
+			var next = document.createElement('a');
+			next.appendChild(document.createTextNode('Next'))
+			popupContentElement.appendChild(next)
+			// previous button
+			var prev = document.createElement('a');
+			prev.appendChild(document.createTextNode('Prev'))
+			popupContentElement.appendChild(prev)
+			// make the close button
+			var close= document.createElement('a');
+			var closeDiv= document.createElement('div');
+			closeDiv.setAttribute('class', 'remove glyphicon glyphicon-remove glyphicon-white')
+			closeDiv.setAttribute('style','float:right;color: #777;padding:5px')
+			closeDiv.setAttribute('onclick','document.getElementById(\"popupContent\").innerHTML = \"\"')
+			close.appendChild(closeDiv)
+			popupContentElement.appendChild(close)
+		    })
 		// Handle GBIF Query results
 		} else {
                   angular.forEach(data, function (resource) {

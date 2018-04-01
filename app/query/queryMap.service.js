@@ -31,11 +31,12 @@
 			// map.map module and having that effectively switch the showPopup variable to off, which lived inside another
 			// module.  
 			//var closeDiv = "<a href='#'><div class='remove glyphicon glyphicon-remove glyphicon-white' style='float:right;color: #777;padding:5px' onclick='document.getElementById(\"popupContent\").innerHTML = \"\";'></div></a>"
-			var closeDiv = "<a href='#'><div class='remove glyphicon glyphicon-remove glyphicon-white' style='float:right;color: #777;padding:5px' onclick='document.getElementById(\"popupContent\").innerHTML = \"\"'></div></a>"
+			//var closeDiv = "<a href='#'><div class='remove glyphicon glyphicon-remove glyphicon-white' style='float:right;color: #777;padding:5px' onclick='document.getElementById(\"popupContent\").innerHTML = \"\"'></div></a>"
 
 			if (photoOption)
-				popupContent = function (resource) {
-					var retString = "<div style='float:left'>"
+				popupContent = function (resource, classNum) {
+					var retString = "<div class='" + classNum + "'>"
+					retString += "<div style='float:left'>"
 					retString += "<a href='" + resource.media_url+ "' target='_blank'><img hspace=5 height=200 src='" + resource.media_url + "'></a>";
 					retString += "</div><div style='float:left'>"
 					if (resource.observations[0] != null)
@@ -48,7 +49,8 @@
 					if (resource.locality)
 						retString += "<br>at " + resource.locality
 					retString += "</div>"
-					return retString + closeDiv;
+					retString += "</div>"
+					return retString;
 				};
 			else
 				popupContent = function (resource) {
