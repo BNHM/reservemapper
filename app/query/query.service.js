@@ -18,7 +18,7 @@
 
         function queryJson(query, page) {
             alerts.removeTmp();
-            return $http.get("http://api.gbif.org/v1/occurrence/search?limit=300" + "&offset=" + 300 * page + "&" + query)
+            return $http.get("https://api.gbif.org/v1/occurrence/search?limit=300" + "&offset=" + 300 * page + "&" + query)
                .then(queryJsonComplete);
 
             function queryJsonComplete(response) {
@@ -40,7 +40,7 @@
         }
 
         function basisOfRecords() {
-            return $http.get('http://api.gbif.org/v1/enumeration/basic/BasisOfRecord')
+            return $http.get('https://api.gbif.org/v1/enumeration/basic/BasisOfRecord')
                 .then(function (response) {
                     var records = [];
 
@@ -55,7 +55,7 @@
                 });
         }
         function countryCodes() {
-            return $http.get('http://api.gbif.org/v1/enumeration/country')
+            return $http.get('https://api.gbif.org/v1/enumeration/country')
                 .then(function (response) {
                     var codes = [];
 

@@ -29,7 +29,7 @@
         //vm.showStats = false;
         vm.spatialLayer = undefined;
 	// Set default spatialLayerTitle
-        vm.spatialLayerTitle = "University of California Natural Reserve";
+        vm.spatialLayerTitle = "Select Area of Interest";
         vm.basisOfRecord = undefined;
 
         // Prepare data for Download
@@ -182,7 +182,7 @@
 	    var spatialLayerDirectory = ''
 	    // Set title for layer drop down box
 	    if ($location.search().title == 'undefined' || $location.search().title == null) {
-        	vm.spatialLayerTitle = "Area of Interest"
+        	vm.spatialLayerTitle = "University of California Natural Reserve";
 	    } else {
         	vm.spatialLayerTitle = $location.search().title 
 	    }
@@ -219,7 +219,7 @@
 
     /* dynamically search taxon data */
     function searchTaxonData(characters, $http, rank) {
-        return $http.get("http://api.gbif.org/v1/species/suggest/?q=" + characters + "&rank=" + rank)
+        return $http.get("https://api.gbif.org/v1/species/suggest/?q=" + characters + "&rank=" + rank)
             .then(queryJsonComplete);//function(response) {
         function queryJsonComplete(response) {
             return response.data;
