@@ -45,11 +45,11 @@
                 this._usgsTiles = L.tileLayer.wms('https://basemap.nationalmap.gov/arcgis/services/USGSImageryOnly/MapServer/WMSServer', { layers: 0, maxZoom: 8 });
                 this._esriTopoTiles = L.tileLayer.wms('http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { layers: 0 });
 
-                this._clusterLayer = L.markerClusterGroup(
-    {chunkedLoading: true,
-    spiderfyOnMaxZoom: false, 
-    showCoverageOnHover: false, 
-    zoomToBoundsOnClick: false });
+                this._clusterLayer = L.markerClusterGroup();
+    //{chunkedLoading: true,
+    //spiderfyOnMaxZoom: false, 
+    //showCoverageOnHover: false, 
+    //zoomToBoundsOnClick: false });
 		
                 var _this = this;
                 this._map.on('dragstart', function () {
@@ -74,12 +74,20 @@
                 this._clearMap();
                 this.addMarkers(data, popupContentCallback, zoomTo);
                 this._map.on('move', this._updateMarkerLocations.bind(this));
+                this._clusterLayer = L.markerClusterGroup();
             },
 
 	    // Set photo option
 	    setPhoto: function(photoOption) {
                 var _this = this;
 	    	this.photoOption = photoOption;
+                this._clusterLayer = L.markerClusterGroup({
+			chunkedLoading: true,
+    			spiderfyOnMaxZoom: false, 
+    			showCoverageOnHover: false, 
+    			zoomToBoundsOnClick: false 
+		});
+		
 	    },
 
             addMarkers: function(data, popupContentCallback, zoomTo) {
