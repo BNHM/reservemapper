@@ -31,8 +31,8 @@ gulp.task('copy-assets', function() {
         .pipe(gulp.dest('public/components/'));
     gulp.src('app/query/**/*')
         .pipe(gulp.dest('public/query/'));
-    gulp.src('app/*.png')
-        .pipe(gulp.dest('public/'));
+    gulp.src('app/images/*.png')
+        .pipe(gulp.dest('public/images/'));
     gulp.src('app/bower_components/bootstrap/dist/fonts/**/*')
         .pipe(gulp.dest('public/fonts/'));
     gulp.src('app/bower_components/leaflet/dist/images/**/*')
