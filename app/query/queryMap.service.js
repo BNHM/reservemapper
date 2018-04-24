@@ -35,7 +35,6 @@
 
 			if (photoOption)
 				popupContent = function (resource, classNum) {
-//					"<div>"	
 					var retString = "<div class='" + classNum + "'>"
 					retString += "<div style='float:left'>"
 					retString += "<a href='" + resource.media_url+ "' target='_blank'><img hspace=5 height=200 src='" + resource.media_url + "'></a>";
@@ -54,9 +53,8 @@
 					retString += "<br><a href='#' id='next'>Next</a>"
 					retString += "<br><a href='#' id='prev'>Prev</a>"
 					retString += "</div>"
-					
+					retString += "</div>"
 					return retString;
-//					"</div>"
 				};
 			else
 				popupContent = function (resource) {
