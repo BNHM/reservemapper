@@ -50,10 +50,9 @@
 					if (resource.locality)
 						retString += "<br>at " + resource.locality
 					retString += "</ul>"
-					retString += "<br><a href='#' id='next'>Next</a>"
-					retString += "<br><a href='#' id='prev'>Prev</a>"
 					retString += "</div>"
-					retString += "</div>"
+				//	retString += "<br><a class ='button' href='#' id='next'>Next</a>"
+				//	retString += "<br><a class ='button' href='#' id='prev'>Prev</a>"
 					return retString;
 				};
 			else

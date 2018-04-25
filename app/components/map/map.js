@@ -45,17 +45,7 @@
                 this._usgsTiles = L.tileLayer.wms('https://basemap.nationalmap.gov/arcgis/services/USGSImageryOnly/MapServer/WMSServer', { layers: 0, maxZoom: 8 });
                 this._esriTopoTiles = L.tileLayer.wms('http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { layers: 0 });
 
-<<<<<<< HEAD
-		// JBD: oh... the spiderfyOnMaxZoom, showCoverageOnHover and zoomtoBoundsonClick options work for photos but may break the map view
-		// solution is to add these to markerClusterGroup dynamically when in photo mode??
                 this._clusterLayer = L.markerClusterGroup({chunkedLoading: true});
-=======
-                this._clusterLayer = L.markerClusterGroup();
-    //{chunkedLoading: true,
-    //spiderfyOnMaxZoom: false, 
-    //showCoverageOnHover: false, 
-    //zoomToBoundsOnClick: false });
->>>>>>> 6bf05bb5174bc18e21b9256291430e5485ab262e
 		
                 var _this = this;
                 this._map.on('dragstart', function () {
@@ -71,21 +61,20 @@
             },
 
             /**
-             *
              * @param data data is a json array of objects. Each object should contain a key matching the given latColumn
              * & lngColumn
              * @param popupContentCallback the function to call to populate the popup box content. Will be passed the current resource
              */
             setMarkers: function (data, popupContentCallback, zoomTo) {
                 this._clearMap();
-                this.addMarkers(data, popupContentCallback, zoomTo);
+		this.addMarkers(data, popupContentCallback, zoomTo);
                 this._map.on('move', this._updateMarkerLocations.bind(this));
                 this._clusterLayer = L.markerClusterGroup();
             },
 	    
 		// Set photo option
 	    setPhoto: function(photoOption) {
-                var _this = this;
+		var _this = this;
 	    	this.photoOption = photoOption;
                 this._clusterLayer = L.markerClusterGroup({
 			chunkedLoading: true,
@@ -98,13 +87,10 @@
 
             addMarkers: function(data, popupContentCallback, zoomTo) {
                 var _this = this;
-
+				
 		// Handle Photos, which have geojson objects passed in
 		if (this.photoOption) {
-        	 // JBD: oh... the spiderfyOnMaxZoom, showCoverageOnHover and zoomtoBoundsonClick options work for photos but may break the map view
-		// solution is to add these to markerClusterGroup dynamically when in photo mode??
-       		 this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: true });
-		
+		    this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: true });
 		    var count = 0;
                     angular.forEach(data, function (resource) {
                         var marker = L.geoJSON(resource['geometry'], {
@@ -126,82 +112,42 @@
 
 			    _this._markers.push(marker);
                     });
- 
-		    // Once done adding markers to the _this.markers array THEN create the clusterLayer clusterclick option
-		    _this._clusterLayer.on('clusterclick', function(m,resource){
-			var popupContentElement = L.DomUtil.get("popupContent");
-			var length = m.layer.getAllChildMarkers().length
-			var markerChildren = m.layer.getAllChildMarkers()
-			
-		
 
 		    // Once done adding markers to the _this.markers array THEN create the clusterLayer clusterclick option
-	           // this function was contained in the loop above, meaning it was added for EVERY marker... we only want it
-		    // for each group.
 		    _this._clusterLayer.on('clusterclick', function(m,resource){
 			var popupContentElement = L.DomUtil.get("popupContent");
 			var length = m.layer.getChildCount()
 			var markerChildren = m.layer.getAllChildMarkers()
-			
 			// NOTE: use examples from http://jsfiddle.net/hsJbu/
 			// The elements that are added from the popupContentCallback contain information like div class="25", div class="24"
 			// Use the code from the examples in the link above to hide/show the elements
-			for (var i = 0; i < length; i ++){
-				// Updates the innerHTML with this marker
-			//	the following code is the old way we presented all of the markers popups all at once 	
-			//	popupContentElement.innerHTML += markerChildren[i].popupContentCallback
 			
-		/*	$(".popupContent div").each(function(e) {
-			if (e != 0)
-			    $(this).hide();
-			})*/
-				/* this is the code that makes just the first element appear on the map: (but where are the others?) 
-				if (i != 0){
-				console.log(popupContent)	
-				}else
+			for (var i = 0; i < length; i ++){
+			//	popupContentElement.innerHTML += markerChildren[i].popupContentCallback
 				popupContentElement.innerHTML = popupContentElement.innerHTML + markerChildren[i].popupContentCallback
-				*/
-				console.log(popupContent)	
-				popupContentElement.innerHTML = popupContentElement.innerHTML + markerChildren[i].popupContentCallback
-				
 			}
-		//.popupContent div .hide hides ALL of them
-		//.popupContent hides none of them	
-//			$(".popupContent div").hide()
-			$(".popupContent div").each(function(e) {
-			if (e !=1)
-			$(this).hide()
-			$(this).slice(e).show().addClass('current')
-
-			})
-
-
+				
+			console.log(popupContent)
+			//popupContentElement.style.display = 'none'
+			
 			// Navigation Controls... display these just once
-			// next button (use something more fancy later)
-	//		var next = document.createElement('a');
-	//		next.appendChild(document.createTextNode('Next'))
-			var next = document.getElementById('next')
+			$(".popupContent").hide()
+			var next = document.createElement('a');
+			next.appendChild(document.createTextNode('Next'))
+			next.setAttribute('class','button')	
+	//		var next = document.getElementById('next')
+			popupContentElement.appendChild(next)
 			next.addEventListener('click', function () {
-			      if ($(".popupContent class:visible"))
-				$(".popupContent div").show()
-					//.prev().hide()
-					
-			//	   $(this).next('div').show()
-			       // else {
-			         //   $(".popupContent div:visible").hide();
-			          //  $(".popupContent div:first").show();
-       				// }
 				console.log('next button clicked')
 			        return false;
-		
 			})
-			popupContentElement.appendChild(next)
-
 
 			// previous button
-	 //      	var prev = document.createElement('a');
-	//		prev.appendChild(document.createTextNode('Prev'))
-			var prev = document.getElementById('prev')	
+	 	      	var prev = document.createElement('a');
+			prev.appendChild(document.createTextNode('Prev'))
+			prev.setAttribute('class', 'button')
+	//		var prev = document.getElementById('prev')	
+			popupContentElement.appendChild(prev)
 			prev.addEventListener('click', function(){ 	
 				if ($(".popupContent div:visible"))
 				    $(".popupContent div").show().next().hide();
@@ -211,20 +157,8 @@
 				}
 				console.log('prev button clicked')
 				return false;
-   			 })
-			popupContentElement.appendChild(prev)
+			})
 
-
-
-
-			}	
-			// Navigation Controls... display these just once
-			// next button (use something more fancy later)
-	//		var next = document.createElement('a');
-	//		next.appendChild(document.createTextNode('Next'))
-			// previous button
-			//var prev = document.createElement('a');
-	//		prev.appendChild(document.createTextNode('Prev'))
 			// make the close button
 			var close= document.createElement('a');
 			var closeDiv= document.createElement('div');
@@ -234,25 +168,17 @@
 			close.appendChild(closeDiv)
 			popupContentElement.appendChild(close)
 		    })
-
-	
-
-
-
-
-
-
+		    
 		// Handle GBIF Query results
-		} else {
-       			this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: true});
-			angular.forEach(data, function (resource) {
+	     } else {
+       	            this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: true});
+		    angular.forEach(data, function (resource) {
                     var lat = resource[_this.latColumn];
                     // var lng = L.Util.wrapNum(resource[_this.lngColumn], [0,360], true); // center on pacific ocean
                     var lng = resource[_this.lngColumn];
 
                     if (typeof lat === 'number' & typeof lng === 'number') {
                         var marker = L.marker([lat, lng]);
-
                         if (typeof popupContentCallback === 'function') {
                             marker.bindPopup(popupContentCallback(resource));
                         }
