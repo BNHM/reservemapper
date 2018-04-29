@@ -126,38 +126,69 @@
 			//	popupContentElement.innerHTML += markerChildren[i].popupContentCallback
 				popupContentElement.innerHTML = popupContentElement.innerHTML + markerChildren[i].popupContentCallback
 			}
-				
-			console.log(popupContent)
-			//popupContentElement.style.display = 'none'
-			
-			// Navigation Controls... display these just once
-			$(".popupContent").hide()
+
+
+			   var text= document.createElement('div');
+			   text.setAttribute('id','text')	
+			   popupContentElement.appendChild(text)
+
+
+				//<div id="text" style="">Content<div>
+			    var elements = $("#popupContent").children(".photo");
+			    var length = elements.length;
+			    var counter = 0;
+
+			    function displayChange(){
+				    var shownElement = counter + 1
+				    document.getElementById("text").innerHTML = ("Showing result "+ shownElement +" of "+ length)
+			    }
+			    displayChange()
+			    //Get direct children of popupContent div
+			    elements.each(function(e) {
+				if (e != 0)
+				    $(this).hide();
+			    });
+
+			// next button
 			var next = document.createElement('a');
 			next.appendChild(document.createTextNode('Next'))
-			next.setAttribute('class','button')	
-	//		var next = document.getElementById('next')
+			next.setAttribute('id','next')	
 			popupContentElement.appendChild(next)
-			next.addEventListener('click', function () {
-				console.log('next button clicked')
-			        return false;
-			})
-
 			// previous button
 	 	      	var prev = document.createElement('a');
 			prev.appendChild(document.createTextNode('Prev'))
-			prev.setAttribute('class', 'button')
-	//		var prev = document.getElementById('prev')	
+			prev.setAttribute('id', 'prev')
 			popupContentElement.appendChild(prev)
-			prev.addEventListener('click', function(){ 	
-				if ($(".popupContent div:visible"))
-				    $(".popupContent div").show().next().hide();
-				else {
-				    $(".popupContent div:visible").hide();
-				    $(".popupContent div:last").show();
-				}
-				console.log('prev button clicked')
-				return false;
-			})
+		    
+		    $("#next").click(function(){
+			// hide the current element
+			elements.eq( counter ).hide()
+			// if this is the last one, reset to 0
+			if (counter == length -1) {
+			    counter = 0;
+			// increment counter in other cases
+			} else {
+			    counter++;
+			}
+			elements.eq( counter ).show()
+			displayChange()
+			return false;
+		    });
+
+		    $("#prev").click(function(){
+			// hide the current element
+			elements.eq( counter ).hide()
+
+			// if this is the first one, reset to 0
+			if (counter == 0) {
+			    counter = length -1;
+			} else {
+			    counter--;
+			}
+			elements.eq( counter ).show()
+			displayChange()
+			return false;
+		    });
 
 			// make the close button
 			var close= document.createElement('a');
