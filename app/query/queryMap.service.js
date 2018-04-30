@@ -40,8 +40,8 @@
 					retString += "<a href='" + resource.media_url+ "' target='_blank'><img hspace=5 height=200 src='" + resource.media_url + "'></a>";
 				//	retString += "</div><div style='float:left'>"
 					if (resource.observations[0] != null)
-					retString += "<strong><i>" + resource.observations[0].scientific_name + "</strong></i>" 
 					retString += "<ul style='float:right'>"	
+					retString += "<br><strong><i>" + resource.observations[0].scientific_name + "</strong></i>" 
 					retString += "<br><a href='" + resource.remote_resource + "' target='_blank'>Photo Courtesy of CalPhotos</a>" 
 					retString += "<br>license: "+ resource.license 
 					retString += "<br>photo taken on " + resource.begin_date 

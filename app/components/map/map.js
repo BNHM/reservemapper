@@ -128,9 +128,26 @@
 			}
 
 
-			   var text= document.createElement('div');
-			   text.setAttribute('id','text')	
-			   popupContentElement.appendChild(text)
+			// prevNext element holds "showing results..." and prev next buttons at bottom of screen
+	 	      	var prevNext = document.createElement('div');
+			prevNext.setAttribute('style','clear:both');
+
+			// previous button
+	 	      	var prev = document.createElement('a');
+			prev.appendChild(document.createTextNode('Prev'))
+			prev.setAttribute('id', 'prev')
+			prevNext.appendChild(prev)
+			// next button
+			var next = document.createElement('a');
+			next.appendChild(document.createTextNode('Next'))
+			next.setAttribute('id','next')	
+			prevNext.appendChild(next)
+
+			var text= document.createElement('div');
+			text.setAttribute('id','text')	
+			prevNext.appendChild(text)
+
+			popupContentElement.appendChild(prevNext)
 
 
 				//<div id="text" style="">Content<div>
@@ -149,16 +166,7 @@
 				    $(this).hide();
 			    });
 
-			// next button
-			var next = document.createElement('a');
-			next.appendChild(document.createTextNode('Next'))
-			next.setAttribute('id','next')	
-			popupContentElement.appendChild(next)
-			// previous button
-	 	      	var prev = document.createElement('a');
-			prev.appendChild(document.createTextNode('Prev'))
-			prev.setAttribute('id', 'prev')
-			popupContentElement.appendChild(prev)
+
 		    
 		    $("#next").click(function(){
 			// hide the current element
