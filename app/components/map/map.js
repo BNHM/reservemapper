@@ -31,8 +31,6 @@
                     maxBoundsViscocity: .5
                 }).fitBounds(startBounds);
 
-//this._map.on('popupopen', function(e) {
-//});
                 this._mapTiles = L.tileLayer('https://api.mapbox.com/v4/mapbox.outdoors/{z}/{x}/{y}.png?access_token={access_token}',
                     {access_token: MAPBOX_TOKEN});
 
@@ -88,87 +86,78 @@
             addMarkers: function(data, popupContentCallback, zoomTo) {
                 var _this = this;
 				
-		// Handle Photos, which have geojson objects passed in
-		if (this.photoOption) {
-		    this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: true });
-		    var count = 0;
-                    angular.forEach(data, function (resource) {
-                        var marker = L.geoJSON(resource['geometry'], {
-     			    style: function (feature) {
-         			return feature.properties.style;
-     			    },
-     			    onEachFeature: function (feature, layer) {
+	// Handle Photos, which have geojson objects passed in
+	if (this.photoOption) {
+		this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: true });
+		var count = 0;
+            angular.forEach(data, function (resource) {
+                var marker = L.geoJSON(resource['geometry'], {
+                style: function (feature) {
+                return feature.properties.style;
+                },
+                onEachFeature: function (feature, layer) {
 				// set popupcontentcallback for each feature but do not bind it here
 				// use use the marker click function to control how photos are displayed on map
 				layer.popupContentCallback = popupContentCallback(resource,count++)
-     			    }
- 			});
+     			}
+ 		});
 			
-			// when marker clicked, show information in the popupContent box
-			marker.on('click', function(m,resource) {
-				var popupContentElement = L.DomUtil.get("popupContent");
-				popupContentElement.innerHTML=m.layer.popupContentCallback
-			});
-
+                // when marker clicked, show information in the popupContent box
+                marker.on('click', function(m,resource) {
+                    var popupContentElement = L.DomUtil.get("popupContent");
+                    popupContentElement.innerHTML=m.layer.popupContentCallback
+		});
 			    _this._markers.push(marker);
-                    });
+            });
 
-		    // Once done adding markers to the _this.markers array THEN create the clusterLayer clusterclick option
-		    _this._clusterLayer.on('clusterclick', function(m,resource){
+		// Once done adding markers to the _this.markers array THEN create the clusterLayer clusterclick option
+		_this._clusterLayer.on('clusterclick', function(m,resource){
 			var popupContentElement = L.DomUtil.get("popupContent");
 			var length = m.layer.getChildCount()
 			var markerChildren = m.layer.getAllChildMarkers()
-			// NOTE: use examples from http://jsfiddle.net/hsJbu/
-			// The elements that are added from the popupContentCallback contain information like div class="25", div class="24"
-			// Use the code from the examples in the link above to hide/show the elements
 			
 			for (var i = 0; i < length; i ++){
-			//	popupContentElement.innerHTML += markerChildren[i].popupContentCallback
-				popupContentElement.innerHTML = popupContentElement.innerHTML + markerChildren[i].popupContentCallback
+				popupContentElement.innerHTML += markerChildren[i].popupContentCallback
 			}
 
+		// prevNext element holds "showing results..." and prev next buttons at bottom of screen
+	 	var prevNext = document.createElement('div');
+		prevNext.setAttribute('style','clear:both');
 
-			// prevNext element holds "showing results..." and prev next buttons at bottom of screen
-	 	      	var prevNext = document.createElement('div');
-			prevNext.setAttribute('style','clear:both');
+		// previous button
+	 	var prev = document.createElement('a');
+		prev.appendChild(document.createTextNode('Prev '))
+		prev.setAttribute('id', 'prev')
+		prevNext.appendChild(prev)
+		// next button
+		var next = document.createElement('a');
+		next.appendChild(document.createTextNode('Next'))
+		next.setAttribute('id','next')	
+		prevNext.appendChild(next)
+		//additional information for the user
+		var text= document.createElement('div');
+		text.setAttribute('id','text')	
+		prevNext.appendChild(text)
 
-			// previous button
-	 	      	var prev = document.createElement('a');
-			prev.appendChild(document.createTextNode('Prev'))
-			prev.setAttribute('id', 'prev')
-			prevNext.appendChild(prev)
-			// next button
-			var next = document.createElement('a');
-			next.appendChild(document.createTextNode('Next'))
-			next.setAttribute('id','next')	
-			prevNext.appendChild(next)
+		popupContentElement.appendChild(prevNext)
 
-			var text= document.createElement('div');
-			text.setAttribute('id','text')	
-			prevNext.appendChild(text)
+            	var elements = $("#popupContent").children(".photo");
+            	var length = elements.length;
+            	var counter = 0;
 
-			popupContentElement.appendChild(prevNext)
-
-
-				//<div id="text" style="">Content<div>
-			    var elements = $("#popupContent").children(".photo");
-			    var length = elements.length;
-			    var counter = 0;
-
-			    function displayChange(){
-				    var shownElement = counter + 1
-				    document.getElementById("text").innerHTML = ("Showing result "+ shownElement +" of "+ length)
-			    }
-			    displayChange()
-			    //Get direct children of popupContent div
-			    elements.each(function(e) {
-				if (e != 0)
-				    $(this).hide();
-			    });
-
-
+            	//tell user which photo is currently shown
+            	function displayChange(){
+			var shownElement = counter + 1
+			document.getElementById("text").innerHTML = ("Showing result "+ shownElement +" of "+ length)
+            	}
+            	displayChange()
+            	//Get direct children of popupContent div
+            	elements.each(function(e) {
+			if (e != 0)
+			$(this).hide();
+            	});
 		    
-		    $("#next").click(function(){
+		$("#next").click(function(){
 			// hide the current element
 			elements.eq( counter ).hide()
 			// if this is the last one, reset to 0
@@ -181,9 +170,9 @@
 			elements.eq( counter ).show()
 			displayChange()
 			return false;
-		    });
+		});
 
-		    $("#prev").click(function(){
+		$("#prev").click(function(){
 			// hide the current element
 			elements.eq( counter ).hide()
 
@@ -196,19 +185,40 @@
 			elements.eq( counter ).show()
 			displayChange()
 			return false;
-		    });
+		});
 
-			// make the close button
-			var close= document.createElement('a');
-			var closeDiv= document.createElement('div');
-			closeDiv.setAttribute('class', 'remove glyphicon glyphicon-remove glyphicon-white')
-			closeDiv.setAttribute('style','float:right;color: #777;padding:20px')
-			closeDiv.setAttribute('onclick','document.getElementById(\"popupContent\").innerHTML = \"\"')
-			close.appendChild(closeDiv)
-			popupContentElement.appendChild(close)
-		    })
-		    
-		// Handle GBIF Query results
+		var modalBody = document.getElementById("modal-body")
+		var modal = document.getElementById('photoModal')
+		var content = document.getElementById("popupContent")
+
+		// Get the <span> element that closes the modal
+		var span = document.getElementById("close");
+
+		function openModal() {
+		    modal.style.display = "block";
+		}
+		openModal()
+
+		// When the user clicks on <span> (x), close the modal and hide the popupContent
+		span.onclick = function() {
+		    document.getElementById("popupContent").innerHTML = ""
+		    modal.style.display = "none";
+		}
+
+		// When the user clicks anywhere outside of the modal, close it
+		window.onclick = function(event) {
+		    if (event.target == modal) {
+			modal.style.display = "none";
+			document.getElementById("popupContent").innerHTML = ""
+		    }
+		}
+
+		modalBody.appendChild(content)
+		console.log(modal)
+	})
+
+	    
+	// Handle GBIF Query results
 	     } else {
        	            this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: true});
 		    angular.forEach(data, function (resource) {
