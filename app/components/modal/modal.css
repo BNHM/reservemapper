@@ -8,30 +8,31 @@
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
     background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
 }
 
 /* Modal Content */
 .modal-content {
-    background-color: #f5f5f5;
+    background-color: #f5f5f500;
     padding: 300px;
     padding-bottom:350px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0);
+    border: 1px solid rgba(0, 0, 0, 0);
 }
 
 /* The Close Button */
 #close {
-    color: #c3b8b8;
-    float: right;
-    font-size: 28px;
+    color: #f9efef;
+    font-size: 30px;
     font-weight: bold;
     position: absolute;
-    right:-250px;
+    right:-213px;
     top:-300px;
 }
 
 #close:hover,
 #close:focus {
-    color: #615b5b;
+    color: #423b3b;
     text-decoration: none;
     cursor: pointer;
 }
@@ -42,8 +43,14 @@
 	position:absolute;
 	text-align: center;
 	right:-200px;
+	left:-250px;
 	top:-295px;
+}
 
+#prevNext a {
+	font-weight:bold;
+	color:#03112d;
+	font-size: large;
 }
 
 #popupContent img{
