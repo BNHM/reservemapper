@@ -90,24 +90,30 @@
 	if (this.photoOption) {
 		this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: true });
 		var count = 0;
+		//retreive modal defined in query.html, will hold popupContent
+		var modal = document.getElementById('photoModal')
+		function openModal() {
+		    modal.style.display = "block";
+		}
             angular.forEach(data, function (resource) {
                 var marker = L.geoJSON(resource['geometry'], {
                 style: function (feature) {
                 return feature.properties.style;
                 },
                 onEachFeature: function (feature, layer) {
-				// set popupcontentcallback for each feature but do not bind it here
-				// use use the marker click function to control how photos are displayed on map
-				layer.popupContentCallback = popupContentCallback(resource,count++)
-     			}
+			// set popupcontentcallback for each feature but do not bind it here
+			// use use the marker click function to control how photos are displayed on map
+			layer.popupContentCallback = popupContentCallback(resource,count++)
+     		}
  		});
 			
                 // when marker clicked, show information in the popupContent box
                 marker.on('click', function(m,resource) {
-                    var popupContentElement = L.DomUtil.get("popupContent");
-                    popupContentElement.innerHTML=m.layer.popupContentCallback
+                	var popupContentElement = L.DomUtil.get("popupContent");
+                	popupContentElement.innerHTML=m.layer.popupContentCallback;
+			openModal();
 		});
-			    _this._markers.push(marker);
+		_this._markers.push(marker);
             });
 
 		// Once done adding markers to the _this.markers array THEN create the clusterLayer clusterclick option
@@ -121,11 +127,6 @@
 			}
 	
 			/* The following code will display each marker element one at a time, after the user clicks a cluster*/
-			//Retrieve modal and open it 
-			var modal = document.getElementById('photoModal')
-			function openModal() {
-			    modal.style.display = "block";
-			}
 			openModal()
 
 			// prevNext element holds "showing results..." and prev next buttons
