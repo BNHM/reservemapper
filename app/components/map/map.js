@@ -119,105 +119,108 @@
 			for (var i = 0; i < length; i ++){
 				popupContentElement.innerHTML += markerChildren[i].popupContentCallback
 			}
-
-		// prevNext element holds "showing results..." and prev next buttons at bottom of screen
-	 	var prevNext = document.createElement('div');
-		prevNext.setAttribute('style','clear:both');
-
-		// previous button
-	 	var prev = document.createElement('a');
-		prev.appendChild(document.createTextNode('Prev '))
-		prev.setAttribute('id', 'prev')
-		prevNext.appendChild(prev)
-		// next button
-		var next = document.createElement('a');
-		next.appendChild(document.createTextNode('Next'))
-		next.setAttribute('id','next')	
-		prevNext.appendChild(next)
-		//additional information for the user
-		var text= document.createElement('div');
-		text.setAttribute('id','text')	
-		prevNext.appendChild(text)
-
-		popupContentElement.appendChild(prevNext)
-
-            	var elements = $("#popupContent").children(".photo");
-            	var length = elements.length;
-            	var counter = 0;
-
-            	//tell user which photo is currently shown
-            	function displayChange(){
-			var shownElement = counter + 1
-			document.getElementById("text").innerHTML = ("Showing result "+ shownElement +" of "+ length)
-            	}
-            	displayChange()
-            	//Get direct children of popupContent div
-            	elements.each(function(e) {
-			if (e != 0)
-			$(this).hide();
-            	});
-		    
-		$("#next").click(function(){
-			// hide the current element
-			elements.eq( counter ).hide()
-			// if this is the last one, reset to 0
-			if (counter == length -1) {
-			    counter = 0;
-			// increment counter in other cases
-			} else {
-			    counter++;
+	
+			/* The following code will display each marker element one at a time, after the user clicks a cluster*/
+			//Retrieve modal and open it 
+			var modal = document.getElementById('photoModal')
+			function openModal() {
+			    modal.style.display = "block";
 			}
-			elements.eq( counter ).show()
-			displayChange()
-			return false;
-		});
+			openModal()
 
-		$("#prev").click(function(){
-			// hide the current element
-			elements.eq( counter ).hide()
+			// prevNext element holds "showing results..." and prev next buttons
+			var prevNext = document.createElement('div');
+			prevNext.setAttribute('id','prevNext');
+		
+			// previous button
+			var prev = document.createElement('a');
+			prev.appendChild(document.createTextNode('Prev '))
+			prev.setAttribute('id', 'prev')
+			prevNext.appendChild(prev)
+			// next button
+			var next = document.createElement('a');
+			next.appendChild(document.createTextNode('Next'))
+			next.setAttribute('id','next')	
+			prevNext.appendChild(next)
+			//additional information for the user
+			var text= document.createElement('div');
+			text.setAttribute('id','text')	
+			prevNext.appendChild(text)
 
-			// if this is the first one, reset to 0
-			if (counter == 0) {
-			    counter = length -1;
-			} else {
-			    counter--;
+			//add user controls into the popup information	
+			popupContentElement.appendChild(prevNext)
+
+			//retrieve each element to be displayed
+			var elements = $("#popupContent").children(".photo");
+			var length = elements.length;
+			var counter = 0;
+		   
+			//Get direct children of popupContent div
+			elements.each(function(e) {
+				if (e != 0)
+				$(this).hide();
+			});
+			
+			//next button controller function
+			$("#next").click(function(){
+				// hide the current element
+				elements.eq( counter ).hide()
+				// if this is the last one, reset to 0
+				if (counter == length -1) {
+				    counter = 0;
+				// increment counter in other cases
+				} else {
+				    counter++;
+				}
+				elements.eq( counter ).show()
+				displayChange()
+				return false;
+			});
+
+			//prev button controller function
+			$("#prev").click(function(){
+				// hide the current element
+				elements.eq( counter ).hide()
+
+				// if this is the first one, reset to 0
+				if (counter == 0) {
+				    counter = length -1;
+				} else {
+				    counter--;
+				}
+				elements.eq( counter ).show()
+				displayChange()
+				return false;
+			});
+
+			//populate additional information for the user
+			function displayChange(){
+				var shownElement = counter + 1
+				text.innerHTML = ("Showing result "+ shownElement +" of "+ length)
 			}
-			elements.eq( counter ).show()
 			displayChange()
-			return false;
-		});
 
-		var modalBody = document.getElementById("modal-body")
-		var modal = document.getElementById('photoModal')
-		var content = document.getElementById("popupContent")
+			//retrieve the new popupContent information	
+			var content = document.getElementById("popupContent")
+			
+			//add all information from popupContent into modal body
+			document.getElementById("modal-body").appendChild(content)
+			
+			//retrieve close element by ID, on click (x) hide modal and hide popupContent
+			document.getElementById("close").onclick = function() {
+			    content.innerHTML = ""
+			    modal.style.display = "none";
+			}
 
-		// Get the <span> element that closes the modal
-		var span = document.getElementById("close");
-
-		function openModal() {
-		    modal.style.display = "block";
-		}
-		openModal()
-
-		// When the user clicks on <span> (x), close the modal and hide the popupContent
-		span.onclick = function() {
-		    document.getElementById("popupContent").innerHTML = ""
-		    modal.style.display = "none";
-		}
-
-		// When the user clicks anywhere outside of the modal, close it
-		window.onclick = function(event) {
-		    if (event.target == modal) {
-			modal.style.display = "none";
-			document.getElementById("popupContent").innerHTML = ""
-		    }
-		}
-
-		modalBody.appendChild(content)
-		console.log(modal)
+			// When user clicks anywhere outside of modal, hide modal and popupContent
+			window.onclick = function(event) {
+			    if (event.target == modal) {
+				modal.style.display = "none";
+				content.innerHTML = ""
+			    }
+			}
 	})
 
-	    
 	// Handle GBIF Query results
 	     } else {
        	            this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: true});

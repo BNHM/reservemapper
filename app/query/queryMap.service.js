@@ -36,11 +36,9 @@
 			if (photoOption)
 				popupContent = function (resource, classNum) {
 					var retString = "<div class='photo " + classNum + "'>"
-					retString += "<div style='float:left'>"
-					retString += "<a href='" + resource.media_url+ "' target='_blank'><img hspace=5 height=200 src='" + resource.media_url + "'></a>";
-				//	retString += "</div><div style='float:left'>"
+					retString += "<a href='" + resource.media_url+ "' target='_blank'><img src='" + resource.media_url + "'></a>";
 					if (resource.observations[0] != null)
-					retString += "<ul style='float:right'>"	
+					retString += "<ul>"	
 					retString += "<br><strong><i>" + resource.observations[0].scientific_name + "</strong></i>" 
 					retString += "<br><a href='" + resource.remote_resource + "' target='_blank'>Photo Courtesy of CalPhotos</a>" 
 					retString += "<br>license: "+ resource.license 
@@ -50,9 +48,6 @@
 					if (resource.locality)
 						retString += "<br>at " + resource.locality
 					retString += "</ul>"
-					retString += "</div>"
-				//	retString += "<br><a class ='button' href='#' id='next'>Next</a>"
-				//	retString += "<br><a class ='button' href='#' id='prev'>Prev</a>"
 					return retString;
 				};
 			else
