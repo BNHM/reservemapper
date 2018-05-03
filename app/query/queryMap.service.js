@@ -30,14 +30,16 @@
 			// in a call to a div tag.  Then, ran into more troubles trying to pass scope of the close command into the
 			// map.map module and having that effectively switch the showPopup variable to off, which lived inside another
 			// module.  
-			//var closeDiv = "<a href='#'><div class='remove glyphicon glyphicon-remove glyphicon-white' style='float:right;color: #777;padding:5px' onclick='document.getElementById(\"popupContent\").innerHTML = \"\";'></div></a>"
-			//var closeDiv = "<a href='#'><div class='remove glyphicon glyphicon-remove glyphicon-white' style='float:right;color: #777;padding:5px' onclick='document.getElementById(\"popupContent\").innerHTML = \"\"'></div></a>"
 
 			if (photoOption)
 				popupContent = function (resource, classNum) {
+					//push object containing new scientific name into observations array, if observations array is empty
+					if (resource.observations[0] == undefined){
+						resource.observations.push({scientific_name : 'undefined', url : 'unknown'})
+					} 
 					var retString = "<div class='photo " + classNum + "'>"
 					retString += "<a href='" + resource.media_url+ "' target='_blank'><img src='" + resource.media_url + "'></a>";
-					if (resource.observations[0] != null)
+					//if (resource.observations[0] != null)
 					retString += "<ul>"	
 					retString += "<br><strong><i>" + resource.observations[0].scientific_name + "</strong></i>" 
 					retString += "<br><a href='" + resource.remote_resource + "' target='_blank'>Photo Courtesy of CalPhotos</a>" 
