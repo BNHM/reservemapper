@@ -4,7 +4,6 @@
     position: fixed; /* Stay in place */
     z-index: 9999; /* Sit on top */
     padding-top: 50px; /* Location of the box */
-    padding-left: 400px;
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
@@ -37,6 +36,8 @@
     text-decoration: none;
     cursor: pointer;
 }
+
+/*additional user information */
 #prevNext{
 	color:#000000;
 	font-weight:400;
@@ -48,6 +49,7 @@
 	top:-295px;
 }
 
+/*user controls*/
 #prevNext a {
 	font-weight:bold;
 	color:#f9efef;
@@ -62,6 +64,7 @@
 	max-height:600px;
 }
 
+/*Image Meta Data*/
 #popupContent ul {
 	display:inline-table;
 	width: 400px;
@@ -75,7 +78,7 @@
 	letter-spacing: -1px;
 	background: rgb(154, 142, 142); /* fallback color */
 	background: #151313d9;
-	margin:0;
 	padding:0;
+	padding-bottom: 15px;
 }
 
