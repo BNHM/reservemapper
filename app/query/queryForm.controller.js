@@ -11,6 +11,9 @@
         var vm = this;
         var _currentLayer = undefined;
 
+	$scope.setPhotoOption = function(value) {
+		queryMap.setPhoto(value)
+	}
         $scope.ranks = ['SPECIES', 'GENUS', 'FAMILY', 'ORDER', 'CLASS', 'PHYLUM', 'KINGDOM']
         //vm.params.rank = $scope.ranks[0]
         queryParams.rank = 'SPECIES';

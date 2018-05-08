@@ -67,28 +67,44 @@
                 this._clearMap();
 		this.addMarkers(data, popupContentCallback, zoomTo);
                 this._map.on('move', this._updateMarkerLocations.bind(this));
-                this._clusterLayer = L.markerClusterGroup();
+       	        //this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: true});
+         //       this._clusterLayer = L.markerClusterGroup({chunkedLoading: true});
             },
 	    
 		// Set photo option
+	    /*
 	    setPhoto: function(photoOption) {
 		var _this = this;
 	    	this.photoOption = photoOption;
-                this._clusterLayer = L.markerClusterGroup({
+                this._clearMap();
+		if (photoOption) {
+                    this._clusterLayer = L.markerClusterGroup({
 			chunkedLoading: true,
     			spiderfyOnMaxZoom: false, 
     			showCoverageOnHover: false, 
     			zoomToBoundsOnClick: false 
-		});
-		
+		    });
+		} else {
+                    this._clusterLayer = L.markerClusterGroup({
+			chunkedLoading: true,
+    			spiderfyOnMaxZoom: true, 
+    			showCoverageOnHover: true, 
+    			zoomToBoundsOnClick: true
+		    });
+		    // JBD added
+		   this._clusterLayer.on('clusterclick', function(m,resource){
+		   	return false;
+			})
+		}
 	    },
+	    */
 
             addMarkers: function(data, popupContentCallback, zoomTo) {
                 var _this = this;
 				
 	// Handle Photos, which have geojson objects passed in
 	if (this.photoOption) {
-		this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: true });
+		//this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: true });
 		var count = 0;
 		//retreive modal defined in query.html, will hold popupContent
 		var modal = document.getElementById('photoModal')
@@ -117,7 +133,8 @@
             });
 
 		// Once done adding markers to the _this.markers array THEN create the clusterLayer clusterclick option
-		_this._clusterLayer.on('clusterclick', function(m,resource){
+		/*(
+		this._clusterLayer.on('clusterclick', function(m,resource){
 			var popupContentElement = L.DomUtil.get("popupContent");
 			var length = m.layer.getChildCount()
 			var markerChildren = m.layer.getAllChildMarkers()
@@ -126,7 +143,7 @@
 				popupContentElement.innerHTML += markerChildren[i].popupContentCallback
 			}
 	
-			/* The following code will display each marker element one at a time, after the user clicks a cluster*/
+			// The following code will display each marker element one at a time, after the user clicks a cluster
 			openModal()
 
 			// prevNext element holds "showing results..." and prev next buttons
@@ -221,10 +238,11 @@
 			    }
 			}
 	})
+	*/
 
 	// Handle GBIF Query results
 	     } else {
-       	            this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: true});
+       	            //this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: true});
 		    angular.forEach(data, function (resource) {
                     var lat = resource[_this.latColumn];
                     // var lng = L.Util.wrapNum(resource[_this.lngColumn], [0,360], true); // center on pacific ocean

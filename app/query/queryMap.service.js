@@ -31,7 +31,11 @@
 			// map.map module and having that effectively switch the showPopup variable to off, which lived inside another
 			// module.  
 
-			if (photoOption)
+		        this._clearMap();
+			if (photoOption) {
+				// TODO: Modify this by porting code from map.js
+                   		this._clusterLayer.off('clusterclick')
+                   		this._clusterLayer.on('clusterclick', function(m,resource){ alert('we a photo. put photo logic here from map.js'); })
 				popupContent = function (resource, classNum) {
 					//push object containing new scientific name into observations array, if observations array is empty
 					if (resource.observations[0] == undefined){
@@ -52,7 +56,12 @@
 					retString += "</ul>"
 					return retString;
 				};
-			else
+			} else {
+                   		this._clusterLayer.off('clusterclick')
+				// TODO: Modify this
+                   		this._clusterLayer.on('clusterclick', function(a) {
+					alert('we an occurrance, modify behaviour. e.g. zoom in once and re-clusterfy')
+				})
 				popupContent = function (resource) {
 					return "<strong>institutionCode</strong>:  " + resource.institutionCode + "<br>" +
 						"<strong>basisOfRecord</strong>:  " + resource.basisOfRecord + "<br>" +
@@ -62,6 +71,7 @@
 						"<strong>Locality, Country</strong>:  " + resource.locality + ", " + resource.country + "<br>" +
 						"<a href='http://www.gbif.org/occurrence/" + resource.key + "' target='_blank'>Occurrence details from GBIF site</a>";
 				};
+				}
 		}
 
 		QueryMap.prototype.setMarkers = function (data, zoomTo) {
