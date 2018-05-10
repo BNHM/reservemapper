@@ -107,10 +107,10 @@
 		//this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: true });
 		var count = 0;
 		//retreive modal defined in query.html, will hold popupContent
-		var modal = document.getElementById('photoModal')
+		/*var modal = document.getElementById('photoModal')
 		function openModal() {
 		    modal.style.display = "block";
-		}
+		}*/
             angular.forEach(data, function (resource) {
                 var marker = L.geoJSON(resource['geometry'], {
                 style: function (feature) {
@@ -238,8 +238,8 @@
 			    }
 			}
 	})
-	*/
 
+*/
 	// Handle GBIF Query results
 	     } else {
        	            //this._clusterLayer = L.markerClusterGroup({chunkedLoading: true, spiderfyOnMaxZoom: true});
@@ -259,7 +259,7 @@
                   });
 		}
 
-                this._clusterLayer.addLayers(this._markers);
+		this._clusterLayer.addLayers(this._markers);
 
                 this._map
                     .addLayer(this._clusterLayer)
