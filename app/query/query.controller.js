@@ -39,11 +39,6 @@
         $scope.$watch('vm.showMap', updateMapSize);
        //$scope.$watch('vm.showStats',showStats);
 
-      // function stats(){
-       //window.print("I would like this to be some text that appears under Stats");
-       //}
-				
-
         function updateMapSize(newVal, oldVal) {
             if (newVal != oldVal) {
                 vm.invalidSize = true;
