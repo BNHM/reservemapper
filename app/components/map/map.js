@@ -43,9 +43,10 @@
 				this._usgsTiles = L.tileLayer.wms('https://basemap.nationalmap.gov/arcgis/services/USGSImageryOnly/MapServer/WMSServer', { layers: 0, maxZoom: 8 });
 				this._esriTopoTiles = L.tileLayer.wms('http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { layers: 0 });
 
-				this._clusterLayer = L.markerClusterGroup({chunkedLoading: true});
-
+			//	this._clusterLayer = L.markerClusterGroup({chunkedLoading: true});
+			
 				var _this = this;
+			
 				this._map.on('dragstart', function () {
 					var centerLng = _this._map.getCenter().lng;
 					// the following is how leaflet internally calculates the max bounds. Leaflet doesn't provide a way
@@ -76,11 +77,30 @@
 				window.onclick = function(event) {
 					if (event.target == modal) {
 						modal.style.display = "none";
-						content.innerHTML = ""
+						//content.innerHTML = ""
 					}
 				}
 				angular.forEach(data, function (resource) {
 					if (_this.photoOption) {
+						popupContentCallback = function(resource, classNum) {
+							//push object containing new scientific name into observations array, if observations array is empty
+							if (resource.observations[0] == undefined){
+								resource.observations.push({scientific_name : 'undefined', url : 'unknown'})
+							} 
+							var retString = "<div class='photo " + classNum + "'>"
+							retString += "<a href='" + resource.media_url+ "' target='_blank'><img src='" + resource.media_url + "'></a>";
+							retString += "<ul>"	
+							retString += "<br><strong><i>" + resource.observations[0].scientific_name + "</strong></i>" 
+							retString += "<br><a href='" + resource.remote_resource + "' target='_blank'>Photo Courtesy of CalPhotos</a>" 
+							retString += "<br>license: "+ resource.license 
+							retString += "<br>photo taken on " + resource.begin_date 
+							if (resource.authors )
+								retString += "<br>by " + resource.authors 
+							if (resource.locality)
+								retString += "<br>at " + resource.locality
+							retString += "</ul>"
+							return retString;
+						}
 						var marker = L.geoJSON(resource['geometry'], {
 							style: function (feature) {
 								return feature.properties.style;
@@ -90,7 +110,6 @@
 								layer.popupContentCallback = popupContentCallback(resource,count++)
 							}
 						});
-
 						// when marker clicked, show information in the popupContent box
 						marker.on('click', function(m,resource) {
 							var popupContentElement = L.DomUtil.get("popupContent");
@@ -98,7 +117,20 @@
 							openModal()
 						});
 						_this._markers.push(marker); 
-					} else {
+					 	_this._clusterLayer = L.markerClusterGroup()
+						_this._clusterLayer.on('clusterclick', function (a) {
+							console.log('cluster ' + a.layer.getAllChildMarkers().length);
+						});
+						} else {
+						popupContentCallback = function (resource) {
+							return "<strong>institutionCode</strong>:  " + resource.institutionCode + "<br>" +
+								"<strong>basisOfRecord</strong>:  " + resource.basisOfRecord + "<br>" +
+								"<strong>eventDate</strong>:  " + resource.eventDate + "<br>" +
+								"<strong>recordedBy</strong>:  " + resource.recordedBy + "<br>" +
+								"<strong>ScientificName</strong>:  " + resource.scientificName + "<br>" +
+								"<strong>Locality, Country</strong>:  " + resource.locality + ", " + resource.country + "<br>" +
+								"<a href='http://www.gbif.org/occurrence/" + resource.key + "' target='_blank'>Occurrence details from GBIF site</a>";
+						}
 						var lat = resource[_this.latColumn];
 						// var lng = L.Util.wrapNum(resource[_this.lngColumn], [0,360], true); // center on pacific ocean
 						var lng = resource[_this.lngColumn];
@@ -110,12 +142,12 @@
 							}
 							_this._markers.push(marker);
 						}
+							
 					} 
 				})
 
 				this._clusterLayer.addLayers(this._markers);
 
-				//_this._clusterLayer.on('clusterclick', openModal());
 				this._map
 					.addLayer(this._clusterLayer)
 					.setMinZoom(1)
