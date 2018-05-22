@@ -74,20 +74,26 @@
 				function openModal() {
 					modal.style.display = "block";
 				}
-				window.onclick = function(event) {
-					if (event.target == modal) {
-						modal.style.display = "none";
-						//content.innerHTML = ""
-					}
+			
+				//retrieve close element by ID, on click (x) hide modal and hide popupContent
+				document.getElementById("close").onclick = function() {
+					content.innerHTML = ""
+					modal.style.display = "none";
 				}
+
+			
+
+
 				angular.forEach(data, function (resource) {
+					var popupContentElement = L.DomUtil.get("popupContent");
+					var popupContentElement2 = L.DomUtil.get("popupContent2");
 					if (_this.photoOption) {
-						popupContentCallback = function(resource, classNum) {
+						popupContentCallback = function(resource) { 
 							//push object containing new scientific name into observations array, if observations array is empty
 							if (resource.observations[0] == undefined){
 								resource.observations.push({scientific_name : 'undefined', url : 'unknown'})
 							} 
-							var retString = "<div class='photo " + classNum + "'>"
+							var retString = "<div class='photo'>"
 							retString += "<a href='" + resource.media_url+ "' target='_blank'><img src='" + resource.media_url + "'></a>";
 							retString += "<ul>"	
 							retString += "<br><strong><i>" + resource.observations[0].scientific_name + "</strong></i>" 
@@ -99,7 +105,7 @@
 							if (resource.locality)
 								retString += "<br>at " + resource.locality
 							retString += "</ul>"
-							return retString;
+							return retString; 
 						}
 						var marker = L.geoJSON(resource['geometry'], {
 							style: function (feature) {
@@ -110,43 +116,161 @@
 								layer.popupContentCallback = popupContentCallback(resource,count++)
 							}
 						});
-						// when marker clicked, show information in the popupContent box
+						//when marker clicked, show information in the popupContent box
 						marker.on('click', function(m,resource) {
-							var popupContentElement = L.DomUtil.get("popupContent");
 							popupContentElement.innerHTML=m.layer.popupContentCallback;
 							openModal()
 						});
-						_this._markers.push(marker); 
-					 	_this._clusterLayer = L.markerClusterGroup()
-						_this._clusterLayer.on('clusterclick', function (a) {
-							console.log('cluster ' + a.layer.getAllChildMarkers().length);
-						});
-						} else {
-						popupContentCallback = function (resource) {
-							return "<strong>institutionCode</strong>:  " + resource.institutionCode + "<br>" +
+					} else {
+						popupContentCallback = function (resource) { 
+							var retString = "<div class='query' id='pickme'>" + 
+								"<strong>institutionCode</strong>:  " + resource.institutionCode + "<br>" +
 								"<strong>basisOfRecord</strong>:  " + resource.basisOfRecord + "<br>" +
 								"<strong>eventDate</strong>:  " + resource.eventDate + "<br>" +
 								"<strong>recordedBy</strong>:  " + resource.recordedBy + "<br>" +
 								"<strong>ScientificName</strong>:  " + resource.scientificName + "<br>" +
 								"<strong>Locality, Country</strong>:  " + resource.locality + ", " + resource.country + "<br>" +
-								"<a href='http://www.gbif.org/occurrence/" + resource.key + "' target='_blank'>Occurrence details from GBIF site</a>";
+								"<a href='http://www.gbif.org/occurrence/" + resource.key + "' target='_blank'>Occurrence details from GBIF site</a>"
+							"</div>"
+							return retString;
 						}
 						var lat = resource[_this.latColumn];
-						// var lng = L.Util.wrapNum(resource[_this.lngColumn], [0,360], true); // center on pacific ocean
 						var lng = resource[_this.lngColumn];
 
 						if (typeof lat === 'number' & typeof lng === 'number') {
-							var marker = L.marker([lat, lng]);
+							var marker = L.marker([lat, lng])
+							var thisElement = popupContentCallback(resource) 
 							if (typeof popupContentCallback === 'function') {
-								marker.bindPopup(popupContentCallback(resource));
+								marker.on('click', function() {
+									popupContentElement2.innerHTML=thisElement;
+									openModal()
+								});
 							}
-							_this._markers.push(marker);
 						}
-							
-					} 
+					}
+
+					_this._markers.push(marker); 
+					_this._clusterLayer = L.markerClusterGroup()
+					_this._clusterLayer.on('clusterclick', function (m, resource) {
+						var length = m.layer.getChildCount()
+						var markerChildren = m.layer.getAllChildMarkers()
+
+						if (_this.photoOption) {
+							for (var i = 0; i < length; i ++){
+								popupContentElement.innerHTML += markerChildren[i].popupContentCallback
+							}
+
+							//retrieve each element to be displayed
+							var elements = $("#popupContent").children(".photo");
+							var length = elements.length;
+							var counter = 0;
+
+							//Get direct children of popupContent div
+							elements.each(function(e) {
+								if (e != 0)
+									$(this).hide();
+							});
+
+						}
+						else {
+							for (var i = 0; i < length; i ++){
+								popupContentElement2.innerHTML += markerChildren[i].popupContentCallback
+
+							}
+							//retrieve each element to be displayed
+							var elements = $("#popupContent2").children(".query");
+							var length = elements.length;
+							var counter = 0;
+
+							//Get direct children of popupContent div
+							elements.each(function(e) {
+								if (e != 0)
+									$(this).hide();
+							});
+						}
+
+						// prevNext element holds "showing results..." and prev next buttons
+						var prevNext = document.createElement('div');
+						prevNext.setAttribute('id','prevNext');
+
+						// previous button
+						var prev = document.createElement('a');
+						prev.appendChild(document.createTextNode('Prev '))
+						prev.setAttribute('id', 'prev')
+						prevNext.appendChild(prev)
+						// next button
+						var next = document.createElement('a');
+						next.appendChild(document.createTextNode('Next'))
+						next.setAttribute('id','next')
+						prevNext.appendChild(next)
+						//additional information for the user
+						var text= document.createElement('div');
+						text.setAttribute('id','text')
+						prevNext.appendChild(text)
+
+						//add user controls into the popup information
+						popupContentElement.appendChild(prevNext)
+
+
+
+						//next button controller function
+						$("#next").click(function(){
+							// hide the current element
+							elements.eq( counter ).hide()
+							// if this is the last one, reset to 0
+							if (counter == length -1) {
+								counter = 0;
+								// increment counter in other cases
+							} else {
+								counter++;
+							}
+							elements.eq( counter ).show()
+							displayChange()
+							return false;
+						});
+
+						//prev button controller function
+						$("#prev").click(function(){
+							// hide the current element
+							elements.eq( counter ).hide()
+
+							// if this is the first one, reset to 0
+							if (counter == 0) {
+								counter = length -1;
+							} else {
+								counter--;
+							}
+							elements.eq( counter ).show()
+							displayChange()
+							return false;
+						});
+
+						//populate additional information for the user
+						function displayChange(){
+							var shownElement = counter + 1
+							text.innerHTML = ("Showing result "+ shownElement +" of "+ length)
+						}
+						displayChange()
+
+						//add all information from popupContent into modal body
+						document.getElementById("modal-body").appendChild(popupContentElement)
+
+						// The following code will display each marker element one at a time, after the user clicks a cluster
+						openModal()	
+					
+						// When user clicks anywhere outside of modal, hide modal and popupContent
+						window.onclick = function(event) {
+							if (event.target == modal) {
+								modal.style.display = "none";
+								popupContentElement.innerHTML = ""
+							}
+						}
+					
+					});
+
 				})
 
-				this._clusterLayer.addLayers(this._markers);
+				_this._clusterLayer.addLayers(this._markers);
 
 				this._map
 					.addLayer(this._clusterLayer)

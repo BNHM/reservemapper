@@ -140,6 +140,9 @@
 
         function queryPhotos() {
             usSpinnerService.spin('query-spinner');
+	    // Remove any elements from map, in case the user switches between photos and query but does not change
+	    // the spatial layer
+            queryMap._clearMap();
 
             // zoom to selected layer
             zoomLayer();
