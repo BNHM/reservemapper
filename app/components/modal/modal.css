@@ -83,16 +83,18 @@
 }
 
 /* Occurence Query Data */
-#pickme {
+.query {
 	color: rgba(0, 0, 0, 12.8);
 	font-size: large; 
 	position:absolute;
-	left: -150px;
-	right: -500px;
+	left: -220px;
+	right: -200px;
 	bottom: 50px; 
 	font-weight: 800;
+	background: #f5f5f58f; /* fallback color */
+	
 
 }	
-#pickme strong {
+.query strong {
 	color: #0000008a;
-}
+
