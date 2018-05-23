@@ -82,6 +82,17 @@
 	padding-bottom: 15px;
 }
 
-#popupContent #pickme {
-	font-color: red;
+/* Occurence Query Data */
+#pickme {
+	color: rgba(0, 0, 0, 12.8);
+	font-size: large; 
+	position:absolute;
+	left: -150px;
+	right: -500px;
+	bottom: 50px; 
+	font-weight: 800;
+
 }	
+#pickme strong {
+	color: #0000008a;
+}

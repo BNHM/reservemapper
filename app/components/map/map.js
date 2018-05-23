@@ -75,11 +75,6 @@
 					modal.style.display = "block";
 				}
 			
-				//retrieve close element by ID, on click (x) hide modal and hide popupContent
-				document.getElementById("close").onclick = function() {
-					content.innerHTML = ""
-					modal.style.display = "none";
-				}
 
 			
 
@@ -123,15 +118,14 @@
 						});
 					} else {
 						popupContentCallback = function (resource) { 
-							var retString = "<div class='query' id='pickme'>" + 
-								"<strong>institutionCode</strong>:  " + resource.institutionCode + "<br>" +
-								"<strong>basisOfRecord</strong>:  " + resource.basisOfRecord + "<br>" +
-								"<strong>eventDate</strong>:  " + resource.eventDate + "<br>" +
-								"<strong>recordedBy</strong>:  " + resource.recordedBy + "<br>" +
-								"<strong>ScientificName</strong>:  " + resource.scientificName + "<br>" +
-								"<strong>Locality, Country</strong>:  " + resource.locality + ", " + resource.country + "<br>" +
-								"<a href='http://www.gbif.org/occurrence/" + resource.key + "' target='_blank'>Occurrence details from GBIF site</a>"
-							"</div>"
+							var retString = "<div class='query' id='pickme'>" 
+							retString += "<strong>institutionCode</strong>:  " + resource.institutionCode + "<br>";
+							retString += "<strong>basisOfRecord</strong>:  " + resource.basisOfRecord + "<br>";
+							retString += "<strong>eventDate</strong>:  " + resource.eventDate + "<br>";
+							retString += "<strong>recordedBy</strong>:  " + resource.recordedBy + "<br>";
+							retString += "<strong>ScientificName</strong>:  " + resource.scientificName + "<br>";
+							retString += "<strong>Locality, Country</strong>:  " + resource.locality + ", " + resource.country + "<br>";
+							retString += "<a href='http://www.gbif.org/occurrence/" + resource.key + "' target='_blank'>Occurrence details from GBIF site</a>"
 							return retString;
 						}
 						var lat = resource[_this.latColumn];
@@ -139,32 +133,36 @@
 
 						if (typeof lat === 'number' & typeof lng === 'number') {
 							var marker = L.marker([lat, lng])
-							var thisElement = popupContentCallback(resource) 
+							var queryElement = popupContentCallback(resource) 	
 							if (typeof popupContentCallback === 'function') {
 								marker.on('click', function() {
-									popupContentElement2.innerHTML=thisElement;
+									popupContentElement2.innerHTML=queryElement;
 									openModal()
 								});
 							}
 						}
 					}
+				
+					popupContentElement2.innerHTML=queryElement
 
 					_this._markers.push(marker); 
+				
 					_this._clusterLayer = L.markerClusterGroup()
+					console.log(popupContentElement2)			
+				
 					_this._clusterLayer.on('clusterclick', function (m, resource) {
 						var length = m.layer.getChildCount()
 						var markerChildren = m.layer.getAllChildMarkers()
-
 						if (_this.photoOption) {
 							for (var i = 0; i < length; i ++){
 								popupContentElement.innerHTML += markerChildren[i].popupContentCallback
 							}
-
+							
+							console.log(popupContentElement)
 							//retrieve each element to be displayed
 							var elements = $("#popupContent").children(".photo");
 							var length = elements.length;
 							var counter = 0;
-
 							//Get direct children of popupContent div
 							elements.each(function(e) {
 								if (e != 0)
@@ -174,14 +172,13 @@
 						}
 						else {
 							for (var i = 0; i < length; i ++){
-								popupContentElement2.innerHTML += markerChildren[i].popupContentCallback
-
+								popupContentElement2.innerHTML += markerChildren[i].queryElement
 							}
-							//retrieve each element to be displayed
-							var elements = $("#popupContent2").children(".query");
+							
+							var elements = $("#popupContent2").children("div");
 							var length = elements.length;
 							var counter = 0;
-
+					
 							//Get direct children of popupContent div
 							elements.each(function(e) {
 								if (e != 0)
@@ -254,9 +251,16 @@
 
 						//add all information from popupContent into modal body
 						document.getElementById("modal-body").appendChild(popupContentElement)
+						document.getElementById("modal-body").appendChild(popupContentElement2)
 
 						// The following code will display each marker element one at a time, after the user clicks a cluster
 						openModal()	
+					
+						//retrieve close element by ID, on click (x) hide modal and hide popupContent
+						document.getElementById("close").onclick = function() {
+							content.innerHTML = ""
+							modal.style.display = "none";
+						}
 					
 						// When user clicks anywhere outside of modal, hide modal and popupContent
 						window.onclick = function(event) {
