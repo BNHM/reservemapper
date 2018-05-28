@@ -29,12 +29,10 @@
 			$('input[name=selector]').change(function(popupContent) {
 				var _photo = this	
 				if (this.value == 'photos'){
-					console.log('photos')
 					this.photoOption = photoOption
 					
 				} else if (this.value == 'query') { 
 					var _query = this
-					console.log('query me')	
 					this.photoOption != photoOption
 				}
 			})
