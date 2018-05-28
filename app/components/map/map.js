@@ -93,12 +93,12 @@
 
 		    // previous button
 		    var prev = document.createElement('a');
-		    prev.appendChild(document.createTextNode('Prev '))
+		    prev.appendChild(document.createTextNode(' < '))
 		    prev.setAttribute('id', 'prev')
 		    prevNext.appendChild(prev)
 		    // next button
 		    var next = document.createElement('a');
-		    next.appendChild(document.createTextNode('Next'))
+		    next.appendChild(document.createTextNode(' > '))
 		    next.setAttribute('id','next')
 		    prevNext.appendChild(next)
 		    //additional information for the user
@@ -150,15 +150,14 @@
 
 		    //add all information from popupContent into modal body
 		    document.getElementById("modal-body").appendChild(popupContentElement)
-		    //document.getElementById("modal-body").appendChild(popupContentElement2)
 
 		    // The following code will display each marker element one at a time, after the user clicks a cluster
 		    openModal()	
 
 		    //retrieve close element by ID, on click (x) hide modal and hide popupContent
 		    document.getElementById("close").onclick = function() {
-			content.innerHTML = ""
 			modal.style.display = "none";
+			popupContentElement.innerHTML = ""
 		    }
 
 		    // When user clicks anywhere outside of modal, hide modal and popupContent
@@ -248,9 +247,29 @@
 			}
 		    });
 		    //when marker clicked, show information in the popupContent box
+		    var modal = document.getElementById('photoModal')
+		    function openModal() {
+			modal.style.display = "block";
+		    }
 		    marker.on('click', function(m,resource) {
+		    var popupContentElement = L.DomUtil.get("popupContent");
 			popupContentElement.innerHTML=m.layer.popupContentCallback;
+		    	document.getElementById("modal-body").appendChild(popupContentElement)
 			openModal()
+		    	//retrieve close element by ID, on click (x) hide modal and hide popupContent
+		    document.getElementById("close").onclick = function() {
+			modal.style.display = "none";
+			popupContentElement.innerHTML = ""
+		    }
+
+		    // When user clicks anywhere outside of modal, hide modal and popupContent
+		    window.onclick = function(event) {
+			if (event.target == modal) {
+			    modal.style.display = "none";
+			    popupContentElement.innerHTML = ""
+			}
+		    }
+
 		    });
 
 		    _this._markers.push(marker); 
