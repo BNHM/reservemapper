@@ -47,13 +47,38 @@
 	right:-200px;
 	left:-250px;
 	top:-295px;
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 16px;
 }
 
 /*user controls*/
-#prevNext a {
-	font-weight:bold;
-	color:#f9efef;
-	font-size: large;
+#next {
+	font-size: -webkit-xxx-large;
+	font-weight: 500;
+	color: white;
+	position: absolute;
+	right: -30px;
+	top: 200px;
+	text-decoration: none;
+	background-color: #151313d9;
+}
+
+#prev {
+    font-size: -webkit-xxx-large;
+    font-weight: 500;
+    color: white;
+    position:absolute;
+    left: -10px;
+	top: 200px;
+	text-decoration: none;
+	background-color: #151313d9;
+}
+
+#prevNext a:hover {
+    background-color: #1bb0e4b8;
+    color: #f5f5f5;
+    text-decoration: none;
 }
 
 #popupContent img{
@@ -97,4 +122,5 @@
 }	
 .query strong {
 	color: #0000008a;
+
 
