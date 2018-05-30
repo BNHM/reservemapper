@@ -116,7 +116,7 @@
 						prevNext.appendChild(next)
 						//additional information for the user
 						var text= document.createElement('div');
-						text.setAttribute('id','text')
+						text.setAttribute('id','textModalHeader')
 						prevNext.appendChild(text)
 
 						if (length === 50) {	
@@ -216,8 +216,8 @@
 							retString += "<ul>"	
 							retString += "<br><strong><i>" + resource.observations[0].scientific_name + "</strong></i>" 
 							retString += "<br><a href='" + resource.remote_resource + "' target='_blank'>Photo Courtesy of CalPhotos</a>" 
-							retString += "<br>license: "+ resource.license 
-							retString += "<br>photo taken on " + resource.begin_date 
+							retString += "<br>License: "+ resource.license 
+							retString += "<br>Photo Taken On " + resource.begin_date 
 							if (resource.authors )
 								retString += "<br>by " + resource.authors 
 							if (resource.locality)
@@ -231,12 +231,12 @@
 					else {
 						popupContentCallback = function (resource) { 
 							var retString = "<div class='query'>" 
-							retString += "<strong>institutionCode</strong>:  " + resource.institutionCode + "<br>";
-							retString += "<strong>basisOfRecord</strong>:  " + resource.basisOfRecord + "<br>";
-							retString += "<strong>eventDate</strong>:  " + resource.eventDate + "<br>";
-							retString += "<strong>recordedBy</strong>:  " + resource.recordedBy + "<br>";
-							retString += "<strong>ScientificName</strong>:  " + resource.scientificName + "<br>";
-							retString += "<strong>Locality, Country</strong>:  " + resource.locality + ", " + resource.country + "<br>";
+							retString += "<strong>Institution Code</strong>:  " + resource.institutionCode + "<br>";
+							retString += "<strong>Basis Of Record</strong>:  " + resource.basisOfRecord + "<br>";
+							retString += "<strong>Event Date</strong>:  " + resource.eventDate + "<br>";
+							retString += "<strong>Recorded By</strong>:  " + resource.recordedBy + "<br>";
+							retString += "<strong>Scientific Name</strong>:  " + resource.scientificName + "<br>";
+							retString += "<strong>Locality</strong>:  " + resource.locality + "<br>";
 							retString += "<a href='http://www.gbif.org/occurrence/" + resource.key + "' target='_blank'>Occurrence details from GBIF site</a>"
 							return retString;
 						}
