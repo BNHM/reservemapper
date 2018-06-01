@@ -125,6 +125,7 @@
 							onlyFifty.setAttribute('id', 'onlyFifty')	
 							userInfo.appendChild(onlyFifty)	
 						}
+						
 						//add user controls into the popup information
 						popupContentElement.appendChild(userInfo)
 
