@@ -100,33 +100,33 @@
 								$(this).hide();
 						});
 
-						// prevNext element holds "showing results..." and prev next buttons
-						var prevNext = document.createElement('div');
-						prevNext.setAttribute('id','prevNext');
+						// userInfo element holds "showing results...", "results limited to 50...",  and prev next buttons
+						var userInfo = document.createElement('div');
+						userInfo.setAttribute('id','userInfo');
 
 						// previous button
 						var prev = document.createElement('a');
-						prev.appendChild(document.createTextNode(' < '))
+						prev.appendChild(document.createTextNode('Prev'))
 						prev.setAttribute('id', 'prev')
-						prevNext.appendChild(prev)
+						userInfo.appendChild(prev)
 						// next button
 						var next = document.createElement('a');
-						next.appendChild(document.createTextNode(' > '))
+						next.appendChild(document.createTextNode('Next'))
 						next.setAttribute('id','next')
-						prevNext.appendChild(next)
+						userInfo.appendChild(next)
 						//additional information for the user
 						var text= document.createElement('div');
 						text.setAttribute('id','textModalHeader')
-						prevNext.appendChild(text)
+						userInfo.appendChild(text)
 
 						if (length === 50) {	
 							var onlyFifty = document.createElement('p')
-							onlyFifty.appendChild(document.createTextNode('Showing the first 50 results from this data cluster'))
+							onlyFifty.appendChild(document.createTextNode('Results limited to 50 from this cluster'))
 							onlyFifty.setAttribute('id', 'onlyFifty')	
-							prevNext.appendChild(onlyFifty)	
+							userInfo.appendChild(onlyFifty)	
 						}
 						//add user controls into the popup information
-						popupContentElement.appendChild(prevNext)
+						popupContentElement.appendChild(userInfo)
 
 						//next button controller function
 						$("#next").click(function(){
