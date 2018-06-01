@@ -99,8 +99,8 @@
 /*Image Meta Data*/
 #popupContent ul {
     display:inline-table;
-    width: 400px;
-    right:-160px;
+    width: 480px;
+    right:-200px;
     top:100px;
     color:#dad3d3;
     text-align:center;
