@@ -68,8 +68,20 @@
 	<div ng-show="true">
 		<div id='popupContent'></div>
 	</div>
-
-        <!-- table -->
+	
+	<!-- Modal for holding calphotos popupContent -->	
+	<div id="photoModal"class="modal" role="dialog">
+		<div class="modal-dialog"> 
+			<!-- Modal content -->
+			<div id="modal-content" class="modal-content">
+				<div class="modal-body" id="modal-body">
+					<span id="close">&times;</span>
+				</div>
+			</div>
+		</div> 
+	</div>
+	
+	<!-- table -->
         <div ng-show="vm.showTable" class="query-table" ng-class="{'full-page-query-table': !vm.showSidebar}"
              ng-include="'query/table/' + vm.queryParams.queryType + 'Table.html'"></div>
 
@@ -77,6 +89,7 @@
         <div ng-show="vm.showStats" class="show-stats" ng-class="{'full-page-query-table': !vm.showSidebar}"
         ng-include="'query/stats/' + vm.queryParams.queryType + 'Stats.html'"></div>
 
-
     </div>
 </div>
+
+

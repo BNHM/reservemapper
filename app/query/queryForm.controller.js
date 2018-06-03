@@ -11,6 +11,9 @@
         var vm = this;
         var _currentLayer = undefined;
 
+	$scope.setPhotoOption = function(value) {
+		queryMap.setPhoto(value)
+	}
         $scope.ranks = ['SPECIES', 'GENUS', 'FAMILY', 'ORDER', 'CLASS', 'PHYLUM', 'KINGDOM']
         //vm.params.rank = $scope.ranks[0]
         queryParams.rank = 'SPECIES';
@@ -110,6 +113,9 @@
 
         function queryJson() {
             usSpinnerService.spin('query-spinner');
+	    // Remove any elements from map, in case the user switches between photos and query but does not change
+	    // the spatial layer
+            queryMap._clearMap();
 
             // zoom to selected layer
             zoomLayer();
@@ -134,6 +140,9 @@
 
         function queryPhotos() {
             usSpinnerService.spin('query-spinner');
+	    // Remove any elements from map, in case the user switches between photos and query but does not change
+	    // the spatial layer
+            queryMap._clearMap();
 
             // zoom to selected layer
             zoomLayer();

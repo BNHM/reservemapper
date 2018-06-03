@@ -17,8 +17,8 @@
             <label class="control-label">Query Type</label>
             <div class="filters row">
                 <div class="col-xs-12">
-                    <input type="radio" name="selector" value="query" ng-model="queryFormVm.params.queryType" checked> Occurrence
-                    <input type="radio" name="selector" value="photos" ng-model="queryFormVm.params.queryType"> Calphotos
+                    <input type="radio" name="selector" value="query" ng-model="queryFormVm.params.queryType" checked ng-change="setPhotoOption(false)"> Occurrence
+                    <input type="radio" name="selector" value="photos" ng-model="queryFormVm.params.queryType" ng-change="setPhotoOption(true)"> Calphotos
                 </div>
             </div>
         </div>

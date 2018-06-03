@@ -84,7 +84,7 @@
 
         function _mapResults(results, resetMarkers) {
             queryResults.append(results);
-	    queryMap.setPhoto(true); 
+	    //queryMap.setPhoto(true); 
             if (resetMarkers) {
                 queryMap.setMarkers(results.data);
             } else {
