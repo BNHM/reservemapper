@@ -128,9 +128,10 @@
     <label class="information-text">This site was made possible by a grant from the University of California Division of Agriculture and Natural Resources.
         Species occurrence data are harvested from the
         <a href="http://www.gbif.org/">Global Biodiversity Information Facility</a> and includes data from
-        <a href="https://bnhm.berkeley.edu/">Berkeley Natural History Museums</a> and other institutions. Field Station-specific spatial layers (will be) harvested
-        from the
-        <a href="https://holos.berkeley.edu/">Berkeley EcoEngine.</a>
+        <a href="https://bnhm.berkeley.edu/">Berkeley Natural History Museums</a> and other institutions. 
+        ReserveMapper performs a spatial-bounding box search on coordinates when it acquires data from partners, so results are limited
+        to geo-referenced data that fall within the relevant bounding box for each site.  Observations without coordinates, or that are 
+        purposefully "fuzzed" (e.g. for endangered species) or that have low accuracy may not appear in ReserveMapper results.
     </label>
 </div>
 <div class="col-xs-12">
