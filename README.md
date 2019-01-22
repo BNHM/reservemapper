@@ -17,6 +17,7 @@ npm start (runs at port 8000 by default)
 ```
 
 # to deploy to a remote server
+NOTE: i need to run gulp 3.9.1 to make this work.  Type ```gulp -v``` to check versions and run ```npm install gulp@3.9.1 --save``` as needed.
 ```
 gulp clean
 gulp   (takes all the javascript and html, minimifies and puts in public)
