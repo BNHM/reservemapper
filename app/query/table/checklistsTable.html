@@ -1,0 +1,41 @@
+<div ng-controller="QueryTableController as queryTableVm">
+    <div class="help-block" ng-show="!queryTableVm.queryResults.isSet">Click <strong>Search</strong> on sidebar to
+        display table results
+    </div>
+
+    <div ng-show="queryTableVm.queryResults.isSet">
+	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
+                 <table class="table">
+                     <thead>
+                     <tr>
+			<th sortable='family' class="sortable">family</th>
+			<th sortable='genus' class="sortable">genus</th>
+			<th sortable='genus' class="sortable">specific_epithet</th>
+			<th sortable='begin_date' class="sortable">date of list</th>
+			<th sortable='collection_code' class="sortable">checklist name</th>
+                     </tr>
+                     </thead>
+                     <tbody>
+			<!--<tr grid-item ng-click="queryTableVm.toURL(item.remote_resource)">-->
+			<tr grid-item>
+                        	<td ng-click="queryTableVm.toURL(item.url)" ng-bind-html="item.family"></td>
+                        	<td ng-click="queryTableVm.toURL(item.url)" ng-bind-html="item.genus"></td>
+                        	<td ng-click="queryTableVm.toURL(item.url)" ng-bind-html="item.specific_epithet"></td>
+                        	<td ng-click="queryTableVm.toURL(item.url)" ng-bind-html="item.begin_date"></td>
+                        	<td ng-click="queryTableVm.toURL(item.url)" ng-bind-html="item.collection_code"></td>
+                    	</tr>
+                     </tbody>
+                 </table>
+		 <div class="form-group">
+                       <grid-pagination max-size="5"
+                             boundary-links="true"
+                             class="pagination-sm"
+                             total-items="paginationOptions.totalItems"
+                             ng-model="paginationOptions.currentPage"
+                             ng-change="reloadGrid()"
+                             items-per-page="paginationOptions.itemsPerPage">
+		     </grid-pagination>
+	         </div>
+ 	</div>
+    </div>
+</div>

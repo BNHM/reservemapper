@@ -5,9 +5,9 @@
     app.directive('taxonEmptyContents', ['$filter', '$http', taxonEmptyContents]);
     app.directive('taxonAutoComplete', ['$filter', '$http', taxonAutoCompleteDir]);
     app.controller('QueryFormController', QueryFormController);
-    app.$inject = ['$rootScope', '$location', 'GBIFMapperService', 'photoMapperService', 'queryParams', 'photoParams', 'queryService', 'photoService', 'photoViewer', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
+    app.$inject = ['$rootScope', '$location', 'GBIFMapperService', 'photoMapperService', 'checklistMapperService', 'queryParams', 'photoParams', 'checklistParams', 'queryService', 'photoService', 'checklistService', 'photoViewer', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
 
-    function QueryFormController($scope, $location, GBIFMapperService, photoMapperService, queryParams, photoParams, queryService, photoService, photoViewer, queryMap, queryResults, usSpinnerService, alerts, $http ) {
+    function QueryFormController($scope, $location, GBIFMapperService, photoMapperService, checklistMapperService, queryParams, photoParams, checklistParams, queryService, photoService,  checklistService, photoViewer, queryMap, queryResults, usSpinnerService, alerts, $http ) {
         var vm = this;
         var _currentLayer = undefined;
 
@@ -43,6 +43,8 @@
 
         vm.queryJson = queryJson;
         vm.queryPhotos = queryPhotos;
+        vm.queryChecklists = queryChecklists;
+
         vm.spatialLayerChanged = spatialLayerChanged;
         activate();
 
@@ -100,6 +102,8 @@
                 queryParams.bounds = l.getBounds();
                 // set bounds for photoParams
                 photoParams.bounds = l.getBounds();
+                // set bounds for photoParams
+                checklistParams.bounds = l.getBounds();
 
                 if (_currentLayer && l.getBounds() !== _currentLayer.getBounds()) {
                     queryMap.removeLayer(_currentLayer);
@@ -122,6 +126,34 @@
 
             queryResults.clear();
             GBIFMapperService.query(queryParams.build(), 0)
+                .then(queryJsonSuccess)
+                .catch(queryJsonFailed)
+                .finally(queryJsonFinally);
+
+            function queryJsonSuccess() {
+                $scope.queryForm.$setPristine(true)
+            }
+            function queryJsonFailed(response) {
+                queryResults.isSet = false;
+            }
+
+            function queryJsonFinally() {
+                usSpinnerService.stop('query-spinner');
+            }
+        }
+
+        function queryChecklists() {
+            usSpinnerService.spin('query-spinner');
+
+	    // Remove any elements from map, in case the user switches between photos and query but does not change
+	    // the spatial layer
+            queryMap._clearMap();
+
+            // zoom to selected layer
+            zoomLayer();
+
+            queryResults.clear();
+            checklistMapperService.query(checklistParams.build(), 0)
                 .then(queryJsonSuccess)
                 .catch(queryJsonFailed)
                 .finally(queryJsonFinally);

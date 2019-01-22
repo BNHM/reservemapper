@@ -16,7 +16,7 @@
 	vm.tableData = []
 
         vm.toGBIF = toGBIF;
-        vm.toCalphotos = toCalphotos;
+        vm.toURL= toURL;
 
 	// Control the angular-data-grid options
 	$scope.gridOptions = {
@@ -26,8 +26,8 @@
             }
         };
 
-    	// When a user clicks on a row, send them to the GBIF record for this row
-     	function toCalphotos(key) {
+    	// When a user clicks on a row, send them to the record for this row
+     	function toURL(key) {
             //$window.open("https://calphotos.berkeley.edu/cgi/img_query?enlarge=0000+3333+0531+0442" + key);
             $window.open(key)
      	}

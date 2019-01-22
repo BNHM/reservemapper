@@ -18,15 +18,15 @@
                      </tr>
                      </thead>
                      <tbody>
-			<!--<tr grid-item ng-click="queryTableVm.toCalphotos(item.remote_resource)">-->
+			<!--<tr grid-item ng-click="queryTableVm.toURL(item.remote_resource)">-->
 			<tr grid-item>
-                        	<td ng-click="queryTableVm.toCalphotos(item.media_url)"><img height=35 ng-src="{{item.media_url}}"></img></td>
-                        	<td ng-click="queryTableVm.toCalphotos(item.remote_resource)" ng-bind-html="item.collection_code"></td>
-                        	<td ng-click="queryTableVm.toCalphotos(item.remote_resource)" ng-bind-html="item.observations[0].scientific_name"></td>
-                        	<td ng-click="queryTableVm.toCalphotos(item.remote_resource)" ng-bind-html="item.county"></td>
-                        	<td ng-click="queryTableVm.toCalphotos(item.remote_resource)" ng-bind-html="item.authors"></td>
-                        	<td ng-click="queryTableVm.toCalphotos(item.remote_resource)" ng-bind-html="item.begin_date"></td>
-                        	<td ng-click="queryTableVm.toCalphotos(item.remote_resource)" ng-bind-html="item.locality"></td>
+                        	<td ng-click="queryTableVm.toURL(item.media_url)"><img height=35 ng-src="{{item.media_url}}"></img></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.collection_code"></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.observations[0].scientific_name"></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.county"></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.authors"></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.begin_date"></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.locality"></td>
                     	</tr>
                      </tbody>
                  </table>

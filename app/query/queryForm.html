@@ -19,6 +19,7 @@
                 <div class="col-xs-12">
                     <input type="radio" name="selector" value="query" ng-model="queryFormVm.params.queryType" checked ng-change="setPhotoOption(false)"> Occurrence
                     <input type="radio" name="selector" value="photos" ng-model="queryFormVm.params.queryType" ng-change="setPhotoOption(true)"> Calphotos
+                    <input type="radio" name="selector" value="checklists" ng-model="queryFormVm.params.queryType" ng-change="setPhotoOption(false)"> Checklists
                 </div>
             </div>
         </div>
@@ -111,9 +112,16 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" ng-show="queryFormVm.params.queryType === 'photos'">
             <div class="col-xs-12">
                 <button type="submit" class="btn pull-left btn-primary" ng-show="queryFormVm.params.queryType === 'photos'" ng-click="queryFormVm.queryPhotos()">
+                    <span class="glyphicon glyphicon-search"></span> Search
+                </button>
+            </div>
+        </div>
+        <div class="form-group" ng-show="queryFormVm.params.queryType === 'checklists'">
+            <div class="col-xs-12">
+                <button type="submit" class="btn pull-left btn-primary" ng-show="queryFormVm.params.queryType === 'checklists'" ng-click="queryFormVm.queryChecklists()">
                     <span class="glyphicon glyphicon-search"></span> Search
                 </button>
             </div>
