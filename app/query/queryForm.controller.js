@@ -222,7 +222,8 @@
         // The following defines a location where we fetch a list of spatial layers
         // TODO: put this in a configuration file 
         function getSpatialLayers() {
-	    var clients = '?client_id=3ac3a2f324527a2a450a&client_secret=085c4036e8767b0ff80c85aecabfd36d3d1b20c9'
+	    // Insert client_id and client_secret here from github app if needed for testing
+	    var clients = ''
             //return $http.get('https://api.github.com/repositories/59048930/contents/wkt');
 	    var spatialLayerBase = 'https://api.github.com/repositories/59048930/contents/'
 	    var spatialLayerDirectory = ''
