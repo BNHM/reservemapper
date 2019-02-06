@@ -18,8 +18,19 @@
                 if (!this._isEmpty()) {
                     this.queryString += "&";
                 }
-
-                this.queryString += key + "=" + val;
+		if (key == "checkList") {
+                    var i = 0
+                    for (var bor in val) {
+                         this.queryString += key + "=" + val[bor];
+                         if (i < val.length) {
+                             this.queryString += "&";
+                         }
+                         i++
+                    }
+                // All other calls take multiple values as comma separated
+                } else {
+                    this.queryString += key + "=" + val;
+                }
             },
 
             build: function () {

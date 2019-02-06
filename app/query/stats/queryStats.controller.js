@@ -30,6 +30,17 @@
 	});
 
 
+	// Checklist counts
+	$scope.familyCount = function () {
+	    $scope.gridOptions.data = valueTotal( 'family', null, 'value', 'ascending') 
+	}
+	$scope.genusCount = function () {
+	    $scope.gridOptions.data = valueTotal( 'genus', null, 'value', 'ascending') 
+	}
+	$scope.specific_epithetCount = function () {
+	    $scope.gridOptions.data = valueTotal( 'specific_epithet', null, 'value', 'ascending') 
+	}
+
 	// CalPhotos Specific Counts
 	$scope.scientificNameCount= function () {
 	    $scope.gridOptions.data = valueTotal( 'observations[0].scientific_name', null, 'value', 'ascending') 

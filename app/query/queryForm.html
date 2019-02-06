@@ -119,7 +119,18 @@
                 </button>
             </div>
         </div>
+
         <div class="form-group" ng-show="queryFormVm.params.queryType === 'checklists'">
+            <div class="form-group dwc-terms">
+                <label class="control-label">Checklists</label>
+                <div class="row filters">
+                    <div class="col-xs-12">
+                        <select ng-model="queryFormVm.params.checkList" class="form-control input-sm" name="checkList" ng-options="c.record as c.name for c in queryFormVm.checkList" multiple>
+                            <option value="">-- Checklist --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="col-xs-12">
                 <button type="submit" class="btn pull-left btn-primary" ng-show="queryFormVm.params.queryType === 'checklists'" ng-click="queryFormVm.queryChecklists()">
                     <span class="glyphicon glyphicon-search"></span> Search

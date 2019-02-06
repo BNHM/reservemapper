@@ -9,7 +9,8 @@
     function checklistParams(ChecklistBuilder) {
         var defaultParams = {
             bbox: null,
-	    bounds: null
+	    bounds: null,
+	    checkList: null
         };
 
         var params = {
@@ -25,7 +26,7 @@
             clear();
         }
 
-        function buildChecklistQuery() {
+        function buildChecklistQuery(arrChecklists) {
             var builder = new ChecklistBuilder();
 
             if (params.bounds) {
@@ -34,6 +35,9 @@
 
                 builder.add("bbox", sw.lng + "," + sw.lat + "," + ne.lng + "," + ne.lat);
             }
+   	    if (arrChecklists) {
+                   builder.add("recorded_by", arrChecklists);
+	    }
 
             return builder.build();
 

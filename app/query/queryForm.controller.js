@@ -23,6 +23,7 @@
         vm.countryCodes = [];
         vm.spatialLayers = [];
         vm.basisOfRecord = [];
+        vm.checkList = [];
 
         // view toggles
         //vm.queryParams.queryType = "query";
@@ -34,6 +35,7 @@
 	// Set default spatialLayerTitle
         vm.spatialLayerTitle = "Select Area of Interest";
         vm.basisOfRecord = undefined;
+        vm.checkList = undefined;
 
         // Prepare data for Download
         vm.downloadColumns = ["basisOfRecord", "institutionCode", "collectionCode", "catalogNumber", "continent", "country", "stateProvince", "locality", "waterBody", "decimalLatitude", "decimalLongitude", "depth", "elevation", "eventDate", "month", "year", "scientificName", "kingdom", "phylum", "class", "order", "family", "genus", "species", "establishmentMeans", "repatriated", "typeStatus", "lastInterpreted", "mediaType", "protocol", "license", "publishingCountry", "publishingOrg", "recordedBy", "key"]
@@ -102,9 +104,12 @@
                 queryParams.bounds = l.getBounds();
                 // set bounds for photoParams
                 photoParams.bounds = l.getBounds();
-                // set bounds for photoParams
+                // set bounds for checklistParams
                 checklistParams.bounds = l.getBounds();
+                checklistParams.checkList = $scope.queryFormVm.params.checkList
 
+	    	// Grab a new set of checklists for this layer
+            	getChecklists(checklistParams.build());
                 if (_currentLayer && l.getBounds() !== _currentLayer.getBounds()) {
                     queryMap.removeLayer(_currentLayer);
                 }
@@ -149,11 +154,8 @@
 	    // the spatial layer
             queryMap._clearMap();
 
-            // zoom to selected layer
-            zoomLayer();
-
             queryResults.clear();
-            checklistMapperService.query(checklistParams.build(), 0)
+            checklistMapperService.query(checklistParams.build($scope.queryFormVm.params.checkList), 0)
                 .then(queryJsonSuccess)
                 .catch(queryJsonFailed)
                 .finally(queryJsonFinally);
@@ -166,6 +168,8 @@
             }
 
             function queryJsonFinally() {
+		// display the table controller
+		$scope.showControl('table')
                 usSpinnerService.stop('query-spinner');
             }
         }
@@ -205,19 +209,20 @@
                     alerts.error('error fetching basisOfRecord terms');
                 });
         }
-        // function getCountryCodes() {
-        //     queryService.countryCodes()
-        //         .then(function (codes) {
-        //             vm.countryCodes = codes;
-        //         }, function () {
-        //             alerts.error('error fetching countryCodes');
-        //         });
-        // }
 
+        function getChecklists(query) {
+            checklistService.checklists(query)
+                .then(function (records) {
+                    vm.checkList = records;
+                }, function () {
+                    alerts.error('error fetching checkList terms');
+                });
+        }
 
         // The following defines a location where we fetch a list of spatial layers
         // TODO: put this in a configuration file 
         function getSpatialLayers() {
+	    var clients = '?client_id=3ac3a2f324527a2a450a&client_secret=085c4036e8767b0ff80c85aecabfd36d3d1b20c9'
             //return $http.get('https://api.github.com/repositories/59048930/contents/wkt');
 	    var spatialLayerBase = 'https://api.github.com/repositories/59048930/contents/'
 	    var spatialLayerDirectory = ''
@@ -229,9 +234,9 @@
 	    }
    	    // Set the spatialLayerDiretory either defaulting to the Univ. of California reserves, or user specified directory
 	    if ($location.search().layers == 'undefined' || $location.search().layers == null) {
-	    	spatialLayerDirectory = spatialLayerBase + 'json/'
+	    	spatialLayerDirectory = spatialLayerBase + 'json/' + clients
 	    } else {
-	    	spatialLayerDirectory = spatialLayerBase + $location.search().layers.replace(/%22/g,'').replace(/"/g,'')
+	    	spatialLayerDirectory = spatialLayerBase + $location.search().layers.replace(/%22/g,'').replace(/"/g,'') + clients
 	   }
             return $http.get(spatialLayerDirectory)
         }

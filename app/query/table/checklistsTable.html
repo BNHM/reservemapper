@@ -12,17 +12,17 @@
 			<th sortable='genus' class="sortable">genus</th>
 			<th sortable='genus' class="sortable">specific_epithet</th>
 			<th sortable='begin_date' class="sortable">date of list</th>
-			<th sortable='collection_code' class="sortable">checklist name</th>
+			<th sortable='recorded_by' class="sortable">checklist name</th>
                      </tr>
                      </thead>
                      <tbody>
 			<!--<tr grid-item ng-click="queryTableVm.toURL(item.remote_resource)">-->
 			<tr grid-item>
-                        	<td ng-click="queryTableVm.toURL(item.url)" ng-bind-html="item.family"></td>
-                        	<td ng-click="queryTableVm.toURL(item.url)" ng-bind-html="item.genus"></td>
-                        	<td ng-click="queryTableVm.toURL(item.url)" ng-bind-html="item.specific_epithet"></td>
-                        	<td ng-click="queryTableVm.toURL(item.url)" ng-bind-html="item.begin_date"></td>
-                        	<td ng-click="queryTableVm.toURL(item.url)" ng-bind-html="item.collection_code"></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.family"></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.genus"></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.specific_epithet"></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.begin_date"></td>
+                        	<td ng-click="queryTableVm.toURL(item.remote_resource)" ng-bind-html="item.recorded_by"></td>
                     	</tr>
                      </tbody>
                  </table>

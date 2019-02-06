@@ -9,7 +9,8 @@
     function checklistService($http, alerts) {
 
         var checklistService = {
-            queryJson: queryJson
+            queryJson: queryJson,
+	    checklists: checklists
         };
 
         return checklistService;
@@ -18,11 +19,7 @@
             alerts.removeTmp();
 	    page = page +1 
 
-	     // Fetch results from ecoengine for checklists
-            //return $http.get("https://ecoengine.berkeley.edu/api/checklists/?format=json&page_size=300&page="+page+"&"+ query)
-	    // TODO: just pushing a bbox into the query field here... need to get the real bbox and emulate how calphotos searches things
-	    //query = "bbox=-121.57531921372191,36.35702762814656,-121.53031454118944,36.402266027122046";
-	    return $http.get("https://ecoengine.berkeley.edu//api/observations/?format=json&observation_type=checklist&fields=scientific_name,begin_date,collection_code,genus,family,specific_epithet,infraspecific_epithet,url&page="+page+"&page_size=1000&"+query)
+	    return $http.get("https://ecoengine.berkeley.edu//api/observations/?format=json&observation_type=checklist&fields=scientific_name,begin_date,collection_code,genus,family,specific_epithet,infraspecific_epithet,url,recorded_by,remote_resource&page="+page+"&page_size=1000&"+query)
                .then(queryJsonComplete);
 
             function queryJsonComplete(response) {
@@ -42,6 +39,28 @@
                 return results;
             }
         }
+	// Get all of the checklists
+	function checklists(query) {
+	    return $http.get("https://ecoengine.berkeley.edu//api/observations/?format=json&observation_type=checklist&fields=recorded_by&page=1&ordering=recorded_by&page_size=1000&"+query)
+                .then(function (response) {
+                    var records = [];
 
+		    var reserves = ["None"]
+                    angular.forEach(response.data.results, function (c) {
+			// In ecoengine observations, recorded_by is the same as the list_title (ListTitle) field
+
+			if (!reserves.includes(c.recorded_by)) {
+			    reserves.push(c.recorded_by)
+                                records.push({
+                                    'name': c.recorded_by,
+                                    'record': c.recorded_by,
+			            'reserve': c.recorded_by
+                                });
+			}
+                    });
+
+                    return records;
+                });
+       }
     }
     })()
