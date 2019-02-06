@@ -39,6 +39,7 @@
 .query-page {
     flex: 1;
     display: flex;
+    overflow: auto;
 }
 
 .query-bar {
