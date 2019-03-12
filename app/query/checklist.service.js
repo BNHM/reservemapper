@@ -6,7 +6,7 @@
 
     checklistService.$inject = ['$http', 'alerts'];
     var MAP_OF_LIFE = 'Map of Life'
-    var SPECIES_LOOKUP = 'Amphibian Species Lookup'
+    var SPECIES_LOOKUP = 'AmphibiaWeb Species Lookup'
 
     function checklistService($http, alerts) {
 
