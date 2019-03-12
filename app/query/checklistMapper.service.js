@@ -15,8 +15,8 @@
 
         return checklistMapperService;
 
-        function query(query, page) {
-            return _queryJson(query, page, true)
+        function query(query, page, lat, lng) {
+            return _queryJson(query, page, true, lat, lng)
                 .then(function(results) {
 		    if (results.totalElements <= maxResults) {
 		    	queryResults.toFetch = results.totalElements;
@@ -66,8 +66,8 @@
 
         }
 
-        function _queryJson(query, page, resetMarkers) {
-            return checklistService.queryJson(query, page)
+        function _queryJson(query, page, resetMarkers, lat, lng) {
+            return checklistService.queryJson(query, page, lat, lng)
                 .then(function (results) {
                     _mapResults(results, resetMarkers);
 
@@ -86,8 +86,11 @@
 		try {
 		    var family = results['data'][key]['family']
 		    var familyArr = family.split("/")
-		    family = familyArr[familyArr.length -2]
-		    results['data'][key]['family'] = family
+		    // if this appears to be an ecoengine formatted name, try to reduce
+		    if (familyArr.length > 1) {
+		    	family = familyArr[familyArr.length -2]
+		    	results['data'][key]['family'] = family
+		    }
 		} catch(err) {
 			results['data'][key]['family'] = ""
 		}
@@ -95,8 +98,11 @@
 		try {
 		    var genus = results['data'][key]['genus']
 		    var genusArr = genus.split("/")
-		    genus = genusArr[genusArr.length -2]
-		    results['data'][key]['genus'] = genus
+		    // if this appears to be an ecoengine formatted name, try to reduce
+		    if (genusArr.length > 1) {
+		    	genus = genusArr[genusArr.length -2]
+		    	results['data'][key]['genus'] = genus
+		    }
 		} catch(err) {
 			results['data'][key]['genus'] = ""
 		}

@@ -39,6 +39,7 @@
 
         // Prepare data for Download
         vm.downloadColumns = ["basisOfRecord", "institutionCode", "collectionCode", "catalogNumber", "continent", "country", "stateProvince", "locality", "waterBody", "decimalLatitude", "decimalLongitude", "depth", "elevation", "eventDate", "month", "year", "scientificName", "kingdom", "phylum", "class", "order", "family", "genus", "species", "establishmentMeans", "repatriated", "typeStatus", "lastInterpreted", "mediaType", "protocol", "license", "publishingCountry", "publishingOrg", "recordedBy", "key"]
+        vm.checklistDownloadColumns = ["family", "genus", "specific_epithet", "begin_date", "recorded_by", "remote_resource"]
 
         vm.params = queryParams;
         vm.map = queryMap;
@@ -75,6 +76,27 @@
                             } else if (angular.isObject(text)) {
                                 text = (angular.equals({}, text)) ? '' : JSON.stringify(text);
                             }
+                        }
+                        resourceData.push((text) ? text.toString() : '');
+                    });
+                    downloadData.push(resourceData);
+                });
+            }
+            return downloadData;
+        }
+	// download checklist CSV
+        $scope.downloadChecklistCsv = function (data) {
+            var downloadData = [];
+            if (data.length > 0) {
+                angular.forEach(data, function (resource) {
+                    var resourceData = [];
+                    angular.forEach(vm.checklistDownloadColumns, function (key) {
+                        var text = resource[key];
+
+                        if (angular.isArray(text)) {
+                            text = text.join(" | ");
+                        } else if (angular.isObject(text)) {
+                            text = (angular.equals({}, text)) ? '' : JSON.stringify(text);
                         }
                         resourceData.push((text) ? text.toString() : '');
                     });
@@ -155,7 +177,12 @@
             queryMap._clearMap();
 
             queryResults.clear();
-            checklistMapperService.query(checklistParams.build($scope.queryFormVm.params.checkList), 0)
+
+	    // Grab lat lng of center to pass to checklist query function so it can be used for species lookup functions
+	    var lat = checklistParams.bounds.getCenter().lat;
+	    var lng = checklistParams.bounds.getCenter().lng;
+
+            checklistMapperService.query(checklistParams.build($scope.queryFormVm.params.checkList), 0, lat, lng)
                 .then(queryJsonSuccess)
                 .catch(queryJsonFailed)
                 .finally(queryJsonFinally);

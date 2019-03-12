@@ -22,7 +22,7 @@
 	$scope.gridOptions = {
             data: [],
 	    pagination: {
-                 itemsPerPage: '10'
+                 itemsPerPage: '15'
             }
         };
 
