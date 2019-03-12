@@ -22,13 +22,41 @@
 	    page = page +1 
 
 	    if (query.includes(MAP_OF_LIFE)) {
-		//bbox=-121.57531921372191,36.35702762814656,-121.53031454118944,36.402266027122046
-	   		
 	        return $http.get("https://api.mol.org/1.x/spatial/species/list?lang=en&lat="+lat+"&lng="+lng+"&radius=2000").then(queryMapOfLife);
+	    } else if (query.includes(SPECIES_LOOKUP)) {
+	        return $http.get("https://specieslookup.berkeley.edu/search_json/"+lng+","+lat).then(querySpeciesLookup);
 	    } else {
 	        return $http.get("https://ecoengine.berkeley.edu/api/observations/?format=json&observation_type=checklist&fields=scientific_name,begin_date,collection_code,genus,family,specific_epithet,infraspecific_epithet,url,recorded_by,remote_resource&page="+page+"&page_size=1000&"+query).then(queryEcoEngine);
 	    }
 
+            function querySpeciesLookup(response) {
+                var results = {
+                    size: 0,
+                    totalElements: 0,
+                    data: []
+                };
+                if (response.data) {
+		    var totalElements = 0;
+		    for (var i =0; i < response.data.species.length; i++) {
+			// Map the Species Lookup details to a format similar to ecoengine
+			var record = response.data.species[i]
+			if (!record.includes("count")) {
+				var nameArr = record.split("_")
+				var recordObj = {genus:nameArr[0],specific_epithet:nameArr[1],family:response.data.species[i].family,recorded_by:SPECIES_LOOKUP}
+				results.data.push(recordObj)
+				totalElements++
+			} 
+		    }
+
+		    // Set totalElements to 1... not used for MoL... responses are always within range of paging size
+		    results.size = totalElements
+                    results.totalElements =  totalElements
+                    if (results.totalElements === 0) {
+                        alerts.info("No results found.")
+                    }
+		    return results;
+                }
+	    }
             function queryMapOfLife(response) {
                 var results = {
                     size: 0,
@@ -93,12 +121,12 @@
 			'record': MAP_OF_LIFE,
 			'reserve': MAP_OF_LIFE
 		    })
-	            //reserves.push(SPECIES_LOOKUP)
-		    //records.push({
-		   // 	'name': SPECIES_LOOKUP,
-	//		'record': SPECIES_LOOKUP,
-	//		'reserve': SPECIES_LOOKUP
-	//	    })
+	            reserves.push(SPECIES_LOOKUP)
+		    records.push({
+		    	'name': SPECIES_LOOKUP,
+			'record': SPECIES_LOOKUP,
+			'reserve': SPECIES_LOOKUP
+		    })
 
                     angular.forEach(response.data.results, function (c) {
 			// In ecoengine observations, recorded_by is the same as the list_title (ListTitle) field
