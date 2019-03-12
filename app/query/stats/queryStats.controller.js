@@ -23,10 +23,13 @@
 	    vm.totalResults=vm.queryResults.totalElements
 	    vm.total
 	    //populate the table with institution stats by default 
-	    if (queryParams.queryType == "query")
+	    if (queryParams.queryType == "query") {
 		$scope.institutionCount()
-	    else
+	    } else if (queryParams.queryType == "checklists") {
+		$scope.familyCount()
+	    } else {
 		$scope.collectionCodeCount()
+	    }
 	});
 
 
