@@ -40,12 +40,19 @@
 		    for (var i =0; i < response.data.species.length; i++) {
 			// Map the Species Lookup details to a format similar to ecoengine
 			var record = response.data.species[i]
-			if (!record.includes("count")) {
-				var nameArr = record.split("_")
-				var recordObj = {genus:nameArr[0],specific_epithet:nameArr[1],family:response.data.species[i].family,recorded_by:SPECIES_LOOKUP}
-				results.data.push(recordObj)
-				totalElements++
-			} 
+			var nameArr=record.scientific_name.split("_")
+			var genus = nameArr[0]
+			var species= nameArr[1]
+			var recordObj = {
+				"genus":genus,
+				"specific_epithet":species,
+				"family":record.family,
+				"order":record.order,
+				"class":record.class,
+				recorded_by:SPECIES_LOOKUP
+				}
+			results.data.push(recordObj)
+			totalElements++
 		    }
 
 		    // Set totalElements to 1... not used for MoL... responses are always within range of paging size

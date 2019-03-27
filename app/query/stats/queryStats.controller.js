@@ -34,6 +34,12 @@
 
 
 	// Checklist counts
+	$scope.classCount = function () {
+	    $scope.gridOptions.data = valueTotal( 'class', null, 'value', 'ascending') 
+	}
+	$scope.orderCount = function () {
+	    $scope.gridOptions.data = valueTotal( 'order', null, 'value', 'ascending') 
+	}
 	$scope.familyCount = function () {
 	    $scope.gridOptions.data = valueTotal( 'family', null, 'value', 'ascending') 
 	}
