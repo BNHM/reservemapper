@@ -46,9 +46,9 @@
 			var recordObj = {
 				"genus":genus,
 				"specific_epithet":species,
-				"family":record.family,
-				"order":record.order,
-				"class":record.class,
+				"family":ucFirst(record.family),
+				"order":ucFirst(record.order),
+				"class":ucFirst(record.class),
 				recorded_by:SPECIES_LOOKUP
 				}
 			results.data.push(recordObj)
@@ -78,7 +78,6 @@
 				var record = response.data[i].species[j]		
 				var nameArr = record.scientificname.split(" ")
 				record.genus = nameArr[0]
-				record.specific_epithet = nameArr[1]
 				record.specific_epithet = nameArr[1]
 				record.begin_date= record.last_update
 				record.recorded_by = MAP_OF_LIFE
@@ -151,5 +150,10 @@
                     return records;
                 });
        }
+
+       function ucFirst(string)
+       {
+           return string.charAt(0).toUpperCase() + string.slice(1);
+	   }
     }
     })()
