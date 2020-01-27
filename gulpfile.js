@@ -5,17 +5,6 @@ var minifyCss = require('gulp-minify-css');
 var replace = require('gulp-replace');
 var rimraf = require('rimraf');
 
-gulp.task('default', ['copy-assets'], function() {
-    gulp.src(['app/**/*.html', 'app/**/*.ico', '!app/index-async.html', '!app/bower_components/**/*.html'])
-        .pipe(usemin({
-            assetsDir: 'app',
-            css: [minifyCss(), 'concat'],
-            modernizer: [],
-            minJs: []
-        }))
-        .pipe(replace('<base href="/">', '<base href="/">'))
-        .pipe(gulp.dest('public'));
-});
 
 gulp.task('copy-assets', function() {
     gulp.src('app/*.css')
@@ -83,6 +72,18 @@ gulp.task('copy-assets', function() {
      // gulp.src('app/query/spatialLayers.json')
      //   .pipe(gulp.dest('public/query/'));
 });
+
+gulp.task('default', gulp.series('copy-assets', function() {
+    gulp.src(['app/**/*.html', 'app/**/*.ico', '!app/index-async.html', '!app/bower_components/**/*.html'])
+        .pipe(usemin({
+            assetsDir: 'app',
+            css: [minifyCss(), 'concat'],
+            modernizer: [],
+            minJs: []
+        }))
+        .pipe(replace('<base href="/">', '<base href="/">'))
+        .pipe(gulp.dest('public'));
+}));
 
 gulp.task('clean', function(cb) {
     rimraf('./public', cb);
