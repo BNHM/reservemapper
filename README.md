@@ -1,3 +1,5 @@
+[![Netlify Status](https://api.netlify.com/api/v1/badges/2620fa1c-7762-444c-8be9-5d77a7da216a/deploy-status)](https://app.netlify.com/sites/reverent-roentgen-2a59d8/deploys)
+
 # About
 The reservemapper application is a lightweight interface for browsing data from selected reserves.  It is 
 focused on particular spatial areas, using the extents of relevant reserves to search specimen occurrence
@@ -18,10 +20,12 @@ npm start (runs at port 8000 by default)
 
 # to deploy to a remote server
 NOTE: i need to run gulp 3.9.1 to make this work.  Type ```gulp -v``` to check versions and run ```npm install gulp@3.9.1 --save``` as needed.
+NOTE2: we need to put necessary js / css files in app/js and app/css folders respectively. this makes the gulp deployment far
+easier to handle.
 ```
 gulp clean
 gulp   (takes all the javascript and html, minimifies and puts in public)
-rsync -rv public/ user@someserver.edu:///home/user/reservemapper/ (rsync to server)
+git push (uses netlify hook)
 ```
 
 # Serving on the Web
