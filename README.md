@@ -1,4 +1,5 @@
-[![Netlify Status](https://api.netlify.com/api/v1/badges/2620fa1c-7762-444c-8be9-5d77a7da216a/deploy-status)](https://app.netlify.com/sites/reverent-roentgen-2a59d8/deploys)
+Master Branch Status: [![Netlify Status](https://api.netlify.com/api/v1/badges/1746edd4-1f2b-4b97-a493-db8ed724381f/deploy-status)](https://app.netlify.com/sites/dreamy-nobel-caab86/deploys)
+
 
 # About
 The reservemapper application is a lightweight interface for browsing data from selected reserves.  It is 
