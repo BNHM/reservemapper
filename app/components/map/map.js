@@ -31,14 +31,15 @@
 					maxBoundsViscocity: .5
 				}).fitBounds(startBounds);
 
-				this._mapTiles = L.tileLayer('https://api.mapbox.com/v4/mapbox.outdoors/{z}/{x}/{y}.png?access_token={access_token}',
-					{access_token: MAPBOX_TOKEN});
+				//this._mapTiles = L.tileLayer('https://api.mapbox.com/v4/mapbox.outdoors/{z}/{x}/{y}.png?access_token={access_token}',
+				//	{access_token: MAPBOX_TOKEN});
 
-				this._mapTiles.addTo(this._map);
-				this._base = this._mapTiles;
+				//this._mapTiles.addTo(this._map);
 
 				this._satelliteTiles = L.tileLayer('https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token={access_token}',
 					{access_token: MAPBOX_TOKEN});
+				this._satelliteTiles.addTo(this._map);
+				this._base = this._mapTiles;
 
 				this._usgsTiles = L.tileLayer.wms('https://basemap.nationalmap.gov/arcgis/services/USGSImageryOnly/MapServer/WMSServer', { layers: 0, maxZoom: 8 });
 				this._esriTopoTiles = L.tileLayer.wms('http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { layers: 0 });
