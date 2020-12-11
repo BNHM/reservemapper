@@ -242,7 +242,8 @@
                 .then(function (records) {
                     vm.checkList = records;
                 }, function () {
-                    alerts.error('error fetching checkList terms');
+		    // for now, don't display an error here
+                    //alerts.error('error fetching checkList terms');
                 });
         }
 

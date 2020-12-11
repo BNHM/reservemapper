@@ -14,12 +14,12 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label">Query Type</label>
+            <label class="control-label">Query Type (Photo and checklist options temporarily disabled)</label>
             <div class="filters row">
                 <div class="col-xs-12">
                     <input type="radio" name="selector" value="query" ng-model="queryFormVm.params.queryType" checked ng-change="setPhotoOption(false)"> Occurrence
-                    <input type="radio" name="selector" value="photos" ng-model="queryFormVm.params.queryType" ng-change="setPhotoOption(true)"> Calphotos
-                    <input type="radio" name="selector" value="checklists" ng-model="queryFormVm.params.queryType" ng-change="setPhotoOption(false)"> Checklists
+                    <input type="radio" name="selector" value="photos" ng-model="queryFormVm.params.queryType" ng-change="setPhotoOption(true)" disabled> Calphotos
+                    <input type="radio" name="selector" value="checklists" ng-model="queryFormVm.params.queryType" ng-change="setPhotoOption(false)" disable disabledd> Checklists
                 </div>
             </div>
         </div>
