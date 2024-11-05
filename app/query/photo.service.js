@@ -6,6 +6,7 @@
 
     photoService.$inject = ['$http', 'alerts'];
 
+
     function photoService($http, alerts) {
 
         var photoService = {
@@ -19,7 +20,12 @@
 	    page = page +1 
 
 	     // Fetch results from CalPhotos
-            return $http.get("https://ecoengine.berkeley.edu/api/photos/?format=json&page_size=300&page="+page+"&"+ query)
+			//https://calphotos.berkeley.edu/cgi/api_ee?nw_lat=37.939908&nw_lon=-121.094484&se_lat=37.796133&se_lon=-120.692354
+            //return $http.get("https://ecoengine.berkeley.edu/api/photos/?format=json&page_size=300&page="+page+"&"+ query)
+			console.log(query)
+			const [west, south, east, north] = query.replace('bbox=', '').split(',').map(Number);
+    		const queryString = `nw_lat=${north}&nw_lon=${west}&se_lat=${south}&se_lon=${east}`;
+            return $http.get("https://calphotos.berkeley.edu/cgi/api_ee?"+ queryString)
                .then(queryJsonComplete);
 
             function queryJsonComplete(response) {
