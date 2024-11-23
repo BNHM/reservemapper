@@ -4,6 +4,8 @@ const statisticsMessage = "Please select a reserve before continuing.";
 const tableMessage = "Please select a reserve and perform a search before continuing."
 let lastMapCenter = null;
 let lastMapZoom = null;
+let reserveBoundaryLayer;
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -61,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let taxonKey = null;
     let currentBounds = null;
     let markerClusterGroup = L.markerClusterGroup();
-    let reserveBoundaryLayer;
     map.addLayer(markerClusterGroup);
 
     // Table and pagination variables
@@ -394,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (map) {
                 map.setView(lastMapCenter || [37.7749, -122.4194], lastMapZoom || 5);
                 map.invalidateSize(); // Recalculate map dimensions
+                window.dispatchEvent(new Event('resize'));
             }
             mapContainer.style.display = 'block';
             statisticsContainer.style.display = 'none';
@@ -469,6 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         document.getElementById('reserveSelect').addEventListener('change', function () {
+            switchView('map')
             const selectedUrl = this.value;
             if (selectedUrl) {
                 fetch(selectedUrl)
