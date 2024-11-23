@@ -44,36 +44,32 @@
   <!-- Main Container with Sidebar and Map -->
   <div id="container">
     <div id="sidebar">
-      <h3>Search Options</h3>
       <label for="reserveSelect">Select Reserve:</label>
       <select id="reserveSelect">
         <option value="">Select a reserve...</option>
       </select>
 
-      <label>Query Type:</label>
-      <div id="queryTypeContainer">
-        <input type="radio" id="queryObservation" name="queryType" value="observation" checked>
-        <label for="queryObservation">Occurrences</label>
+      <div id="queryParameters" style="display: none;">
+        <div id="photoQuery">
+          <input type="checkbox" id="filterPhotos" name="filterPhotos">
+          <label for="filterPhotos">Only show records with photos</label>
+        </div>
 
-        <input type="radio" id="queryPhotos" name="queryType" value="photos">
-        <label for="queryPhotos">Photos</label>
+        <label for="scientificName">Scientific Name:</label>
+        <input type="text" id="scientificName" placeholder="Start typing species name..." list="speciesSuggestions">
+        <datalist id="speciesSuggestions"></datalist>
+
+        <label>Year Collected:</label>
+        <div id="yearContainer">
+          <input type="text" id="yearFrom" placeholder="YYYY" maxlength="4"> to
+          <input type="text" id="yearTo" placeholder="YYYY" maxlength="4">
+        </div>
+
+        <button id="searchBtn">Search</button>
       </div>
-
-      <label for="scientificName">Scientific Name:</label>
-      <input type="text" id="scientificName" placeholder="Start typing species name..." list="speciesSuggestions">
-      <datalist id="speciesSuggestions"></datalist>
-
-      <label>Year Collected:</label>
-      <div id="yearContainer">
-        <input type="text" id="yearFrom" placeholder="YYYY" maxlength="4"> to
-        <input type="text" id="yearTo" placeholder="YYYY" maxlength="4">
-      </div>
-
-      <button id="searchBtn">Search</button>
     </div>
 
     <!-- Map View -->
-
     <div id="map" style="display: block;">
       <div id="toggleSidebarArrow">←</div>
     </div>
@@ -82,7 +78,6 @@
     <div id="statistics" style="display: none;">
       <!-- Placeholder for Statistics Content -->
     </div>
-
 
     <!-- Table View -->
     <div id="tableView" style="display: none;">
@@ -113,8 +108,6 @@
         </div>
       </div>
     </div>
-
-
   </div>
 
 

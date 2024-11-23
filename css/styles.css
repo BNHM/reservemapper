@@ -289,6 +289,8 @@ body {
 #statistics {
     display: flex;
     flex-direction: column;
+    font-family: Arial, sans-serif;
+
     height: 100%;
     /* Full height of its parent */
     overflow-y: auto;
@@ -328,4 +330,15 @@ body {
 #statistics tr:nth-child(even) {
     background-color: #f9f9f9;
     /* Optional striped rows */
+}
+
+#photoQuery {
+    display: flex;
+    align-items: center; 
+    gap: 5px; /* Optional spacing between checkbox and label */
+}
+
+#photoQuery input[type="checkbox"] {
+    margin: 0; /* Remove default margins */
+    transform: translateY(6px); /* Slight adjustment for better alignment */
 }

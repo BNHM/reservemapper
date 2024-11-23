@@ -1,17 +1,61 @@
+
+const queryParameters = document.getElementById('queryParameters');
+const statisticsMessage = "Please select a reserve before continuing.";
+const tableMessage = "Please select a reserve and perform a search before continuing."
+let lastMapCenter = null;
+let lastMapZoom = null;
+
+
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Initially hide the query parameters
+    queryParameters.style.display = 'none';
+
+    // Add an event listener to the Reserve Selector
+    reserveSelect.addEventListener('change', function () {
+        if (this.value) {
+            // Show query parameters when a reserve is selected
+            queryParameters.style.display = 'block';
+        } else {
+            // Hide query parameters if no reserve is selected
+            queryParameters.style.display = 'none';
+        }
+    });
 
     // Initialize the Leaflet map
     const map = L.map('map', {
         crs: L.CRS.EPSG3857 // Default: Spherical Mercator
     }).setView([37.7749, -122.4194], 5);
 
-    // Add base map layer (CartoDB Positron)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    // Define Base Layers
+    const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
         subdomains: 'abcd',
         maxZoom: 19
-    }).addTo(map);
+    });
+
+    const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors, SRTM | &copy; OpenTopoMap',
+        maxZoom: 17
+    });
+
+    const satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        attribution: '&copy; Google Maps',
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        maxZoom: 20
+    });
+
+    // Add the default base layer
+    lightLayer.addTo(map);
+
+    // Add Layer Control
+    const baseLayers = {
+        'Light': lightLayer,
+        'Topographic': topoLayer,
+        'Satellite': satelliteLayer
+    };
+
+    L.control.layers(baseLayers).addTo(map);
 
     // Variables
     let taxonKey = null;
@@ -35,13 +79,49 @@ document.addEventListener('DOMContentLoaded', () => {
         markerClusterGroup.clearLayers();
     }
 
+    function getSelectedReserveText() {
+        const reserveSelect = document.getElementById('reserveSelect');
+        
+        if (!reserveSelect) {
+            console.error('Element with id "reserveSelect" not found.');
+            return null;
+        }
+    
+        // Get the text of the selected option
+        const selectedText = reserveSelect.selectedOptions[0]?.textContent || null;
+    
+        return selectedText;
+    }
+    
+    function isQueryParametersVisible() {
+        const queryParameters = document.getElementById('queryParameters');
+        if (!queryParameters) {
+            console.error('Element with id "queryParameters" not found.');
+            return false; // Return false if the element does not exist
+        }
+    
+        return window.getComputedStyle(queryParameters).display !== 'none';
+    }
     // Render a single page of the Table View
     function renderTablePage(page) {
+        
+        const tableContainer = document.getElementById('tableView');
+
+        if (!isQueryParametersVisible()) {
+            tableContainer.innerHTML = tableMessage;
+            return;
+        }
+
         const start = (page - 1) * recordsPerPage;
         const end = start + recordsPerPage;
         const pageData = tableData.slice(start, end);
 
+
         const tableBody = document.querySelector('#dataTable tbody');
+        if (!tableBody) {
+            console.error('Table body element not found.');
+            return;
+        }
         tableBody.innerHTML = pageData.map(row => `
             <tr>
                 <td>${row.scientificName || 'N/A'}</td>
@@ -67,13 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
         );
 
         if (recordCountElement) {
-            recordCountElement.textContent = `Returned ${formattedCount} records`;
+            recordCountElement.textContent = `A total of ${formattedCount} records satisfy this query`;
         }
     }
 
 
     function buildGBIFQueryUrl(baseEndpoint, options = {}) {
-        const { taxonKey, yearFrom, yearTo, facet, facetLimit } = options;
+        const { taxonKey, yearFrom, yearTo, facet, facetLimit, currentBounds, mediaType } = options;
 
         let url = `${baseEndpoint}?limit=300`; // Default limit for occurrence search
 
@@ -90,6 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const ne = currentBounds.getNorthEast();
             url += `&decimalLatitude=${sw.lat},${ne.lat}&decimalLongitude=${sw.lng},${ne.lng}`;
         }
+
+        if (mediaType) url += `&mediaType=${mediaType}`;
+
         return url;
     }
     // Perform a GBIF search and update the Table View
@@ -106,7 +189,9 @@ document.addEventListener('DOMContentLoaded', () => {
             taxonKey,
             yearFrom,
             yearTo,
-            currentBounds
+            currentBounds,
+            mediaType: filterPhotos ? 'stillImage' : null // Include mediaType if checkbox is checked
+
         });
 
         let offset = 0;
@@ -167,7 +252,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const facets = ['institutionCode', 'collectionCode', 'scientificName'];
         const statisticsContainer = document.getElementById('statistics');
-        statisticsContainer.innerHTML = ''; // Clear previous content
+
+        if (!isQueryParametersVisible()) {
+            statisticsContainer.innerHTML = statisticsMessage;
+            return;
+        }
+
+        statisticsContainer.innerHTML = 'Showing Statistics for ' + getSelectedReserveText(); // Clear previous content
 
         //const baseUrl = `https://api.gbif.org/v1/occurrence/search?limit=0`;
         const baseUrl = `https://api.gbif.org/v1/occurrence/search`;
@@ -176,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         facets.forEach(facet => {
             const loadingMessage = document.createElement('div');
             loadingMessage.id = `loading-${facet}`;
-            loadingMessage.innerHTML = `<p>Loading ${facet.charAt(0).toUpperCase() + facet.slice(1)}...</p>`;
+            loadingMessage.innerHTML = `<p>Loading top 10 ${facet.charAt(0).toUpperCase() + facet.slice(1)}...</p>`;
             statisticsContainer.appendChild(loadingMessage);
         });
 
@@ -187,11 +278,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Build the query URL using the helper function
             const facetUrl = buildGBIFQueryUrl(baseUrl, {
                 facet,
-                facetLimit: 20,
+                facetLimit: 10,
                 taxonKey, // Reuse taxonKey from performGBIFSearch
                 yearFrom,
                 yearTo,
-                currentBounds // Replace with your year input variable
+                currentBounds, // Replace with your year input variable
+                mediaType: filterPhotos ? 'stillImage' : null // Include mediaType if checkbox is checked
             });
 
             try {
@@ -203,12 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
                 document.getElementById(`loading-${facet}`).remove();
-                //console.log(counts)
-                //console.log(facet.charAt(0).toUpperCase() + facet.slice(1))
-
-                // Render the statistics table
-                //updateRecordCount('statistics', data.count || 0); // Update the record count
-
                 createStatisticsTable(counts, facet.charAt(0).toUpperCase() + facet.slice(1), data.count);
             } catch (error) {
                 console.error(`Error fetching ${facet}:`, error);
@@ -274,8 +360,18 @@ document.addEventListener('DOMContentLoaded', () => {
         statisticsContainer.style.display = 'none';
         tableContainer.style.display = 'none';
 
+ // Save map state when switching away
+ if (view !== 'map' && map) {
+    lastMapCenter = map.getCenter();
+    lastMapZoom = map.getZoom();
+}
+
         if (view === 'map') {
-            mapButton.classList.add('active');
+            mapButton.classList.add('active'); 
+            if (map) {
+                map.setView(lastMapCenter || [37.7749, -122.4194], lastMapZoom || 5);
+                map.invalidateSize(); // Recalculate map dimensions
+            }
             mapContainer.style.display = 'block';
             statisticsContainer.style.display = 'none';
             tableContainer.style.display = 'none';
