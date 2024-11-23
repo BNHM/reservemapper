@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+
     // Initialize the Leaflet map
     const map = L.map('map', {
         crs: L.CRS.EPSG3857 // Default: Spherical Mercator
@@ -58,6 +60,38 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPage = page;
     }
 
+    function updateRecordCount(view, count) {
+        const formattedCount = count.toLocaleString(); // Format number with commas
+        const recordCountElement = document.getElementById(
+            view === 'statistics' ? 'statisticsRecordCount' : 'tableRecordCount'
+        );
+
+        if (recordCountElement) {
+            recordCountElement.textContent = `Returned ${formattedCount} records`;
+        }
+    }
+
+
+    function buildGBIFQueryUrl(baseEndpoint, options = {}) {
+        const { taxonKey, yearFrom, yearTo, facet, facetLimit } = options;
+
+        let url = `${baseEndpoint}?limit=300`; // Default limit for occurrence search
+
+        if (taxonKey) url += `&taxonKey=${taxonKey}`;
+        if (yearFrom && yearTo) url += `&year=${yearFrom},${yearTo}`;
+        else if (yearFrom) url += `&year=${yearFrom}`;
+        else if (yearTo) url += `&year=${yearTo}`;
+
+        if (facet) url += `&facet=${facet}`;
+        if (facetLimit) url += `&facetLimit=${facetLimit}`;
+
+        if (currentBounds) {
+            const sw = currentBounds.getSouthWest();
+            const ne = currentBounds.getNorthEast();
+            url += `&decimalLatitude=${sw.lat},${ne.lat}&decimalLongitude=${sw.lng},${ne.lng}`;
+        }
+        return url;
+    }
     // Perform a GBIF search and update the Table View
     async function performGBIFSearch(yearFrom, yearTo) {
         clearMarkers();
@@ -67,29 +101,26 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingMessage.style.display = 'block';
         loadingMessage.innerHTML = 'Loading Records...';
 
-        let url = `https://api.gbif.org/v1/occurrence/search?limit=300`;
-        if (taxonKey) url += `&taxonKey=${taxonKey}`;
-        if (yearFrom && yearTo) url += `&year=${yearFrom},${yearTo}`;
-        else if (yearFrom) url += `&year=${yearFrom}`;
-        else if (yearTo) url += `&year=${yearTo}`;
-
-        if (currentBounds) {
-            const sw = currentBounds.getSouthWest();
-            const ne = currentBounds.getNorthEast();
-            url += `&decimalLatitude=${sw.lat},${ne.lat}&decimalLongitude=${sw.lng},${ne.lng}`;
-        }
+        let baseUrl = `https://api.gbif.org/v1/occurrence/search`;
+        url = buildGBIFQueryUrl(baseUrl, {
+            taxonKey,
+            yearFrom,
+            yearTo,
+            currentBounds
+        });
 
         let offset = 0;
         let totalRecords = 0;
         let loadedCount = 0;
 
         try {
-            while (loadedCount < 3000) {
+            while (loadedCount < 1000) {
                 const pagedUrl = `${url}&offset=${offset}`;
                 const response = await fetch(pagedUrl);
                 const data = await response.json();
 
                 if (offset === 0) totalRecords = data.count;
+                if (offset === 0) updateRecordCount('table', data.count || 0);
 
                 data.results.forEach(occurrence => {
                     if (occurrence.decimalLatitude && occurrence.decimalLongitude) {
@@ -116,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadedCount += data.results.length;
                 offset += 300;
 
-                loadingMessage.innerHTML = `Loading ${Math.min(loadedCount, 3000)} of ${totalRecords} records...`;
+                loadingMessage.innerHTML = `Loading ${Math.min(loadedCount, 1000)} of ${totalRecords} records...`;
 
                 if (data.endOfRecords) break;
             }
@@ -132,52 +163,97 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fetch and render statistics from GBIF
     async function fetchStatistics() {
+        switchView('statistics');
+
         const facets = ['institutionCode', 'collectionCode', 'scientificName'];
         const statisticsContainer = document.getElementById('statistics');
-        statisticsContainer.innerHTML = '';
+        statisticsContainer.innerHTML = ''; // Clear previous content
 
-        const baseUrl = `https://api.gbif.org/v1/occurrence/search?limit=0`;
-        const facetQueries = facets.map(facet => `${baseUrl}&facet=${facet}&facetLimit=20`);
+        //const baseUrl = `https://api.gbif.org/v1/occurrence/search?limit=0`;
+        const baseUrl = `https://api.gbif.org/v1/occurrence/search`;
 
-        try {
-            const results = await Promise.all(facetQueries.map(url => fetch(url).then(res => res.json())));
+        // Display loading indicators for each facet
+        facets.forEach(facet => {
+            const loadingMessage = document.createElement('div');
+            loadingMessage.id = `loading-${facet}`;
+            loadingMessage.innerHTML = `<p>Loading ${facet.charAt(0).toUpperCase() + facet.slice(1)}...</p>`;
+            statisticsContainer.appendChild(loadingMessage);
+        });
 
-            facets.forEach((facet, index) => {
-                const data = results[index].facets.find(f => f.field === facet)?.counts || [];
-                createStatisticsTable(data, facet.charAt(0).toUpperCase() + facet.slice(1));
+        yearFrom = document.getElementById('yearFrom').value;
+        yearTo = document.getElementById('yearTo').value;
+        for (const facet of facets) {
+            //const facetUrl = `${baseUrl}&facet=${facet}&facetLimit=20`;
+            // Build the query URL using the helper function
+            const facetUrl = buildGBIFQueryUrl(baseUrl, {
+                facet,
+                facetLimit: 20,
+                taxonKey, // Reuse taxonKey from performGBIFSearch
+                yearFrom,
+                yearTo,
+                currentBounds // Replace with your year input variable
             });
 
-            switchView('statistics');
-        } catch (error) {
-            console.error('Error fetching statistics:', error);
-            statisticsContainer.innerHTML = 'Error loading statistics.';
+            try {
+                const response = await fetch(facetUrl);
+                const data = await response.json();
+
+                // Extract facet counts and remove loading message
+                const counts = data.facets?.[0]?.counts || [];
+
+
+                document.getElementById(`loading-${facet}`).remove();
+                //console.log(counts)
+                //console.log(facet.charAt(0).toUpperCase() + facet.slice(1))
+
+                // Render the statistics table
+                //updateRecordCount('statistics', data.count || 0); // Update the record count
+
+                createStatisticsTable(counts, facet.charAt(0).toUpperCase() + facet.slice(1), data.count);
+            } catch (error) {
+                console.error(`Error fetching ${facet}:`, error);
+
+                // Update the loading message with an error message
+                const loadingMessage = document.getElementById(`loading-${facet}`);
+                if (loadingMessage) {
+                    loadingMessage.innerHTML = `<p>Error loading ${facet.charAt(0).toUpperCase() + facet.slice(1)}.</p>`;
+                }
+            }
         }
     }
 
-    // Create and render a statistics table
-    function createStatisticsTable(data, title) {
+    function createStatisticsTable(data, title, count) {
         const statisticsContainer = document.getElementById('statistics');
+
         const tableHtml = `
-            <h3>${title}</h3>
-            <table class="sortable-table">
-                <thead>
-                    <tr>
-                        <th data-key="name">Name</th>
-                        <th data-key="count">Count</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${data.map(row => `
-                        <tr>
-                            <td>${row.name || 'N/A'}</td>
-                            <td>${formatNumber(row.count) || '0'}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
+        <h3>${title} (${count} total)</h3>
+        <table class="sortable-table">
+            <thead>
+                <tr>
+                    <th data-key="name">Name</th>
+                    <th data-key="count">Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data
+                .map((row, index) => {
+                    return `
+                            <tr>
+                                <td>${row.name || 'N/A'}</td>
+                                <td>${formatNumber(row.count) || '0'}</td>
+                            </tr>
+                        `;
+                })
+                .join('')}
+            </tbody>
+        </table>
+    `;
+
+        // Insert the table into the container
         statisticsContainer.innerHTML += tableHtml;
     }
+
+
 
     // Switch between views
     function switchView(view) {
@@ -185,15 +261,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const statisticsContainer = document.getElementById('statistics');
         const tableContainer = document.getElementById('tableView');
 
+        // Buttons
+        const mapButton = document.getElementById('mapViewBtn');
+        const statisticsButton = document.getElementById('statisticsViewBtn');
+        const tableButton = document.getElementById('tableViewBtn');
+
+        // Reset all buttons to inactive
+        [mapButton, statisticsButton, tableButton].forEach(button => button.classList.remove('active'));
+
+        // Reset all containers to hidden
+        mapContainer.style.display = 'none';
+        statisticsContainer.style.display = 'none';
+        tableContainer.style.display = 'none';
+
         if (view === 'map') {
+            mapButton.classList.add('active');
             mapContainer.style.display = 'block';
             statisticsContainer.style.display = 'none';
             tableContainer.style.display = 'none';
         } else if (view === 'statistics') {
+            statisticsButton.classList.add('active');
             mapContainer.style.display = 'none';
             statisticsContainer.style.display = 'block';
             tableContainer.style.display = 'none';
         } else if (view === 'table') {
+            tableButton.classList.add('active');
             mapContainer.style.display = 'none';
             statisticsContainer.style.display = 'none';
             tableContainer.style.display = 'block';
@@ -206,7 +298,10 @@ document.addEventListener('DOMContentLoaded', () => {
         switchView('table');
         renderTablePage(1); // Ensure the table renders on switching views
     });
-    document.getElementById('statisticsViewBtn').addEventListener('click', fetchStatistics);
+    document.getElementById('statisticsViewBtn').addEventListener('click', () => {
+        switchView('statistics');
+        fetchStatistics();
+    });
     document.getElementById('searchBtn').addEventListener('click', () => {
         const yearFrom = document.getElementById('yearFrom').value;
         const yearTo = document.getElementById('yearTo').value;

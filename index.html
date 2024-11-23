@@ -1,30 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Berkeley Natural History Museums ReserveMapper</title>
-  
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-  
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
-  
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  
-    <!-- Leaflet VectorGrid Plugin (for vector tiles) -->
-    <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.min.js"></script>
-  
-    <!-- Leaflet MarkerCluster Plugin (optional, for marker clustering) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-  </head>  
-  
+
+<head>
+  <meta charset="UTF-8">
+  <title>Berkeley Natural History Museums ReserveMapper</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+  <!-- Leaflet VectorGrid Plugin (for vector tiles) -->
+  <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.min.js"></script>
+
+  <!-- Leaflet MarkerCluster Plugin (optional, for marker clustering) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+</head>
+
 
 <body>
   <!-- Header -->
@@ -41,74 +42,85 @@
 
   <!-- Main Container with Sidebar and Map -->
   <!-- Main Container with Sidebar and Map -->
-<div id="container">
-  <div id="sidebar">
-    <h3>Search Options</h3>
-    <label for="reserveSelect">Select Reserve:</label>
-    <select id="reserveSelect">
+  <div id="container">
+    <div id="sidebar">
+      <h3>Search Options</h3>
+      <label for="reserveSelect">Select Reserve:</label>
+      <select id="reserveSelect">
         <option value="">Select a reserve...</option>
-    </select>
+      </select>
 
-    <label>Query Type:</label>
-    <div id="queryTypeContainer">
-      <input type="radio" id="queryObservation" name="queryType" value="observation" checked>
-      <label for="queryObservation">Occurrences</label>
+      <label>Query Type:</label>
+      <div id="queryTypeContainer">
+        <input type="radio" id="queryObservation" name="queryType" value="observation" checked>
+        <label for="queryObservation">Occurrences</label>
 
-      <input type="radio" id="queryPhotos" name="queryType" value="photos">
-      <label for="queryPhotos">Photos</label>
-    </div>
+        <input type="radio" id="queryPhotos" name="queryType" value="photos">
+        <label for="queryPhotos">Photos</label>
+      </div>
 
-    <label for="scientificName">Scientific Name:</label>
-    <input type="text" id="scientificName" placeholder="Start typing species name..." list="speciesSuggestions">
-    <datalist id="speciesSuggestions"></datalist>
+      <label for="scientificName">Scientific Name:</label>
+      <input type="text" id="scientificName" placeholder="Start typing species name..." list="speciesSuggestions">
+      <datalist id="speciesSuggestions"></datalist>
 
-    <label>Year Collected:</label>
-    <div id="yearContainer">
-        <input type="text" id="yearFrom" placeholder="YYYY" maxlength="4"> to 
+      <label>Year Collected:</label>
+      <div id="yearContainer">
+        <input type="text" id="yearFrom" placeholder="YYYY" maxlength="4"> to
         <input type="text" id="yearTo" placeholder="YYYY" maxlength="4">
+      </div>
+
+      <button id="searchBtn">Search</button>
     </div>
 
-    <button id="searchBtn">Search</button>
-  </div>
+    <!-- Map View -->
 
-  <!-- Map View -->
-  <div id="map" style="display: block;">    
+    <div id="map" style="display: block;">
       <div id="toggleSidebarArrow">←</div>
+    </div>
+
+    <!-- Statistics View -->
+    <div id="statistics" style="display: none;">
+      <!-- Placeholder for Statistics Content -->
+    </div>
+
+
+    <!-- Table View -->
+    <div id="tableView" style="display: none;">
+      <div id="tableContainer">
+        <div id="tableRecordCount" class="record-count"></div>
+
+        <div id="scrollableTable">
+          <table id="dataTable">
+            <thead>
+              <tr>
+                <th>Scientific Name</th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Day</th>
+                <th>Locality</th>
+                <th>Institution</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Table data goes here -->
+            </tbody>
+          </table>
+        </div>
+        <div id="pagination">
+          <button id="prevPage" disabled>Previous</button>
+          <span id="pageInfo"></span>
+          <button id="nextPage" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+
   </div>
-
-  <!-- Statistics View -->
-  <div id="statistics" style="display: none;">    
-    <!-- Placeholder for Statistics Content -->
-  </div>
-
-
-  <!-- Table View -->
-<div id="tableView" style="display: none;">
-  <table id="dataTable">
-    <thead>
-      <tr>
-        <th data-key="scientificName">Scientific Name</th>
-        <th data-key="year">Year</th>
-        <th data-key="month">Month</th>
-        <th data-key="day">Day</th>
-        <th data-key="verbatimLocality">Verbatim Locality</th>
-        <th data-key="institutionCode">Institution Code</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <div id="pagination">
-    <button id="prevPage" disabled>Previous</button>
-    <span id="pageInfo"></span>
-    <button id="nextPage" disabled>Next</button>
-  </div>
-</div>
-
-</div>
 
 
   <!-- Custom JavaScript -->
   <script src="js/scripts.js"></script>
   <script src="js/loading.js"></script>
 </body>
+
 </html>

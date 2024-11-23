@@ -1,3 +1,13 @@
+/* Make the entire viewport available */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    /* Prevent scrolling on the body */
+}
+
 /* Header Styling */
 #header {
     display: flex;
@@ -51,7 +61,8 @@
 
 #sidebar h3 {
     font-size: 1.2em;
-    margin-bottom: 15px; /* Space below the heading */
+    margin-bottom: 15px;
+    /* Space below the heading */
 }
 
 /* Labels */
@@ -74,14 +85,17 @@
 /* Side-by-Side Radio Buttons for Occurrences and Photos */
 #queryTypeContainer {
     display: flex;
-    gap: 10px; /* Space between the two options */
-    align-items: center; /* Aligns labels and radio buttons vertically */
+    gap: 10px;
+    /* Space between the two options */
+    align-items: center;
+    /* Aligns labels and radio buttons vertically */
     margin-top: 10px;
 }
 
 #queryTypeContainer label {
     font-weight: normal;
-    margin-left: 5px; /* Slight space between radio button and label */
+    margin-left: 5px;
+    /* Slight space between radio button and label */
 }
 
 
@@ -94,7 +108,8 @@
 
 #yearFrom,
 #yearTo {
-    width: 35%; /* Adjust for side-by-side alignment */
+    width: 35%;
+    /* Adjust for side-by-side alignment */
     padding: 8px;
     font-size: 14px;
     box-sizing: border-box;
@@ -125,17 +140,35 @@
     height: calc(100vh - 60px);
 }
 
+/* Ensure the content container spans full height */
+#contentContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    /* Full viewport height */
+}
+
+/* Style each content view to fill the container */
+.content {
+    flex: 1;
+    /* Take up equal space */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Prevent content from overflowing */
+}
+
 #map {
     flex: 1;
-    position: relative;
-    height: 100vh;
 }
 
 /* Toggle Arrow Styling */
 #toggleSidebarArrow {
     position: absolute;
-    top: 50%; /* Center vertically in the map */
-    left: 0; /* Align to the left edge of the map */
+    top: 50%;
+    /* Center vertically in the map */
+    left: 0;
+    /* Align to the left edge of the map */
     transform: translateY(-50%);
     cursor: pointer;
     z-index: 1000;
@@ -169,34 +202,34 @@
 }
 
 
-#statisticsModal {
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-    color: #333;
+#map,
+#tableView,
+#statistics {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
-
-#statisticsModal h3 {
-    margin-bottom: 15px;
-    font-size: 18px;
-    color: #007bff;
-}
-
-#statisticsModal ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-#statisticsModal ul li {
-    margin: 8px 0;
-}
-
 
 #tableView {
-    padding: 20px;
+    padding: 10px;
     font-family: Arial, sans-serif;
+    width: 100%;
+    height: 100%;
 }
+
+#tableContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#scrollableTable {
+    flex: 1;
+    /* Allow the table to grow to fill available space */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+}
+
 
 #dataTable {
     width: 100%;
@@ -204,7 +237,8 @@
     margin: 20px 0;
 }
 
-#dataTable th, #dataTable td {
+#dataTable th,
+#dataTable td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
@@ -220,6 +254,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    display: flex;
+    padding: 10px;
+    background-color: #f9f9f9;
+    /* Optional styling */
+    border-top: 1px solid #ccc;
+    /* Optional border */
 }
 
 
@@ -229,7 +269,8 @@
     margin: 20px 0;
 }
 
-.sortable-table th, .sortable-table td {
+.sortable-table th,
+.sortable-table td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
@@ -238,4 +279,53 @@
 .sortable-table th {
     background-color: #f2f2f2;
     cursor: pointer;
+}
+
+.active {
+    background-color: blue;
+    color: white;
+}
+
+#statistics {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    /* Full height of its parent */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    padding: 10px;
+    /* Optional padding for content */
+    box-sizing: border-box;
+    /* Include padding in total height */
+    width: 100%;
+    height: 100%;
+}
+
+#statistics h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+#statistics table {
+    width: 100%;
+    /* Ensure the table spans the full width */
+    border-collapse: collapse;
+}
+
+#statistics th,
+#statistics td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ccc;
+    /* Optional border for table styling */
+}
+
+#statistics th {
+    background-color: #f4f4f4;
+    /* Optional header background */
+}
+
+#statistics tr:nth-child(even) {
+    background-color: #f9f9f9;
+    /* Optional striped rows */
 }
