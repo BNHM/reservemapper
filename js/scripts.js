@@ -81,30 +81,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getSelectedReserveText() {
         const reserveSelect = document.getElementById('reserveSelect');
-        
+
         if (!reserveSelect) {
             console.error('Element with id "reserveSelect" not found.');
             return null;
         }
-    
+
         // Get the text of the selected option
         const selectedText = reserveSelect.selectedOptions[0]?.textContent || null;
-    
+
         return selectedText;
     }
-    
+
     function isQueryParametersVisible() {
         const queryParameters = document.getElementById('queryParameters');
         if (!queryParameters) {
             console.error('Element with id "queryParameters" not found.');
             return false; // Return false if the element does not exist
         }
-    
+
         return window.getComputedStyle(queryParameters).display !== 'none';
     }
     // Render a single page of the Table View
     function renderTablePage(page) {
-        
+
         const tableContainer = document.getElementById('tableView');
 
         if (!isQueryParametersVisible()) {
@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         tableBody.innerHTML = pageData.map(row => `
             <tr>
+                <td>${row.media && row.media.length > 0 ? generatePhotoGallery(row.media) : 'No Photos'}</td>
                 <td>${row.scientificName || 'N/A'}</td>
                 <td>${row.year || 'N/A'}</td>
                 <td>${row.month || 'N/A'}</td>
@@ -150,7 +151,23 @@ document.addEventListener('DOMContentLoaded', () => {
             recordCountElement.textContent = `A total of ${formattedCount} records satisfy this query`;
         }
     }
+    function generatePhotoGallery(media) {
+        if (!media || !Array.isArray(media)) {
+            return ''; // No media available
+        }
 
+        const gallery = media
+            .filter(item => item.type === 'StillImage' && item.identifier) // Ensure it's a valid image
+            .map(item => {
+                const smallImageUrl = item.identifier.replace(/original\.(jpeg|jpg|png)$/i, 'small.$1');
+                return `<a href="${item.references}" target="_blank">
+                            <img src="${smallImageUrl}" alt="Photo" style="width: 100px; margin: 5px;">
+                        </a>`;
+            })
+            .join('');
+
+        return gallery ? `<div><strong>Photos:</strong><br>${gallery}</div>` : '';
+    }
 
     function buildGBIFQueryUrl(baseEndpoint, options = {}) {
         const { taxonKey, yearFrom, yearTo, facet, facetLimit, currentBounds, mediaType } = options;
@@ -171,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             url += `&decimalLatitude=${sw.lat},${ne.lat}&decimalLongitude=${sw.lng},${ne.lng}`;
         }
 
-        if (mediaType) url += `&mediaType=${mediaType}`;
+        if (mediaType && mediaType !== null && mediaType !== undefined) url += `&mediaType=${mediaType}`;
 
         return url;
     }
@@ -190,8 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             yearFrom,
             yearTo,
             currentBounds,
-            mediaType: filterPhotos ? 'stillImage' : null // Include mediaType if checkbox is checked
-
+            mediaType: document.getElementById('filterPhotos').checked ? 'stillImage' : null // Include mediaType if checkbox is checked
         });
 
         let offset = 0;
@@ -209,13 +225,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 data.results.forEach(occurrence => {
                     if (occurrence.decimalLatitude && occurrence.decimalLongitude) {
+                        // Generate popup content including photos
+                        const popupContent = `
+        <strong>Scientific Name:</strong> ${occurrence.scientificName || 'N/A'}<br>
+        <strong>Country:</strong> ${occurrence.country || 'N/A'}<br>
+        <strong>Year:</strong> ${occurrence.year || 'N/A'}<br>
+        ${generatePhotoGallery(occurrence.media)}
+        <a href="https://www.gbif.org/occurrence/${occurrence.key}" target="_blank">More details</a>
+    `;
+
                         const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
-                            .bindPopup(`
-                                <strong>Scientific Name:</strong> ${occurrence.scientificName || 'N/A'}<br>
-                                <strong>Country:</strong> ${occurrence.country || 'N/A'}<br>
-                                <strong>Year:</strong> ${occurrence.year || 'N/A'}<br>
-                                <a href="https://www.gbif.org/occurrence/${occurrence.key}" target="_blank">More details</a>
-                            `);
+                            .bindPopup(popupContent);
                         markerClusterGroup.addLayer(marker);
 
                         tableData.push({
@@ -224,7 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             month: occurrence.month,
                             day: occurrence.day,
                             verbatimLocality: occurrence.verbatimLocality,
-                            institutionCode: occurrence.institutionCode
+                            institutionCode: occurrence.institutionCode,
+                            media: occurrence.media || [] // Include media array
+
                         });
                     }
                 });
@@ -258,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        statisticsContainer.innerHTML = 'Showing Statistics for ' + getSelectedReserveText(); // Clear previous content
+        statisticsContainer.innerHTML = '<h3>Showing Top 10 Counts for ' + getSelectedReserveText() + " for given query</h3>"; // Clear previous content
 
         //const baseUrl = `https://api.gbif.org/v1/occurrence/search?limit=0`;
         const baseUrl = `https://api.gbif.org/v1/occurrence/search`;
@@ -273,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         yearFrom = document.getElementById('yearFrom').value;
         yearTo = document.getElementById('yearTo').value;
+
         for (const facet of facets) {
             //const facetUrl = `${baseUrl}&facet=${facet}&facetLimit=20`;
             // Build the query URL using the helper function
@@ -283,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 yearFrom,
                 yearTo,
                 currentBounds, // Replace with your year input variable
-                mediaType: filterPhotos ? 'stillImage' : null // Include mediaType if checkbox is checked
+                mediaType: document.getElementById('filterPhotos').checked ? 'stillImage' : null // Include mediaType if checkbox is checked
             });
 
             try {
@@ -360,14 +383,14 @@ document.addEventListener('DOMContentLoaded', () => {
         statisticsContainer.style.display = 'none';
         tableContainer.style.display = 'none';
 
- // Save map state when switching away
- if (view !== 'map' && map) {
-    lastMapCenter = map.getCenter();
-    lastMapZoom = map.getZoom();
-}
+        // Save map state when switching away
+        if (view !== 'map' && map) {
+            lastMapCenter = map.getCenter();
+            lastMapZoom = map.getZoom();
+        }
 
         if (view === 'map') {
-            mapButton.classList.add('active'); 
+            mapButton.classList.add('active');
             if (map) {
                 map.setView(lastMapCenter || [37.7749, -122.4194], lastMapZoom || 5);
                 map.invalidateSize(); // Recalculate map dimensions
