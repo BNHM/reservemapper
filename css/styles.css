@@ -372,7 +372,7 @@ body {
   
   #logoContainer {
     position: absolute;
-    bottom: 80px;
+    bottom: 10g0px;
     left: 0;
     width: 100%;
     display: flex;
@@ -415,5 +415,22 @@ body {
   .logo:hover {
     transform: scale(1.1); /* Slight zoom effect */
     cursor: pointer;
+  }
+
+  .header-content {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Align items vertically centered */
+    gap: 10px; /* Add spacing between the logo and text */
+  }
+  
+  .header-content img {
+    height: 60px; /* Set the height of the logo */
+    width: auto; /* Maintain aspect ratio */
+  }
+  
+  .header-content span {
+    font-size: 18px; /* Adjust font size as needed */
+    font-weight: bold; /* Make the text bold */
+    color: white; /* Text color */
   }
   
