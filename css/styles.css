@@ -44,13 +44,15 @@ body {
 
 
 #sidebar {
-    flex-basis: 300px;
-    transition: flex-basis 0.3s ease;
-    background: #f4f4f4;
-    border-right: 1px solid #ddd;
-    padding: 15px;
-    overflow-y: auto;
-}
+    position: relative; /* Make the sidebar the reference for absolutely positioned elements */
+    height: 100vh; /* Full height of the viewport */
+    padding: 10px;
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
+    background-color: #f9f9f9; /* Background color for sidebar */
+    border-right: 1px solid #ccc; /* Optional border for sidebar */
+    overflow-y: auto; /* Scrollable if content overflows */
+  }
 
 #sidebar.collapsed {
     flex-basis: 0;
@@ -74,7 +76,8 @@ body {
 
 /* Dropdowns and Input Fields */
 #reserveSelect,
-#scientificName {
+#scientificName,
+#basisOfRecord {
     width: 100%;
     padding: 8px;
     font-size: 14px;
@@ -342,3 +345,75 @@ body {
     margin: 0; /* Remove default margins */
     transform: translateY(6px); /* Slight adjustment for better alignment */
 }
+
+  
+  .tags-container {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  
+  .tag {
+    background-color: #007bff;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .tag .remove-tag {
+    margin-left: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  #logoContainer {
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column; /* Text on top, logos below */
+    align-items: center; /* Center the content horizontally */
+    padding: 10px 0;
+    border-top: 1px solid #ccc; /* Optional separator line */
+    text-align: center;
+  }
+  
+  .logo-text {
+    margin-bottom: 10px; /* Space between text and logos */
+    font-size: 14px;
+    color: #555; /* Subtle color for the text */
+  }
+  
+  .logo-row {
+    display: flex; /* Ensure logos are side by side */
+    justify-content: center; /* Center logos horizontally */
+    gap: 10px; /* Space between the logos */
+  }
+  
+  .logo {
+    display: flex; /* Make each logo a flex container */
+    justify-content: center; /* Center the image horizontally */
+    align-items: center; /* Center the image vertically */
+    width: 60px; /* Fixed width for consistent alignment */
+    height: 60px; /* Fixed height for consistent alignment */
+    box-sizing: border-box; /* Ensure padding/border doesn't affect size */
+    overflow: hidden; /* Clip logos that are larger than the container */
+    background-color: transparent; /* Optional background color */
+  }
+  
+  .logo img {
+    max-width: 100%; /* Scale image to fit the width */
+    max-height: 100%; /* Scale image to fit the height */
+    object-fit: contain; /* Ensures aspect ratio is preserved */
+  }
+  
+  .logo:hover {
+    transform: scale(1.1); /* Slight zoom effect */
+    cursor: pointer;
+  }
+  

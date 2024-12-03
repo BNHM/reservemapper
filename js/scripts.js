@@ -9,6 +9,55 @@ let reserveBoundaryLayer;
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    const basisOfRecordInput = document.getElementById("basisOfRecord");
+    const basisOfRecordSuggestions = document.getElementById("basisOfRecordSuggestions");
+    const basisOfRecordTags = document.getElementById("basisOfRecordTags");
+  
+    let selectedBasisOfRecords = [];
+  
+    // Add event listener for selecting an option
+    basisOfRecordInput.addEventListener("input", function () {
+      const value = this.value.trim();
+      const optionExists = Array.from(basisOfRecordSuggestions.options).some(
+        (option) => option.value === value
+      );
+  
+      if (optionExists && !selectedBasisOfRecords.includes(value)) {
+        selectedBasisOfRecords.push(value);
+        updateTags();
+        this.value = ""; // Clear the input
+      }
+    });
+  
+    // Function to update the displayed tags
+    function updateTags() {
+      basisOfRecordTags.innerHTML = "";
+      selectedBasisOfRecords.forEach((record) => {
+        const tag = document.createElement("div");
+        tag.classList.add("tag");
+        tag.innerHTML = `
+          ${record}
+          <span class="remove-tag">&times;</span>
+        `;
+  
+        // Add event listener to remove tag
+        tag.querySelector(".remove-tag").addEventListener("click", () => {
+          selectedBasisOfRecords = selectedBasisOfRecords.filter(
+            (item) => item !== record
+          );
+          updateTags();
+        });
+  
+        basisOfRecordTags.appendChild(tag);
+      });
+    }
+  
+    // Function to get the selected basisOfRecord values
+    function getSelectedBasisOfRecords() {
+      return selectedBasisOfRecords;
+    }
+  
+
 
     // Initially hide the query parameters
     queryParameters.style.display = 'none';
@@ -171,74 +220,97 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function buildGBIFQueryUrl(baseEndpoint, options = {}) {
-        const { taxonKey, yearFrom, yearTo, facet, facetLimit, currentBounds, mediaType } = options;
-
+        const {
+            taxonKey,
+            yearFrom,
+            yearTo,
+            facet,
+            facetLimit,
+            currentBounds,
+            mediaType,
+            basisOfRecord // Expect an array of selected basisOfRecord values
+        } = options;
+    
         let url = `${baseEndpoint}?limit=300`; // Default limit for occurrence search
-
+    
         if (taxonKey) url += `&taxonKey=${taxonKey}`;
         if (yearFrom && yearTo) url += `&year=${yearFrom},${yearTo}`;
         else if (yearFrom) url += `&year=${yearFrom}`;
         else if (yearTo) url += `&year=${yearTo}`;
-
+    
         if (facet) url += `&facet=${facet}`;
         if (facetLimit) url += `&facetLimit=${facetLimit}`;
-
+    
         if (currentBounds) {
             const sw = currentBounds.getSouthWest();
             const ne = currentBounds.getNorthEast();
             url += `&decimalLatitude=${sw.lat},${ne.lat}&decimalLongitude=${sw.lng},${ne.lng}`;
         }
-
-        if (mediaType && mediaType !== null && mediaType !== undefined) url += `&mediaType=${mediaType}`;
-
+    
+        if (mediaType) url += `&mediaType=${mediaType}`;
+    
+        // Add multiple basisOfRecord parameters
+        if (Array.isArray(basisOfRecord) && basisOfRecord.length > 0) {
+            basisOfRecord.forEach(record => {
+                url += `&basisOfRecord=${encodeURIComponent(record)}`;
+            });
+        }
+    
         return url;
     }
-    // Perform a GBIF search and update the Table View
+    
+    
+    
+    
+    
     async function performGBIFSearch(yearFrom, yearTo) {
         clearMarkers();
         tableData = []; // Reset table data
-
+    
         const loadingMessage = document.getElementById('loadingMessage');
         loadingMessage.style.display = 'block';
         loadingMessage.innerHTML = 'Loading Records...';
-
-        let baseUrl = `https://api.gbif.org/v1/occurrence/search`;
-        url = buildGBIFQueryUrl(baseUrl, {
+    
+        const basisOfRecord = getSelectedBasisOfRecords(); // Get selected Basis of Record values
+        const baseUrl = `https://api.gbif.org/v1/occurrence/search`;
+    
+        const url = buildGBIFQueryUrl(baseUrl, {
             taxonKey,
             yearFrom,
             yearTo,
             currentBounds,
-            mediaType: document.getElementById('filterPhotos').checked ? 'stillImage' : null // Include mediaType if checkbox is checked
+            mediaType: document.getElementById('filterPhotos').checked ? 'stillImage' : null,
+            basisOfRecord // Pass the array of selected values
         });
-
+    
         let offset = 0;
         let totalRecords = 0;
         let loadedCount = 0;
-
+    
         try {
             while (loadedCount < 1000) {
                 const pagedUrl = `${url}&offset=${offset}`;
                 const response = await fetch(pagedUrl);
                 const data = await response.json();
-
+    
                 if (offset === 0) totalRecords = data.count;
                 if (offset === 0) updateRecordCount('table', data.count || 0);
-
+    
                 data.results.forEach(occurrence => {
                     if (occurrence.decimalLatitude && occurrence.decimalLongitude) {
-                        // Generate popup content including photos
                         const popupContent = `
-        <strong>Scientific Name:</strong> ${occurrence.scientificName || 'N/A'}<br>
-        <strong>Country:</strong> ${occurrence.country || 'N/A'}<br>
-        <strong>Year:</strong> ${occurrence.year || 'N/A'}<br>
-        ${generatePhotoGallery(occurrence.media)}
-        <a href="https://www.gbif.org/occurrence/${occurrence.key}" target="_blank">More details</a>
-    `;
-
+                            <strong>Scientific Name:</strong> ${occurrence.scientificName || 'N/A'}<br>
+                            <strong>Country:</strong> ${occurrence.country || 'N/A'}<br>
+                            <strong>Year:</strong> ${occurrence.year || 'N/A'}<br>
+                            <strong>Basis of Record:</strong> ${occurrence.basisOfRecord || 'N/A'}<br>
+                            ${generatePhotoGallery(occurrence.media)}
+                            <a href="https://www.gbif.org/occurrence/${occurrence.key}" target="_blank">More details</a>
+                        `;
+    
                         const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
                             .bindPopup(popupContent);
                         markerClusterGroup.addLayer(marker);
-
+    
                         tableData.push({
                             scientificName: occurrence.scientificName,
                             year: occurrence.year,
@@ -246,20 +318,20 @@ document.addEventListener('DOMContentLoaded', () => {
                             day: occurrence.day,
                             verbatimLocality: occurrence.verbatimLocality,
                             institutionCode: occurrence.institutionCode,
-                            media: occurrence.media || [] // Include media array
-
+                            basisOfRecord: occurrence.basisOfRecord || 'N/A',
+                            media: occurrence.media || []
                         });
                     }
                 });
-
+    
                 loadedCount += data.results.length;
                 offset += 300;
-
+    
                 loadingMessage.innerHTML = `Loading ${Math.min(loadedCount, 1000)} of ${totalRecords} records...`;
-
+    
                 if (data.endOfRecords) break;
             }
-
+    
             renderTablePage(1); // Render the first page
             loadingMessage.style.display = 'none';
         } catch (error) {
@@ -268,6 +340,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => (loadingMessage.style.display = 'none'), 5000);
         }
     }
+    
+    
 
     // Fetch and render statistics from GBIF
     async function fetchStatistics() {
@@ -427,6 +501,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const yearFrom = document.getElementById('yearFrom').value;
         const yearTo = document.getElementById('yearTo').value;
         performGBIFSearch(yearFrom, yearTo);
+        const selectedBasisOfRecord = getSelectedBasisOfRecords();
+      console.log("Selected Basis of Record:", selectedBasisOfRecord);
     });
 
     // Scientific name suggestions
