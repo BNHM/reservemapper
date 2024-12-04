@@ -44,15 +44,15 @@ body {
 
 
 #sidebar {
-    position: relative; /* Make the sidebar the reference for absolutely positioned elements */
-    height: 100vh; /* Full height of the viewport */
-    padding: 10px;
+    position: relative; /* Ensure the sidebar is the reference for absolutely positioned elements */
     display: flex;
-    flex-direction: column; /* Stack content vertically */
-    background-color: #f9f9f9; /* Background color for sidebar */
-    border-right: 1px solid #ccc; /* Optional border for sidebar */
-    overflow-y: auto; /* Scrollable if content overflows */
-  }
+    flex-direction: column;
+    height: 100vh;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+}
 
 #sidebar.collapsed {
     flex-basis: 0;
@@ -341,6 +341,17 @@ body {
     gap: 5px; /* Optional spacing between checkbox and label */
 }
 
+#checklistView {
+    display: none; /* Initially hidden */
+    height: 100%; /* Full height of its parent container */
+    width: 100%;   
+    overflow-y: auto; /* Enable vertical scrolling if content overflows */
+    padding: 10px; /* Optional padding for content */
+    box-sizing: border-box; /* Include padding and borders in the height calculation */
+    background-color: #f9f9f9; /* Optional background color */
+}
+
+
 #photoQuery input[type="checkbox"] {
     margin: 0; /* Remove default margins */
     transform: translateY(6px); /* Slight adjustment for better alignment */
@@ -372,7 +383,8 @@ body {
   
   #logoContainer {
     position: absolute;
-    bottom: 10g0px;
+    bottom: 100px;
+    z-index: 1; /* Lower z-index to go behind queryParameters */
     left: 0;
     width: 100%;
     display: flex;
@@ -400,7 +412,6 @@ body {
     justify-content: center; /* Center the image horizontally */
     align-items: center; /* Center the image vertically */
     width: 60px; /* Fixed width for consistent alignment */
-    height: 60px; /* Fixed height for consistent alignment */
     box-sizing: border-box; /* Ensure padding/border doesn't affect size */
     overflow: hidden; /* Clip logos that are larger than the container */
     background-color: transparent; /* Optional background color */
@@ -434,3 +445,39 @@ body {
     color: white; /* Text color */
   }
   
+  .collapsible {
+    background-color: #f9f9f9;
+    color: #333;
+    cursor: pointer;
+    padding: 10px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.collapsible:hover {
+    background-color: #ddd;
+}
+
+.collapsible.active {
+    background-color: #ccc;
+}
+
+.content {
+    padding: 0 10px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background-color: #f1f1f1;
+}
+
+#queryReserve, #queryParameters {
+    position: relative; /* Ensure it creates a stacking context */
+    z-index: 2; /* Higher z-index to stay above other elements */
+    background-color: #ffffff; /* Solid background to obscure content behind */
+    padding: 10px; /* Optional: Adjust for spacing */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+}

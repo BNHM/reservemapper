@@ -444,48 +444,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const mapContainer = document.getElementById('map');
         const statisticsContainer = document.getElementById('statistics');
         const tableContainer = document.getElementById('tableView');
-
-        // Buttons
+        const checklistContainer = document.getElementById('checklistView');
+    
         const mapButton = document.getElementById('mapViewBtn');
         const statisticsButton = document.getElementById('statisticsViewBtn');
         const tableButton = document.getElementById('tableViewBtn');
-
-        // Reset all buttons to inactive
-        [mapButton, statisticsButton, tableButton].forEach(button => button.classList.remove('active'));
-
-        // Reset all containers to hidden
-        mapContainer.style.display = 'none';
-        statisticsContainer.style.display = 'none';
-        tableContainer.style.display = 'none';
-
-        // Save map state when switching away
-        if (view !== 'map' && map) {
-            lastMapCenter = map.getCenter();
-            lastMapZoom = map.getZoom();
-        }
-
+        const checklistButton = document.getElementById('checklistsViewBtn');
+    
+        [mapButton, statisticsButton, tableButton, checklistButton].forEach(button => button.classList.remove('active'));
+        [mapContainer, statisticsContainer, tableContainer, checklistContainer].forEach(container => container.style.display = 'none');
+    
         if (view === 'map') {
             mapButton.classList.add('active');
-            if (map) {
-                map.setView(lastMapCenter || [37.7749, -122.4194], lastMapZoom || 5);
-                map.invalidateSize(); // Recalculate map dimensions
-                window.dispatchEvent(new Event('resize'));
-            }
             mapContainer.style.display = 'block';
-            statisticsContainer.style.display = 'none';
-            tableContainer.style.display = 'none';
         } else if (view === 'statistics') {
             statisticsButton.classList.add('active');
-            mapContainer.style.display = 'none';
             statisticsContainer.style.display = 'block';
-            tableContainer.style.display = 'none';
         } else if (view === 'table') {
             tableButton.classList.add('active');
-            mapContainer.style.display = 'none';
-            statisticsContainer.style.display = 'none';
             tableContainer.style.display = 'block';
+        } else if (view === 'checklist') {
+            checklistButton.classList.add('active');
+            checklistContainer.style.display = 'block';
         }
     }
+    
 
     // Event listeners
     document.getElementById('mapViewBtn').addEventListener('click', () => switchView('map'));
@@ -497,6 +480,16 @@ document.addEventListener('DOMContentLoaded', () => {
         switchView('statistics');
         fetchStatistics();
     });
+    document.getElementById('checklistsViewBtn').addEventListener('click', () => {
+        switchView('checklist');
+    
+        if (reserveBoundaryLayer) {
+            fetchSpeciesFromMOL(reserveBoundaryLayer);
+        } else {
+            document.getElementById('checklistContainer').innerHTML = '<p>Please select a reserve first.</p>';
+        }
+    });
+    
     document.getElementById('searchBtn').addEventListener('click', () => {
         const yearFrom = document.getElementById('yearFrom').value;
         const yearTo = document.getElementById('yearTo').value;
@@ -571,5 +564,98 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    async function fetchSpeciesFromMOL(reserveBoundaryLayer) {
+        if (!reserveBoundaryLayer) {
+            console.error('No reserve boundary layer is available.');
+            return;
+        }
+    
+        const checklistContainer = document.getElementById('checklistContainer');
+        checklistContainer.innerHTML = '<p>Loading species checklist...</p>';
+    
+        try {
+            // Extract GeoJSON data from the reserve boundary layer
+            const geojson = reserveBoundaryLayer.toGeoJSON();
+            const coordinates = geojson.features[0]?.geometry?.coordinates;
+    
+            if (!coordinates) {
+                console.error('Failed to extract coordinates from the reserve boundary layer.');
+                checklistContainer.innerHTML = '<p>Error: Invalid reserve boundary.</p>';
+                return;
+            }
+    
+            // Build the payload
+            const payload = {
+                lang: "en",
+                geojson: {
+                    type: "Polygon",
+                    coordinates: coordinates
+                }
+            };
+    
+            // Send POST request to Map of Life API
+            const response = await fetch("https://dev-api.mol.org/2.x/spatial/species/list", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+    
+            const data = await response.json();
+    
+            // Handle the response
+            if (data && data.taxas && Array.isArray(data.taxas)) {
+                let htmlContent = '';
+    
+                // Loop through the taxa to create collapsible sections
+                data.taxas.forEach(taxa => {
+                    const speciesList = taxa.species
+                        ? taxa.species.map(species => `
+                            <li>
+                                <strong>${species.scientificname}</strong> (${species.common?.[0] || 'No common name'})
+                            </li>
+                        `).join('')
+                        : '<li>No species available.</li>';
+    
+                    // Collapsible section for each taxa group
+                    htmlContent += `
+                        <div class="collapsible-container">
+                            <button class="collapsible">${taxa.title} (${taxa.count} records)</button>
+                            <div class="content">
+                                <ul>
+                                    ${speciesList}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                });
+    
+                checklistContainer.innerHTML = htmlContent;
+    
+                // Add collapsible functionality
+                const collapsibles = document.querySelectorAll('.collapsible');
+                collapsibles.forEach(button => {
+                    button.addEventListener('click', function () {
+                        this.classList.toggle('active');
+                        const content = this.nextElementSibling;
+                        if (content.style.maxHeight) {
+                            content.style.maxHeight = null; // Collapse
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + 'px'; // Expand
+                        }
+                    });
+                });
+            } else {
+                checklistContainer.innerHTML = '<p>No species data found for the selected reserve or there was an error fetching results.</p>';
+            }
+        } catch (error) {
+            console.error('Error fetching species checklist:', error);
+            checklistContainer.innerHTML = '<p>Error loading species checklist. Please try again later.</p>';
+        }
+    }
+    
+    
+    
     loadReserves();
 });
