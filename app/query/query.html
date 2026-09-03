@@ -55,6 +55,14 @@
 			</div>
 		</div> 
 	</div>
+
+        <div class="calphotos-error-backdrop" ng-show="vm.showCalphotosError" ng-click="vm.dismissCalphotosError()">
+            <div class="calphotos-error-popup" role="alertdialog" aria-live="assertive" aria-labelledby="calphotos-error-title" ng-click="$event.stopPropagation()">
+                <button type="button" class="calphotos-error-close" aria-label="Close" ng-click="vm.dismissCalphotosError()">&times;</button>
+                <div id="calphotos-error-title" class="calphotos-error-title">CalPhotos unavailable</div>
+                <p>{{vm.calphotosErrorMessage}}</p>
+            </div>
+        </div>
 	
 	<!-- table -->
         <div ng-show="vm.showTable" class="query-table" ng-class="{'full-page-query-table': !vm.showSidebar}"
@@ -66,9 +74,14 @@
 
         <!-- messages -->
         <div ng-show="vm.showMessages" class="query-messages" ng-class="{'full-page-query-table': !vm.showSidebar}">
+            <div class="messages-toolbar">
+                <div class="messages-title">Messages</div>
+                <button type="button" class="messages-clear" ng-click="vm.clearMessages()">Clear messages</button>
+            </div>
             <div class="message-list" ng-show="vm.alerts.getAlerts().length">
-                <div ng-repeat="alert in vm.alerts.getAlerts()" class="alert alert-{{alert.level}}">
-                    {{ alert.msg }}
+                <div ng-repeat="alert in vm.alerts.getAlerts()" class="message-entry message-{{alert.level}}">
+                    <span class="message-level">{{ alert.level }}</span>
+                    <span class="message-text">{{ alert.msg }}</span>
                 </div>
             </div>
             <div id="popupContent" class="messages-popup-panel"></div>

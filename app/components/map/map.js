@@ -243,11 +243,9 @@
 						if (_this.photoOption) {
 							openModal()
 						} else {
-							L.popup({
-								className: 'query-map-popup',
-								maxHeight: 520,
-								maxWidth: 620
-							})
+							var clusterPopupOptions = getRecordPopupOptions(_this._map);
+							applyRecordPopupBounds(popupContentElement, clusterPopupOptions);
+							L.popup(clusterPopupOptions)
 								.setLatLng(m.latlng || m.layer.getLatLng())
 								.setContent(popupContentElement)
 								.openOn(_this._map);
@@ -385,13 +383,13 @@
 					}
 					marker.on('click', function(m,resource) {
 						if (!_this.photoOption) {
-							L.popup({
-								className: 'query-map-popup',
-								maxHeight: 520,
-								maxWidth: 620
-							})
+							var markerPopupOptions = getRecordPopupOptions(_this._map);
+							var markerPopupContent = L.DomUtil.create('div', 'map-popup-content');
+							markerPopupContent.innerHTML = m.layer.popupContentCallback;
+							applyRecordPopupBounds(markerPopupContent, markerPopupOptions);
+							L.popup(markerPopupOptions)
 								.setLatLng(m.latlng)
-								.setContent(m.layer.popupContentCallback)
+								.setContent(markerPopupContent)
 								.openOn(_this._map);
 							return;
 						}
@@ -1234,14 +1232,57 @@
 			}
 			displayChange();
 
-			L.popup({
-				className: 'query-map-popup',
-				maxHeight: 520,
-				maxWidth: 620
-			})
+			var leafletPopupOptions = getRecordPopupOptions(map);
+			applyRecordPopupBounds(popupContentElement, leafletPopupOptions);
+
+			L.popup(leafletPopupOptions)
 				.setLatLng(latlng)
 				.setContent(popupContentElement)
 				.openOn(map);
+		}
+
+		function getRecordPopupOptions(map) {
+			var preferredWidth = 390;
+			var preferredHeight = 390;
+			var maxWidth = preferredWidth;
+			var maxHeight = preferredHeight;
+			var size;
+
+			if (map && angular.isFunction(map.getSize)) {
+				size = map.getSize();
+				if (size) {
+					maxWidth = Math.min(preferredWidth, Math.max(80, size.x - 44), size.x);
+					maxHeight = Math.min(preferredHeight, Math.max(100, size.y - 58), size.y);
+				}
+			}
+
+			return {
+				autoPan: true,
+				autoPanPadding: [20, 20],
+				className: 'query-map-popup',
+				keepInView: true,
+				maxHeight: Math.floor(maxHeight),
+				maxWidth: Math.floor(maxWidth)
+			};
+		}
+
+		function applyRecordPopupBounds(contentElement, popupOptions) {
+			var contentWidth = Math.max(0, (popupOptions.maxWidth || 390) - 30);
+			var contentHeight = Math.max(0, (popupOptions.maxHeight || 390) - 20);
+			var records = contentElement && contentElement.querySelectorAll ? contentElement.querySelectorAll('.gbif-record-popup') : [];
+
+			if (!contentElement) {
+				return;
+			}
+
+			contentElement.style.maxWidth = contentWidth + 'px';
+			contentElement.style.maxHeight = contentHeight + 'px';
+			contentElement.style.overflow = 'auto';
+
+			angular.forEach(records, function (record) {
+				record.style.width = contentWidth + 'px';
+				record.style.maxWidth = '100%';
+			});
 		}
 
 		function openSimpleMapPopup(map, latlng, title, message) {
@@ -1314,18 +1355,6 @@
 			html += buildGBIFMediaAnchor(primary, title, 'gbif-record-primary-link', primary.previewUrl || primary.url);
 			html += buildGBIFMediaCaption(primary);
 			html += "</figure>";
-
-			if (mediaItems.length > 1) {
-				html += "<div class='gbif-record-media-thumbs' aria-label='Additional occurrence images'>";
-				angular.forEach(mediaItems.slice(1, 7), function (media) {
-					html += buildGBIFMediaAnchor(media, title, 'gbif-record-thumb-link', media.thumbnailUrl || media.previewUrl || media.url);
-				});
-				if (mediaItems.length > 7) {
-					html += "<span class='gbif-record-media-more'>+" + escapeHtml(mediaItems.length - 7) + "</span>";
-				}
-				html += "</div>";
-			}
-
 			html += "</div>";
 			return html;
 		}

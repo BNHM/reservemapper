@@ -134,11 +134,11 @@
 }
 
 .query-map-popup .leaflet-popup-content {
-    min-width: 300px;
-    max-width: 560px;
-    max-height: 500px;
+    min-width: 0;
+    max-width: 360px;
+    max-height: 360px;
     overflow: auto;
-    margin: 12px 14px;
+    margin: 10px 12px;
 }
 
 .query-map-popup .query {
@@ -161,7 +161,7 @@
 }
 
 .query-map-popup .gbif-record-popup {
-    width: 520px;
+    width: 360px;
     max-width: calc(100vw - 90px);
 }
 
@@ -171,7 +171,7 @@
 
 .query-map-popup .gbif-record-name {
     color: #1d2b34;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     line-height: 1.25;
 }
@@ -185,7 +185,7 @@
 
 .query-map-popup .gbif-record-media {
     display: block;
-    margin: 0 0 10px;
+    margin: 0 0 8px;
     overflow: visible;
 }
 
@@ -198,7 +198,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    min-height: 180px;
+    min-height: 120px;
     border: 1px solid #b7c7cf;
     border-radius: 4px;
     background: #f3f6f7;
@@ -215,7 +215,7 @@
     width: auto;
     max-width: 100%;
     height: auto;
-    max-height: 280px;
+    max-height: 180px;
     object-fit: contain;
     background: #f3f6f7;
 }
@@ -232,52 +232,9 @@
     color: #0277bd;
 }
 
-.query-map-popup .gbif-record-media-thumbs {
-    display: flex;
-    gap: 6px;
-    margin-top: 7px;
-    overflow-x: auto;
-    padding-bottom: 2px;
-}
-
-.query-map-popup .gbif-record-thumb-link {
-    display: block;
-    flex: 0 0 auto;
-}
-
-.query-map-popup .gbif-record-thumb-link img {
-    display: block;
-    width: 54px;
-    height: 54px;
-    object-fit: cover;
-    border: 1px solid #cfd8dc;
-    border-radius: 3px;
-    background: #f5f7f8;
-}
-
-.query-map-popup .gbif-record-thumb-link:hover img,
-.query-map-popup .gbif-record-thumb-link:focus img {
-    border-color: #0277bd;
-    box-shadow: 0 0 0 2px rgba(2, 119, 189, 0.16);
-}
-
-.query-map-popup .gbif-record-media-more {
-    display: flex;
-    flex: 0 0 54px;
-    align-items: center;
-    justify-content: center;
-    height: 54px;
-    border: 1px solid #cfd8dc;
-    border-radius: 3px;
-    color: #52636d;
-    background: #edf3f6;
-    font-size: 12px;
-    font-weight: 700;
-}
-
 .query-map-popup .gbif-record-fields {
     display: grid;
-    grid-template-columns: 105px minmax(0, 1fr);
+    grid-template-columns: 92px minmax(0, 1fr);
     gap: 4px 9px;
     margin: 8px 0 0;
 }
@@ -322,6 +279,11 @@
 
 .query-map-popup .map-popup-content .query {
     display: block;
+}
+
+.query-map-popup .map-popup-content {
+    max-width: 100%;
+    overflow: auto;
 }
 
 .query-map-popup .map-popup-pager {
@@ -383,11 +345,11 @@
     }
 
     .query-map-popup .gbif-record-primary-link {
-        min-height: 140px;
+        min-height: 100px;
     }
 
     .query-map-popup .gbif-record-primary-media img {
-        max-height: 220px;
+        max-height: 150px;
     }
 
     .query-map-popup .gbif-record-fields {

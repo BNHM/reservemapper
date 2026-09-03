@@ -39,10 +39,6 @@
 				} else if (this.value == 'query') { 
 					var _query = this
 					this.photoOption != photoOption
-				} else if (this.value == 'checklists') { 
-					var _query = this
-					this.photoOption != photoOption
-					//this.photoOption != photoOption
 				}
 			})
 		} 

@@ -15,6 +15,7 @@
             warn: warn,
             error: error,
             getAlerts: getAlerts,
+            clear: clear,
             remove: remove,
             removeTmp: removeTmp
         };
@@ -44,6 +45,10 @@
         function remove(alert) {
             var i = alerts.indexOf(alert);
             alerts.splice(i, 1);
+        }
+
+        function clear() {
+            alerts.length = 0;
         }
 
         function removeTmp() {

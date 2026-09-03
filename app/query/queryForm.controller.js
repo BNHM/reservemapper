@@ -5,9 +5,9 @@
     app.directive('taxonEmptyContents', ['$filter', '$http', taxonEmptyContents]);
     app.directive('taxonAutoComplete', ['$filter', '$http', taxonAutoCompleteDir]);
     app.controller('QueryFormController', QueryFormController);
-    QueryFormController.$inject = ['$scope', '$location', 'GBIFMapperService', 'photoMapperService', 'checklistMapperService', 'queryParams', 'photoParams', 'checklistParams', 'queryService', 'photoService', 'checklistService', 'photoViewer', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http', '$q'];
+    QueryFormController.$inject = ['$scope', '$location', 'GBIFMapperService', 'photoMapperService', 'queryParams', 'photoParams', 'queryService', 'photoService', 'photoViewer', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http', '$q'];
 
-    function QueryFormController($scope, $location, GBIFMapperService, photoMapperService, checklistMapperService, queryParams, photoParams, checklistParams, queryService, photoService,  checklistService, photoViewer, queryMap, queryResults, usSpinnerService, alerts, $http, $q ) {
+    function QueryFormController($scope, $location, GBIFMapperService, photoMapperService, queryParams, photoParams, queryService, photoService, photoViewer, queryMap, queryResults, usSpinnerService, alerts, $http, $q ) {
         var vm = this;
         var _currentLayer = undefined;
 
@@ -23,7 +23,6 @@
         vm.countryCodes = [];
         vm.spatialLayers = [];
         vm.basisOfRecord = [];
-        vm.checkList = [];
 
         // view toggles
         //vm.queryParams.queryType = "query";
@@ -35,18 +34,15 @@
 	// Set default spatialLayerTitle
         vm.spatialLayerTitle = "Select Area of Interest";
         vm.basisOfRecord = undefined;
-        vm.checkList = undefined;
 
         // Prepare data for Download
         vm.downloadColumns = ["basisOfRecord", "institutionCode", "collectionCode", "catalogNumber", "continent", "country", "stateProvince", "locality", "waterBody", "decimalLatitude", "decimalLongitude", "depth", "elevation", "eventDate", "month", "year", "scientificName", "kingdom", "phylum", "class", "order", "family", "genus", "species", "establishmentMeans", "repatriated", "typeStatus", "lastInterpreted", "mediaType", "protocol", "license", "publishingCountry", "publishingOrg", "recordedBy", "key"]
-        vm.checklistDownloadColumns = ["family", "genus", "specific_epithet", "begin_date", "recorded_by", "remote_resource"]
 
         vm.params = queryParams;
         vm.map = queryMap;
 
         vm.queryJson = queryJson;
         vm.queryPhotos = queryPhotos;
-        vm.queryChecklists = queryChecklists;
 
         vm.spatialLayerChanged = spatialLayerChanged;
         activate();
@@ -76,27 +72,6 @@
                             } else if (angular.isObject(text)) {
                                 text = (angular.equals({}, text)) ? '' : JSON.stringify(text);
                             }
-                        }
-                        resourceData.push((text) ? text.toString() : '');
-                    });
-                    downloadData.push(resourceData);
-                });
-            }
-            return downloadData;
-        }
-	// download checklist CSV
-        $scope.downloadChecklistCsv = function (data) {
-            var downloadData = [];
-            if (data.length > 0) {
-                angular.forEach(data, function (resource) {
-                    var resourceData = [];
-                    angular.forEach(vm.checklistDownloadColumns, function (key) {
-                        var text = resource[key];
-
-                        if (angular.isArray(text)) {
-                            text = text.join(" | ");
-                        } else if (angular.isObject(text)) {
-                            text = (angular.equals({}, text)) ? '' : JSON.stringify(text);
                         }
                         resourceData.push((text) ? text.toString() : '');
                     });
@@ -136,12 +111,6 @@
                 queryParams.setGeometryFromGeoJson(response.data);
                 // set bounds for photoParams
                 photoParams.bounds = bounds;
-                // set bounds for checklistParams
-                checklistParams.bounds = bounds;
-                checklistParams.checkList = $scope.queryFormVm.params.checkList
-
-	    	// Grab a new set of checklists for this layer
-            	getChecklists(checklistParams.build());
                 if (_currentLayer) {
                     queryMap.removeLayer(_currentLayer);
                 }
@@ -180,43 +149,12 @@
             }
         }
 
-        function queryChecklists() {
-            usSpinnerService.spin('query-spinner');
-
-	    // Remove any elements from map, in case the user switches between photos and query but does not change
-	    // the spatial layer
-            queryMap._clearMap();
-
-            queryResults.clear();
-
-	    // Grab lat lng of center to pass to checklist query function so it can be used for species lookup functions
-	    var lat = checklistParams.bounds.getCenter().lat;
-	    var lng = checklistParams.bounds.getCenter().lng;
-
-            checklistMapperService.query(checklistParams.build($scope.queryFormVm.params.checkList), 0, lat, lng)
-                .then(queryJsonSuccess)
-                .catch(queryJsonFailed)
-                .finally(queryJsonFinally);
-
-            function queryJsonSuccess() {
-                $scope.queryForm.$setPristine(true)
-            }
-            function queryJsonFailed(response) {
-                queryResults.isSet = false;
-            }
-
-            function queryJsonFinally() {
-		// display the table controller
-		$scope.showControl('table')
-                usSpinnerService.stop('query-spinner');
-            }
-        }
-
         function queryPhotos() {
             usSpinnerService.spin('query-spinner');
 	    // Remove any elements from map, in case the user switches between photos and query but does not change
 	    // the spatial layer
             queryMap._clearMap();
+            queryMap.setPhoto(true);
 
             queryResults.clear();
             zoomLayer()
@@ -245,16 +183,6 @@
                     vm.basisOfRecord = records;
                 }, function () {
                     alerts.error('error fetching basisOfRecord terms');
-                });
-        }
-
-        function getChecklists(query) {
-            checklistService.checklists(query)
-                .then(function (records) {
-                    vm.checkList = records;
-                }, function () {
-		    // for now, don't display an error here
-                    //alerts.error('error fetching checkList terms');
                 });
         }
 
@@ -305,7 +233,7 @@
 
     /* dynamically search taxon data */
     function searchTaxonData(characters, $http, rank) {
-        return $http.get("https://api.gbif.org/v1/species/suggest/?q=" + characters + "&rank=" + rank)
+        return $http.get("https://api.gbif.org/v1/species/suggest/?q=" + encodeURIComponent(characters) + "&rank=" + encodeURIComponent(rank))
             .then(queryJsonComplete);//function(response) {
         function queryJsonComplete(response) {
             return response.data;
@@ -341,39 +269,17 @@
                 elem.autocomplete({
                     source: function (request, response) {
                         //term has the data typed by the user
-                        var params = request.term;
+                        var term = request.term;
                         // TODO: fetch radio button rank
                         //var rank = scope.queryFormVm.params.rank
                         var rank = (scope.queryFormVm.params.rank).toString().toLowerCase()
 
                         // cal searchTaxonData function and wait for response
-                        searchTaxonData(params, $http, rank)
+                        searchTaxonData(term, $http, rank)
                             .then(function (data) {
-                                if (data) {
-                                    var result = ''
-                                    if (rank == "species")
-                                        result = $filter('filter')(data, { 'species': params });
-                                    if (rank == "genus")
-                                        result = $filter('filter')(data, { 'genus': params });
-                                    if (rank == "family")
-                                        result = $filter('filter')(data, { 'family': params });
-                                    if (rank == "order")
-                                        result = $filter('filter')(data, { 'order': params });
-                                    if (rank == "class")
-                                        result = $filter('filter')(data, { 'class': params });
-                                    if (rank == "phylum")
-                                        result = $filter('filter')(data, { 'phylum': params });
-                                    if (rank == "kingdom")
-                                        result = $filter('filter')(data, { 'kingdom': params });
-
-                                    angular.forEach(result, function (item) {
-                                        if (rank == "species")
-                                            item['value'] = item['scientificName'];
-                                        else
-                                            item['value'] = item[rank];
-                                    });
-                                }
-                                response(result);
+                                response(buildTaxonSuggestions(data, term, rank));
+                            }, function () {
+                                response([]);
                             });
                     },
                     minLength: 2,
@@ -381,28 +287,99 @@
                     // and then set other key values to empty
                     change: function (event, ui) {
                         if (ui['item'] == null) {
-                            alert('Click on name in drop-down list to filter by taxonomy')
-                            scope.queryFormVm.params.taxonomy = ''
-                            scope.queryFormVm.params.taxonKey = ''
-                            scope.queryFormVm.params.selectedTaxonomy = ''
+                            scope.$apply(function () {
+                                scope.queryFormVm.params.taxonomy = ''
+                                scope.queryFormVm.params.taxonKey = ''
+                                scope.queryFormVm.params.selectedTaxonomy = ''
+                            });
                         }
+                    },
+                    open: function () {
+                        elem.autocomplete('widget')
+                            .addClass('taxon-autocomplete-menu')
+                            .outerWidth(elem.outerWidth());
                     },
                     select: function (event, ui) {
                         //force a digest cycle to update taxonKey based on chosen taxon
                         scope.$apply(function () {
                             var rank = (scope.queryFormVm.params.rank).toString().toLowerCase()
-                            if (rank == "species") {
-                                scope.queryFormVm.params.taxonKey = ui['item'][rank + 'Key'];
-                                scope.queryFormVm.params.selectedTaxonomy = ui['item']['scientificName'];
-                            } else {
-                                scope.queryFormVm.params.taxonKey = ui['item'][rank + 'Key'];
-                                scope.queryFormVm.params.selectedTaxonomy = ui['item'][rank];
-                            }
+                            var selectedTaxonomy = ui['item']._selectedTaxonomy || ui['item'].label || ui['item'].value || taxonLabel(ui['item'], rank);
+
+                            scope.queryFormVm.params.taxonKey = ui['item']._taxonKey || ui['item'][rank + 'Key'] || ui['item'].key;
+                            scope.queryFormVm.params.taxonomy = selectedTaxonomy;
+                            scope.queryFormVm.params.selectedTaxonomy = selectedTaxonomy;
+                            ngModel.$setViewValue(selectedTaxonomy);
+                            ngModel.$render();
                         });
+                        elem.val(ui['item'].value);
+                        return false;
                     },
 
                 });
             }
         };
+    }
+
+    function buildTaxonSuggestions(data, term, rank) {
+        var suggestions = [];
+        var seen = {};
+
+        angular.forEach(data || [], function (item) {
+            var label = taxonLabel(item, rank);
+            var key = taxonKey(item, rank);
+            var seenKey;
+
+            if (!label || !key || !matchesTaxonTerm(item, label, term, rank)) {
+                return;
+            }
+
+            seenKey = key + ':' + label;
+            if (seen[seenKey]) {
+                return;
+            }
+
+            seen[seenKey] = true;
+            item.label = label;
+            item.value = label;
+            item._selectedTaxonomy = label;
+            item._taxonKey = key;
+            suggestions.push(item);
+        });
+
+        return suggestions;
+    }
+
+    function taxonLabel(item, rank) {
+        if (!item) {
+            return '';
+        }
+
+        if (rank === 'species') {
+            return item.scientificName || item.canonicalName || item.species || '';
+        }
+
+        return item.canonicalName || item.scientificName || item[rank] || '';
+    }
+
+    function taxonKey(item, rank) {
+        if (!item) {
+            return null;
+        }
+
+        if (String(item.rank || '').toLowerCase() === rank && item.key) {
+            return item.key;
+        }
+
+        return item[rank + 'Key'] || item.key;
+    }
+
+    function matchesTaxonTerm(item, label, term, rank) {
+        var normalizedTerm = String(term || '').toLowerCase();
+
+        return !normalizedTerm ||
+            String(label || '').toLowerCase().indexOf(normalizedTerm) !== -1 ||
+            String((item && item[rank]) || '').toLowerCase().indexOf(normalizedTerm) !== -1 ||
+            String((item && item.scientificName) || '').toLowerCase().indexOf(normalizedTerm) !== -1 ||
+            String((item && item.canonicalName) || '').toLowerCase().indexOf(normalizedTerm) !== -1;
     }
 })(angular);

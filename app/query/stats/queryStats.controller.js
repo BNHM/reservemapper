@@ -39,30 +39,10 @@
 	    //populate the table with institution stats by default
 	    if (isGbifQuery()) {
 		$scope.institutionCount();
-	    } else if (queryParams.queryType == 'checklists') {
-		$scope.familyCount();
 	    } else {
 		$scope.collectionCodeCount();
 	    }
 	});
-
-
-	// Checklist counts
-	$scope.classCount = function () {
-	    $scope.gridOptions.data = valueTotal( 'class', null, 'value', 'ascending')
-	}
-	$scope.orderCount = function () {
-	    $scope.gridOptions.data = valueTotal( 'order', null, 'value', 'ascending')
-	}
-	$scope.familyCount = function () {
-	    $scope.gridOptions.data = valueTotal( 'family', null, 'value', 'ascending')
-	}
-	$scope.genusCount = function () {
-	    $scope.gridOptions.data = valueTotal( 'genus', null, 'value', 'ascending')
-	}
-	$scope.specific_epithetCount = function () {
-	    $scope.gridOptions.data = valueTotal( 'specific_epithet', null, 'value', 'ascending')
-	}
 
 	// CalPhotos Specific Counts
 	$scope.scientificNameCount= function () {

@@ -18,10 +18,14 @@
         vm.showTable = false;
         vm.showStats = false;
         vm.showMessages = false;
+        vm.showCalphotosError = false;
+        vm.calphotosErrorMessage = '';
         vm.sidebarToggleToolTip = "hide sidebar";
 
         vm.queryMap = queryMap;
         vm.invalidSize = false;
+        vm.clearMessages = clearMessages;
+        vm.dismissCalphotosError = dismissCalphotosError;
 
         activate();
 
@@ -53,7 +57,14 @@
                 setActiveControl('messages');
             });
         });
+        var deregisterCalphotosUnavailable = $rootScope.$on('query:calphotosUnavailable', function (event, message) {
+            $scope.$evalAsync(function () {
+                vm.calphotosErrorMessage = message;
+                vm.showCalphotosError = true;
+            });
+        });
         $scope.$on('$destroy', deregisterShowMessages);
+        $scope.$on('$destroy', deregisterCalphotosUnavailable);
 
         $scope.showControl=setActiveControl;
 
@@ -79,6 +90,19 @@
                 vm.showStats=false;
                 vm.showMessages=true;
             }
+        }
+
+        function clearMessages() {
+            var popupContent = document.getElementById('popupContent');
+
+            alerts.clear();
+            if (popupContent) {
+                popupContent.innerHTML = '';
+            }
+        }
+
+        function dismissCalphotosError() {
+            vm.showCalphotosError = false;
         }
     }
 })();
