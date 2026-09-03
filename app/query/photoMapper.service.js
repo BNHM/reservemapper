@@ -21,14 +21,16 @@
         function query(query, page) {
             return _queryJson(query, page, true)
                 .then(function(results) {
-		    if (results.totalElements <= maxResults) {
+		    if (results.canPage === false) {
+			queryResults.toFetch = results.size;
+		    } else if (results.totalElements <= maxResults) {
 		    	queryResults.toFetch = results.totalElements;
 		    } else {
 		    	queryResults.toFetch = maxResults
 		    }
 
 		    // results.size is the total elements returned in this batch, typically 300
-                    if (results.size < queryResults.toFetch) {
+                    if (results.canPage !== false && results.size > 0 && results.size < queryResults.toFetch) {
                         var numRequests = Math.floor(queryResults.toFetch / results.size);
 
                         var promises = [];
@@ -76,13 +78,21 @@
 
                     return results;
                 }).catch(function(err) {
-                    alerts.error('Failed to load some query results');
+                    if (!err || !err._alertShown) {
+                        alerts.error('Failed to load some query results');
+                    }
                     console.log('query-error:', err);
                     throw err;
                 });
         }
 
         function _mapResults(results, resetMarkers) {
+            queryResults.update({
+                querySource: 'photos',
+                isCompleteRecordSet: true,
+                usingTileMap: false,
+                mapUsesBoundsFallback: false
+            });
             queryResults.append(results);
 	    //queryMap.setPhoto(true); 
             if (resetMarkers) {

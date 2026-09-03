@@ -15,6 +15,7 @@
             warn: warn,
             error: error,
             getAlerts: getAlerts,
+            clear: clear,
             remove: remove,
             removeTmp: removeTmp
         };
@@ -46,9 +47,13 @@
             alerts.splice(i, 1);
         }
 
+        function clear() {
+            alerts.length = 0;
+        }
+
         function removeTmp() {
-            for (var i=0; i < alerts.length; i++) {
-                if (!alert.persist) {
+            for (var i = alerts.length - 1; i >= 0; i--) {
+                if (!alerts[i].persist) {
                     alerts.splice(i, 1);
                 }
             }

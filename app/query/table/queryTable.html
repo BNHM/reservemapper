@@ -4,10 +4,17 @@
     </div>
 
     <div ng-show="queryTableVm.queryResults.isSet">
+	<div class="help-block" ng-show="queryTableVm.queryResults.querySource === 'gbif' && !queryTableVm.queryResults.isCompleteRecordSet">
+	    Showing the first {{queryTableVm.queryResults.size}} occurrence records. Statistics cover all {{queryTableVm.queryResults.totalElements}} records.
+	</div>
+	<div class="help-block" ng-show="queryTableVm.queryResults.querySource === 'gbif' && queryTableVm.queryResults.usingTileMap">
+	    Map is using GBIF aggregate markers. Zoom to level {{queryTableVm.queryResults.drilldownZoom || 14}} or closer; exact occurrence points load when the current view has {{queryTableVm.queryResults.drilldownLimit || 5000}} or fewer records.
+	</div>
 	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
                  <table class="table">
                      <thead>
                      <tr>
+			<th>media</th>
 			<th sortable='institutionCode' class="sortable">institutionCode </th>
 			<th sortable='collectionCode' class="sortable">collectionCode </th>
 			<th sortable='basisOfRecord' class="sortable">basisOfRecord</th>
@@ -25,6 +32,11 @@
                      </thead>
                      <tbody>
 			<tr grid-item ng-click="queryTableVm.toGBIF(item.key)">
+				<td class="gbif-table-media-cell">
+				    <a ng-if="queryTableVm.mediaPreviewUrl(item)" ng-href="{{queryTableVm.mediaLinkUrl(item)}}" target="_blank" rel="noopener noreferrer" ng-click="$event.stopPropagation()">
+					<img ng-src="{{queryTableVm.mediaPreviewUrl(item)}}" class="gbif-table-media" alt="GBIF media">
+				    </a>
+				</td>
                         	<td ng-bind-html="item.institutionCode"></td>
                         	<td ng-bind-html="item.collectionCode"></td>
                         	<td ng-bind-html="item.basisOfRecord"></td>
