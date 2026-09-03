@@ -20,12 +20,10 @@ npm start (runs at port 8000 by default)
 ```
 
 # to deploy to a remote server
-NOTE: i need to run gulp 3.9.1 to make this work.  Type ```gulp -v``` to check versions and run ```npm install gulp@3.9.1 --save``` as needed.
-NOTE2: we need to put necessary js / css files in app/js and app/css folders respectively. this makes the gulp deployment far
-easier to handle.
+Netlify runs the build configured in `netlify.toml` and publishes the generated `public` directory.
+The runtime JS and CSS dependencies are checked into `app/js` and `app/css`; Bower is not needed for deploys.
 ```
-gulp clean
-gulp   (takes all the javascript and html, minimifies and puts in public)
+npm run build
 git push (uses netlify hook)
 ```
 
