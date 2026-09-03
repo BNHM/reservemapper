@@ -47,8 +47,8 @@
         }
 
         function removeTmp() {
-            for (var i=0; i < alerts.length; i++) {
-                if (!alert.persist) {
+            for (var i = alerts.length - 1; i >= 0; i--) {
+                if (!alerts[i].persist) {
                     alerts.splice(i, 1);
                 }
             }

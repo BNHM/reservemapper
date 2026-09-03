@@ -5,9 +5,9 @@
     app.directive('taxonEmptyContents', ['$filter', '$http', taxonEmptyContents]);
     app.directive('taxonAutoComplete', ['$filter', '$http', taxonAutoCompleteDir]);
     app.controller('QueryFormController', QueryFormController);
-    app.$inject = ['$rootScope', '$location', 'GBIFMapperService', 'photoMapperService', 'checklistMapperService', 'queryParams', 'photoParams', 'checklistParams', 'queryService', 'photoService', 'checklistService', 'photoViewer', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http'];
+    QueryFormController.$inject = ['$scope', '$location', 'GBIFMapperService', 'photoMapperService', 'checklistMapperService', 'queryParams', 'photoParams', 'checklistParams', 'queryService', 'photoService', 'checklistService', 'photoViewer', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http', '$q'];
 
-    function QueryFormController($scope, $location, GBIFMapperService, photoMapperService, checklistMapperService, queryParams, photoParams, checklistParams, queryService, photoService,  checklistService, photoViewer, queryMap, queryResults, usSpinnerService, alerts, $http ) {
+    function QueryFormController($scope, $location, GBIFMapperService, photoMapperService, checklistMapperService, queryParams, photoParams, checklistParams, queryService, photoService,  checklistService, photoViewer, queryMap, queryResults, usSpinnerService, alerts, $http, $q ) {
         var vm = this;
         var _currentLayer = undefined;
 
@@ -111,34 +111,45 @@
         function spatialLayerChanged() {
             queryMap._clearMap();
             queryResults.clear();
-            zoomLayer();
+            if (!vm.spatialLayer) {
+                return $q.when();
+            }
+            return zoomLayer();
 
         }
 
         /* zoom into a chosen layer */
         function zoomLayer() {
 	    photoViewer.clear();
+            if (!vm.spatialLayer) {
+                alerts.error('Select an area of interest before searching.');
+                return $q.reject('missing-spatial-layer');
+            }
+
             // Fetch the WKT from the download_layer and set it to vm.spatialLayer
-            $http.get(vm.spatialLayer).then(function (response) {
+            return $http.get(vm.spatialLayer).then(function (response) {
                 //var l = omnivore.wkt.parse(response.data);
                 var l = L.geoJSON(response.data);
+                var bounds = l.getBounds();
                 // set bounds for queryParams
-                queryParams.bounds = l.getBounds();
+                queryParams.bounds = bounds;
+                queryParams.setGeometryFromGeoJson(response.data);
                 // set bounds for photoParams
-                photoParams.bounds = l.getBounds();
+                photoParams.bounds = bounds;
                 // set bounds for checklistParams
-                checklistParams.bounds = l.getBounds();
+                checklistParams.bounds = bounds;
                 checklistParams.checkList = $scope.queryFormVm.params.checkList
 
 	    	// Grab a new set of checklists for this layer
             	getChecklists(checklistParams.build());
-                if (_currentLayer && l.getBounds() !== _currentLayer.getBounds()) {
+                if (_currentLayer) {
                     queryMap.removeLayer(_currentLayer);
                 }
 
                 queryMap.addLayer(l);
                 _currentLayer = l;
 
+                return l;
             });
         }
 
@@ -148,11 +159,11 @@
 	    // the spatial layer
             queryMap._clearMap();
 
-            // zoom to selected layer
-            zoomLayer();
-
             queryResults.clear();
-            GBIFMapperService.query(queryParams.build(), 0)
+            zoomLayer()
+                .then(function () {
+                    return GBIFMapperService.query(queryParams.build());
+                })
                 .then(queryJsonSuccess)
                 .catch(queryJsonFailed)
                 .finally(queryJsonFinally);
@@ -207,11 +218,11 @@
 	    // the spatial layer
             queryMap._clearMap();
 
-            // zoom to selected layer
-            zoomLayer();
-
             queryResults.clear();
-            photoMapperService.query(photoParams.build(), 0)
+            zoomLayer()
+                .then(function () {
+                    return photoMapperService.query(photoParams.build(), 0);
+                })
                 .then(queryJsonSuccess)
                 .catch(queryJsonFailed)
                 .finally(queryJsonFinally);
