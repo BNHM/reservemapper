@@ -48,44 +48,291 @@
 
 .query-bar .actions {
     padding: 10px 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
 }
 
-.query-bar .alerts .alert {
-    margin-bottom: 0;
-    padding: 8px 20px;
-    text-align: center;
+.query-brand {
+    flex: 0 0 auto;
+}
+
+.query-toolbar-right {
+    margin-left: auto;
+}
+
+.query-messages {
+    flex: 1 1 auto;
+    padding: 18px 25px;
+    overflow: auto;
+    background: #f6f4ef;
+    color: #111;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.query-messages .messages-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 920px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #111;
+}
+
+.query-messages .messages-title {
+    color: #111;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.query-messages .messages-clear {
+    padding: 4px 9px;
+    border: 1px solid #111;
     border-radius: 0;
+    color: #111;
+    background: #f6f4ef;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
 }
 
-.query-bar .alerts .alert:not(:first-child) {
-    border-top: none;
+.query-messages .messages-clear:hover,
+.query-messages .messages-clear:focus {
+    color: #f6f4ef;
+    background: #111;
+    text-decoration: none;
 }
 
-.query-bar .alerts .alert-dismissable {
-    padding-right: 35px;
+.query-messages .message-list {
+    max-width: 920px;
+    margin-bottom: 14px;
 }
 
-.query-bar .alerts .alert-info {
-    border-color: #DBBE62;
-    background-color: rgba(243, 212, 106, 0.9);
+.query-messages .message-entry {
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 12px;
+    margin-bottom: 0;
+    padding: 8px 0;
+    border-bottom: 1px solid #111;
+    color: #111;
+    background: transparent;
+    font-size: 13px;
+    line-height: 1.45;
 }
 
-.query-bar .alerts .alert-info .close {
-    color: #5d4d06;
+.query-messages .message-level {
+    color: #111;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
 }
 
-.query-bar .alerts .alert-info > a {
-    color: #03A9F4;
+.query-messages .message-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
-.query-bar .alerts .alert-error {
-    border-color: #9C2B1F;
-    background-color: rgba(207, 58, 36, .9);
-    color: white;
+.query-messages .messages-empty {
+    color: #111;
+    font-size: 13px;
+    font-style: italic;
 }
 
-.query-bar .alerts .alert-info .close {
-    color: #471411;
+.messages-popup-panel {
+    max-width: 920px;
+}
+
+.messages-popup-panel:empty {
+    display: none;
+}
+
+.messages-popup-panel:not(:empty) ~ .messages-empty {
+    display: none !important;
+}
+
+.messages-popup-panel .query {
+    position: static;
+    min-height: 0;
+    margin-bottom: 0;
+    padding: 8px 0;
+    color: #111;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid #111;
+    border-radius: 0;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+.messages-popup-panel .query strong {
+    color: #111;
+}
+
+.messages-popup-panel #userInfo {
+    position: static;
+    display: block;
+    height: auto;
+    padding: 8px 10px;
+    margin: 0;
+    color: #111;
+    background: transparent;
+    border: 1px solid #111;
+    border-radius: 0;
+    font-size: 13px;
+    text-align: center;
+}
+
+.messages-popup-panel #prev,
+.messages-popup-panel #next {
+    position: static;
+    display: inline-block;
+    margin: 0 12px;
+    color: #111;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.calphotos-error-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.calphotos-error-backdrop.ng-hide {
+    display: none;
+}
+
+.calphotos-error-popup {
+    position: relative;
+    width: min(360px, calc(100vw - 56px));
+    padding: 18px 20px 16px;
+    border: 2px solid #111;
+    background: #f6f4ef;
+    color: #111;
+    font-family: Georgia, "Times New Roman", serif;
+    line-height: 1.45;
+    box-shadow: 5px 5px 0 #111;
+}
+
+.calphotos-error-title {
+    margin-bottom: 8px;
+    padding-right: 24px;
+    border-bottom: 1px solid #111;
+    color: #111;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.calphotos-error-popup p {
+    margin: 0;
+    color: #111;
+    font-size: 15px;
+}
+
+.calphotos-error-close {
+    position: absolute;
+    top: 7px;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    border: 1px solid #111;
+    border-radius: 0;
+    background: #f6f4ef;
+    color: #111;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 20px;
+}
+
+.calphotos-error-close:hover,
+.calphotos-error-close:focus {
+    background: #111;
+    color: #f6f4ef;
+}
+
+.occurrence-click-marker {
+    cursor: pointer;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+.gbif-table-media-cell {
+    width: 72px;
+    min-width: 72px;
+}
+
+.gbif-table-media {
+    display: block;
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border: 1px solid #cfd8dc;
+    border-radius: 3px;
+    background: #f5f7f8;
+}
+
+.gbif-aggregate-marker {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: #f28e2b;
+    color: #1c2730;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+    text-align: center;
+}
+
+.gbif-aggregate-marker:hover {
+    border-color: #202833;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+}
+
+.gbif-aggregate-marker span {
+    display: block;
+    max-width: 90%;
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.gbif-aggregate-cluster {
+    border-width: 4px;
+}
+
+.gbif-aggregate-marker-small {
+    background: #f8c145;
+}
+
+.gbif-aggregate-marker-medium {
+    background: #f28e2b;
+}
+
+.gbif-aggregate-marker-large {
+    background: #c74338;
+    color: #fff;
 }
 
 .sidebar {
@@ -133,6 +380,13 @@
 
 .sidebar .form-group {
     margin-bottom: 10px;
+}
+
+.taxon-autocomplete-menu {
+    z-index: 3000;
+    max-height: 260px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .sidebar-toggle {

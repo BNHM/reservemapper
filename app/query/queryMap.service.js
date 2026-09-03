@@ -6,7 +6,12 @@
 		.factory('photoViewer', function() {
 			return {
 				clear: function(){
-					document.getElementById("popupContent").innerHTML = ""
+					if (document.getElementById("popupContent")) {
+						document.getElementById("popupContent").innerHTML = ""
+					}
+					if (document.getElementById("modalPopupContent")) {
+						document.getElementById("modalPopupContent").innerHTML = ""
+					}
 					return true;
 				}
 			};
@@ -34,22 +39,18 @@
 				} else if (this.value == 'query') { 
 					var _query = this
 					this.photoOption != photoOption
-				} else if (this.value == 'checklists') { 
-					var _query = this
-					this.photoOption != photoOption
-					//this.photoOption != photoOption
 				}
 			})
 		} 
 	
 
-		QueryMap.prototype.setMarkers = function (data, zoomTo) {
-			Map.prototype.setMarkers.call(this, data, popupContent, zoomTo);
-		};
+			QueryMap.prototype.setMarkers = function (data, zoomTo, options) {
+				Map.prototype.setMarkers.call(this, data, popupContent, zoomTo, options);
+			};
 
-		QueryMap.prototype.addMarkers = function (data, zoomTo) {
-			Map.prototype.addMarkers.call(this, data, popupContent, zoomTo);
-		};
+			QueryMap.prototype.addMarkers = function (data, zoomTo, options) {
+				Map.prototype.addMarkers.call(this, data, popupContent, zoomTo, options);
+			};
 	
 		return new QueryMap('decimalLatitude', 'decimalLongitude');
 	}
