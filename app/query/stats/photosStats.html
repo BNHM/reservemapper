@@ -11,14 +11,15 @@
 	    <div><label class="control-label">Group and Count by:</label></div>
 
 	<button class="btn btn-default btn-sm" ng-click="collectionCodeCount()">CollectionCode</button>
-	<button class="btn btn-default btn-sm" ng-click="scientificNameCount()">Species</button>
+	<button class="btn btn-default btn-sm" ng-click="scientificNameCount()">Scientific Name</button>
+	<span class="help-block" ng-show="queryStatsVm.loadingStats">{{queryStatsVm.statsProgress}}</span>
 	<button class="btn btn-default btn-sm" ng-click="localityCount()">Locality</button>
 	<br></br>
 	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
                  <table class="table">
                      <thead>
 	  		<tr> 
-                        <th sortable='value' class="sortable" width="50px">count</th>
+                        <th sortable='value' class="sortable" width="50px">{{queryStatsVm.valueColumnName || 'count'}}</th>
 			<th sortable='key' class='sortable'>{{queryStatsVm.columnName}}</th>
 		     </tr>
                      </thead>
@@ -35,4 +36,3 @@
 	</div>
    </div>
 </div>
-

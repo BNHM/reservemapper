@@ -4,17 +4,21 @@
     angular.module('map.query')
 	.controller('QueryStatsController', QueryStatsController);
 
-    QueryStatsController.$inject = ['$scope', '$window', 'queryResults', 'queryParams', 'queryService', '$q', 'alerts'];
+    QueryStatsController.$inject = ['$scope', '$window', 'queryResults', 'queryParams', 'queryService', 'GBIFChecklistService', '$q', 'alerts'];
 
     /**
     Manage the look and feel of the data table.
     This controller relies heavily on the angular-data-grid package at https://www.npmjs.com/package/angular-data-grid
     */
-    function QueryStatsController($scope, $window, queryResults, queryParams, queryService, $q, alerts) {
+    function QueryStatsController($scope, $window, queryResults, queryParams, queryService, GBIFChecklistService, $q, alerts) {
 	var vm = this;
+	var ALL_FACET_PAGE_LIMIT = 500;
+	var MAX_STAT_FACETS = 100000;
 	//var totalResults = vm.totalResult;
 	vm.queryResults = queryResults;
 	vm.loadingStats = false;
+	vm.statsProgress = '';
+	vm.valueColumnName = 'count';
 	$scope.gridOptions = {
 	    data: []
 	};
@@ -27,6 +31,8 @@
 	], function () {
 	    if (!vm.queryResults.isSet) {
 		$scope.gridOptions.data = [];
+		vm.statsProgress = '';
+		vm.valueColumnName = 'count';
 		return;
 	    }
 
@@ -48,10 +54,15 @@
 
 	// CalPhotos Specific Counts
 	$scope.scientificNameCount= function () {
-	    if (isGbifQuery()) {
-		return gbifFacet('SCIENTIFIC_NAME', 'scientificName');
+	    if (isChecklistQuery()) {
+		return checklistScientificNameCount();
 	    }
-	    $scope.gridOptions.data = valueTotal( 'observations[0].scientific_name', null, 'value', 'ascending')
+	    if (isGbifQuery()) {
+		return gbifFacet('SCIENTIFIC_NAME', 'scientific_name', false, {
+		    all: true
+		});
+	    }
+	    $scope.gridOptions.data = valueTotal('scientificName', null, 'key', 'ascending')
 	}
 	$scope.collectionCodeCount = function () {
 	    if (isGbifQuery()) {
@@ -144,18 +155,47 @@
 
 	function checklistCount(fieldName, columnName) {
 	    vm.columnName = columnName;
+	    vm.valueColumnName = 'count';
 	    $scope.gridOptions.data = valueTotal(fieldName, null, 'value', 'descending');
 	    return $q.when($scope.gridOptions.data);
 	}
 
-	function gbifFacet(facetKey, columnName, resolveTaxonKeys) {
-	    vm.columnName = columnName;
+	function checklistScientificNameCount() {
+	    vm.columnName = 'scientific_name';
+	    vm.valueColumnName = 'occurrence_count';
 	    vm.loadingStats = true;
+	    vm.statsProgress = 'Preparing 0 of ' + (vm.queryResults.data || []).length + ' species names';
 	    $scope.gridOptions.data = [];
 
-	    return queryService.queryFacet(vm.queryResults.searchRequest || queryParams.build(), facetKey)
+	    return GBIFChecklistService.ensureTaxonomyForRows(vm.queryResults.data || [], {
+		onProgress: function (loaded, limit) {
+		    vm.statsProgress = 'Preparing ' + loaded + ' of ' + limit + ' species names';
+		}
+	    }).then(function () {
+		$scope.gridOptions.data = sumTotal('scientific_name', 'occurrence_count', 'key', 'ascending');
+		return $scope.gridOptions.data;
+	    }, function (err) {
+		alerts.error('Failed to load checklist scientific names');
+		console.log('checklist-stats-error:', err);
+		throw err;
+	    }).finally(function () {
+		vm.loadingStats = false;
+		vm.statsProgress = '';
+	    });
+	}
+
+	function gbifFacet(facetKey, columnName, resolveTaxonKeys, options) {
+	    var requestOptions = options || {};
+
+	    vm.columnName = columnName;
+	    vm.valueColumnName = 'count';
+	    vm.loadingStats = true;
+	    vm.statsProgress = requestOptions.all ? 'Loading 0 ' + columnName + ' values' : '';
+	    $scope.gridOptions.data = [];
+
+	    return loadGbifFacetRows(facetKey, requestOptions)
 		.then(function (results) {
-		    var rows = results.facets[facetKey] || [];
+		    var rows = results.rows;
 
 		    if (resolveTaxonKeys) {
 			return resolveTaxonRows(rows).then(function (resolvedRows) {
@@ -165,6 +205,9 @@
 		    }
 
 		    $scope.gridOptions.data = rows;
+		    if (results.truncated) {
+			alerts.warn('Stats are limited to the first ' + MAX_STAT_FACETS + ' ' + columnName + ' values.');
+		    }
 		    return rows;
 		}, function (err) {
 		    alerts.error('Failed to load GBIF stats');
@@ -173,7 +216,53 @@
 		})
 		.finally(function () {
 		    vm.loadingStats = false;
+		    vm.statsProgress = '';
 		});
+	}
+
+	function loadGbifFacetRows(facetKey, options) {
+	    var requestOptions = options || {};
+
+	    if (!requestOptions.all) {
+		return queryService.queryFacet(vm.queryResults.searchRequest || queryParams.build(), facetKey)
+		    .then(function (results) {
+			return {
+			    rows: results.facets[facetKey] || [],
+			    truncated: false
+			};
+		    });
+	    }
+
+	    return loadGbifFacetPage(facetKey, 0, []);
+	}
+
+	function loadGbifFacetPage(facetKey, facetOffset, rows) {
+	    if (rows.length >= MAX_STAT_FACETS) {
+		return $q.when({
+		    rows: rows,
+		    truncated: true
+		});
+	    }
+
+	    return queryService.queryFacet(vm.queryResults.searchRequest || queryParams.build(), facetKey, {
+		facetLimit: ALL_FACET_PAGE_LIMIT,
+		facetOffset: facetOffset
+	    }).then(function (results) {
+		var pageRows = results.facets[facetKey] || [];
+		var remaining = MAX_STAT_FACETS - rows.length;
+
+		rows.push.apply(rows, pageRows.slice(0, remaining));
+		vm.statsProgress = 'Loading ' + rows.length + ' ' + vm.columnName + ' values';
+
+		if (pageRows.length < ALL_FACET_PAGE_LIMIT || rows.length >= MAX_STAT_FACETS) {
+		    return {
+			rows: rows,
+			truncated: rows.length >= MAX_STAT_FACETS && pageRows.length === ALL_FACET_PAGE_LIMIT
+		    };
+		}
+
+		return loadGbifFacetPage(facetKey, facetOffset + ALL_FACET_PAGE_LIMIT, rows);
+	    });
 	}
 
 	function resolveTaxonRows(rows) {
@@ -198,57 +287,89 @@
 	// 4. sortDirection "ascending" or "descending"
 	// 5. nestedName, another name to nest
 	function valueTotal(name, nestedName, sortTopic, sortDirection) {
+	    vm.valueColumnName = 'count';
 	    if (nestedName != null)  {
 		vm.columnName = name + ':' + nestedName
 	    } else {
-		if (name == 'observations[0].scientific_name') {
-		    vm.columnName = 'species'
-		} else {
-		    vm.columnName = name
-		}
+		vm.columnName = normalizedColumnName(name);
 	    }
 	    var groupData;
 	    if (nestedName != null) {
 		groupData = d3.nest()
 		    .key(function(d) {
-			try {
-			    return eval('d.'+name) + ':' + eval('d.'+nestedName);
-			}
-			// In case of some error, return 'Unspecified'
-			catch(err) {
-			    return 'Unspecified';
-			}
+			return normalizedGroupValue(fieldValue(d, name)) + ':' + normalizedGroupValue(fieldValue(d, nestedName));
 		    })
 		    .rollup(function(v) {return v.length; })
 		    .entries(vm.queryResults.data)
 	    } else {
 		groupData = d3.nest()
 		    .key(function(d) {
-			// Return value from data element
-			try {
-			    var retValue = eval('d.'+name);
-			    // Return 'Unspecified' for empty or null values
-			    if (retValue == '' || retValue == null) {
-				return 'Unspecified'
-			    }
-			    // Return actual value
-			    else {
-				return retValue;
-			    }
-			}
-			// Catch cases where data not specified. This technically should
-			// not happen, but occasionally API endpoints return null data
-			// for expected parent or child elements
-			catch(err) {
-			    return 'Unspecified';
-			}
+			return normalizedGroupValue(fieldValue(d, name));
 		    })
 		    .rollup(function(v) {return v.length; })
 		    .entries(vm.queryResults.data)
 	    }
-	    // sort by key,value and ascending,descending
-	    return groupData.sort(function(x,y) {
-		return eval('d3.'+sortDirection+'(x.'+sortTopic+',y.'+sortTopic+')');
+	    return sortRows(groupData, sortTopic, sortDirection);
+	}
+
+	function sumTotal(name, valueName, sortTopic, sortDirection) {
+	    var groupData;
+
+	    vm.columnName = normalizedColumnName(name);
+	    vm.valueColumnName = valueName;
+
+	    groupData = d3.nest()
+		.key(function(d) {
+		    return normalizedGroupValue(fieldValue(d, name));
+		})
+		.rollup(function(values) {
+		    return values.reduce(function(total, item) {
+			var value = Number(fieldValue(item, valueName));
+
+			return total + (isFinite(value) ? value : 0);
+		    }, 0);
+		})
+		.entries(vm.queryResults.data);
+
+	    return sortRows(groupData, sortTopic, sortDirection);
+	}
+
+	function normalizedColumnName(name) {
+	    if (name == 'observations[0].scientific_name' || name == 'scientificName' || name == 'scientific_name') {
+		return 'scientific_name';
+	    }
+
+	    return name;
+	}
+
+	function normalizedGroupValue(value) {
+	    if (value === '' || value === null || value === undefined) {
+		return 'Unspecified';
+	    }
+
+	    return value;
+	}
+
+	function fieldValue(item, path) {
+	    var parts = String(path || '').replace(/\[(\d+)\]/g, '.$1').split('.');
+	    var value = item;
+
+	    for (var i = 0; i < parts.length; i++) {
+		if (!parts[i]) {
+		    continue;
+		}
+		if (value === undefined || value === null) {
+		    return undefined;
+		}
+		value = value[parts[i]];
+	    }
+
+	    return value;
+	}
+
+	function sortRows(rows, sortTopic, sortDirection) {
+	    return rows.sort(function(x,y) {
+		return d3[sortDirection](x[sortTopic], y[sortTopic]);
 	    });
 	}
     }

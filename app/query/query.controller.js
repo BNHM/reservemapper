@@ -18,6 +18,7 @@
         vm.showTable = false;
         vm.showStats = false;
         vm.showMessages = false;
+        vm.showAbout = false;
         vm.showCalphotosError = false;
         vm.calphotosErrorMessage = '';
         vm.sidebarToggleToolTip = "hide sidebar";
@@ -74,21 +75,31 @@
                 vm.showTable=false;
                 vm.showStats=false;
                 vm.showMessages=false;
+                vm.showAbout=false;
             } else if(state == 'table'){
                 vm.showMap=false;
                 vm.showTable=true;
                 vm.showStats=false;
                 vm.showMessages=false;
+                vm.showAbout=false;
             } else if(state == 'stats'){
                 vm.showMap=false;
                 vm.showTable=false;
                 vm.showStats=true;
                 vm.showMessages=false;
+                vm.showAbout=false;
             } else if(state == 'messages'){
                 vm.showMap=false;
                 vm.showTable=false;
                 vm.showStats=false;
                 vm.showMessages=true;
+                vm.showAbout=false;
+            } else if(state == 'about'){
+                vm.showMap=false;
+                vm.showTable=false;
+                vm.showStats=false;
+                vm.showMessages=false;
+                vm.showAbout=true;
             }
         }
 

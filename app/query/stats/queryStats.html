@@ -27,12 +27,12 @@
         <button class="btn btn-default btn-sm" ng-click="scientificNameCount()">Scientific Name</button>
         <button class="btn btn-default btn-sm" ng-click="localityCount()">Locality</button>
         <br></br>
-        <div class="help-block" ng-show="queryStatsVm.loadingStats">Loading stats...</div>
+        <div class="help-block" ng-show="queryStatsVm.loadingStats">Loading stats... {{queryStatsVm.statsProgress}}</div>
         <div grid-data grid-options="gridOptions" grid-actions="gridActions">
             <table class="table">
                 <thead>
                     <tr>
-                        <th sortable="value" class="sortable" width="50px">count</th>
+                        <th sortable="value" class="sortable" width="50px">{{queryStatsVm.valueColumnName || 'count'}}</th>
                         <th sortable="key" class="sortable">{{queryStatsVm.columnName}}</th>
                     </tr>
                 </thead>

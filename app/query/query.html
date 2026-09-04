@@ -7,17 +7,20 @@
 	</div>
         <div class="query-toolbar-right">
             <div class="btn-group btn-group-sm query-view-toggle">
-                <button type="button" ng-click="vm.showMap=true; vm.showTable=false; vm.showStats=false; vm.showMessages=false" ng-class="{'disabled': vm.showMap}"
+                <button type="button" ng-click="showControl('map')" ng-class="{'disabled': vm.showMap}"
                         class="btn btn-default">Map
                 </button>
-                <button type="button" ng-click="vm.showMap=false; vm.showTable=true; vm.showStats=false; vm.showMessages=false" ng-class="{'disabled': vm.showTable}"
+                <button type="button" ng-click="showControl('table')" ng-class="{'disabled': vm.showTable}"
                         class="btn btn-default">Table
                 </button>
-                <button type="button" ng-click="vm.showMap=false; vm.showTable=false; vm.showStats=true; vm.showMessages=false" ng-class="{'disabled': vm.showStats}"
+                <button type="button" ng-click="showControl('stats')" ng-class="{'disabled': vm.showStats}"
                 class="btn btn-default">Statistics
                 </button>
-                <button type="button" ng-click="vm.showMap=false; vm.showTable=false; vm.showStats=false; vm.showMessages=true" ng-class="{'disabled': vm.showMessages}"
+                <button type="button" ng-click="showControl('messages')" ng-class="{'disabled': vm.showMessages}"
                         class="btn btn-default">Messages <span ng-show="vm.alerts.getAlerts().length">({{vm.alerts.getAlerts().length}})</span>
+                </button>
+                <button type="button" ng-click="showControl('about')" ng-class="{'disabled': vm.showAbout}"
+                        class="btn btn-default">About
                 </button>
             </div>
         </div>
@@ -86,6 +89,67 @@
             </div>
             <div id="popupContent" class="messages-popup-panel"></div>
             <div class="messages-empty" ng-show="!vm.alerts.getAlerts().length">No messages for the current load.</div>
+        </div>
+
+        <!-- about -->
+        <div ng-show="vm.showAbout" class="query-about" ng-class="{'full-page-query-table': !vm.showSidebar}">
+            <div class="about-header">
+                <div>
+                    <div class="about-eyebrow">About ReserveMapper</div>
+                    <h1>Spatial searches for biodiversity records</h1>
+                </div>
+                <div class="about-logos">
+                    <a href="https://www.gbif.org/" target="_blank" rel="noopener">
+                        <img src="/images/gbifLogo.png" alt="GBIF">
+                    </a>
+                    <a href="https://calphotos.berkeley.edu/" target="_blank" rel="noopener">
+                        <img src="/images/calphotosLogo.png" alt="CalPhotos">
+                    </a>
+                </div>
+            </div>
+
+            <section class="about-section">
+                <p>ReserveMapper performs an exact spatial polygon search for GBIF occurrence records and spatial bounding-box searches for supporting services. Observations without coordinates, or that are purposefully obscured (e.g. for endangered species) or that have low accuracy may not appear in ReserveMapper results. Occurrence and checklist data are harvested from third-party web services, including the <a href="https://www.gbif.org/" target="_blank" rel="noopener">Global Biodiversity Information Facility</a>, which serves data from the <a href="https://bnhm.berkeley.edu/" target="_blank" rel="noopener">Berkeley Natural History Museums</a> and other institutions. Photo searches use <a href="https://calphotos.berkeley.edu/" target="_blank" rel="noopener">CalPhotos</a>.</p>
+
+                <p>This site was made possible by a grant from the University of California Division of Agriculture and Natural Resources.</p>
+            </section>
+
+            <section class="about-section">
+                <h2>Occurrence Searches</h2>
+                <p>Occurrence searches return individual GBIF occurrence records that match the selected polygon and any filters in the sidebar. These are specimen, observation, or related biodiversity records with coordinates.</p>
+                <ul>
+                    <li>The map shows returned records as points or clustered points. Clicking a point opens the interpreted record details and a GBIF link.</li>
+                    <li>The table is a record-level view. Counts in the Statistics tab use GBIF facets when available, so large result sets can be summarized beyond the visible table sample.</li>
+                    <li>CSV downloads are capped at 100,000 records. For complete datasets beyond that cap, use the corresponding GBIF occurrence download workflow.</li>
+                </ul>
+            </section>
+
+            <section class="about-section">
+                <h2>Checklist Searches</h2>
+                <p>Checklist searches build an observed-species checklist from GBIF occurrence records inside the selected polygon. This is a derived checklist, not a curated flora, fauna, or management checklist.</p>
+                <ul>
+                    <li>Each checklist row represents a GBIF taxon, usually a species, found in occurrence records for the selected area.</li>
+                    <li><strong>occurrence_count</strong> is the number of GBIF occurrence records supporting that checklist row, not the number of taxa.</li>
+                    <li>Scientific names and higher taxonomy are resolved from the GBIF taxon service. First and last year fields are derived from supporting occurrence records when evidence has been loaded.</li>
+                    <li>Use checklist results as an evidence-based starting point. Missing coordinates, obscured records, taxonomic changes, duplicate records, and uneven collecting effort can all affect what appears.</li>
+                </ul>
+            </section>
+
+            <section class="about-section">
+                <h2>Interpreting Results</h2>
+                <p>ReserveMapper searches across external services, so results depend on the quality, coverage, and current availability of those services. A missing record does not necessarily mean a taxon is absent from an area, and a returned record should be checked against its source when precision matters.</p>
+                <ul>
+                    <li>Occurrence results are best interpreted as source records with coordinates in or near the selected area.</li>
+                    <li>Checklist results are best interpreted as taxa inferred from matching GBIF occurrence records.</li>
+                    <li>CalPhotos results are image records from CalPhotos and may use broader bounding-box spatial matching.</li>
+                </ul>
+            </section>
+
+            <section class="about-section">
+                <h2>Polygon Sets</h2>
+                <p>The selected area list is driven by polygon files. By default, ReserveMapper loads University of California Natural Reserve polygons, but the same application can load other polygon sets representing parks, preserves, watersheds, counties, campuses, project areas, or any other spatial areas.</p>
+                <p>To call ReserveMapper with another polygon set, provide a GitHub contents path in the URL using the <code>layers</code> parameter and set the dropdown name with <code>title</code>. For example: <code>?layers=json&amp;title=University%20of%20California%20Natural%20Reserve</code>. Each listed polygon file should be GeoJSON that the application can draw on the map and use as the spatial filter for occurrence and checklist searches.</p>
+            </section>
         </div>
 
     </div>

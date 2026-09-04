@@ -65,13 +65,121 @@
     margin: 6px 0 0 10px;
 }
 
-.query-messages {
+.query-messages,
+.query-about {
     flex: 1 1 auto;
     padding: 18px 25px;
     overflow: auto;
     background: #f6f4ef;
     color: #111;
     font-family: Georgia, "Times New Roman", serif;
+}
+
+.query-about {
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+.query-about a {
+    color: #1f5f85;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+.about-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    max-width: 980px;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #111;
+}
+
+.about-eyebrow {
+    margin-bottom: 4px;
+    color: #111;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.query-about h1,
+.query-about h2 {
+    margin: 0;
+    color: #111;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.query-about h1 {
+    font-size: 28px;
+    line-height: 1.15;
+}
+
+.query-about h2 {
+    margin-bottom: 8px;
+    font-size: 17px;
+    line-height: 1.25;
+}
+
+.about-logos {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 14px;
+}
+
+.about-logos img {
+    display: block;
+    max-width: 124px;
+    max-height: 42px;
+}
+
+.about-section {
+    max-width: 980px;
+    margin: 0;
+    padding: 16px 0;
+    border-bottom: 1px solid #c9c2b4;
+}
+
+.about-section p {
+    margin: 0 0 10px;
+}
+
+.about-section p:last-child {
+    margin-bottom: 0;
+}
+
+.about-section ul {
+    margin: 8px 0 0 20px;
+    padding: 0;
+}
+
+.about-section li {
+    margin-bottom: 7px;
+}
+
+.about-section code {
+    color: #111;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid #d6d0c4;
+    border-radius: 3px;
+}
+
+@media (max-width: 760px) {
+    .about-header {
+        display: block;
+    }
+
+    .about-logos {
+        margin-top: 14px;
+    }
 }
 
 .query-messages .messages-toolbar {
