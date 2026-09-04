@@ -11,10 +11,11 @@
         var SCIENTIFIC_NAME_FACET = 'SCIENTIFIC_NAME';
         var YEAR_FACET = 'YEAR';
         var FACET_PAGE_LIMIT = 500;
-        var CHECKLIST_ROW_LIMIT = 5000;
+        var CHECKLIST_ROW_LIMIT = 10000;
         var YEAR_FACET_LIMIT = 1000;
         var TAXONOMY_CONCURRENCY = 6;
         var LOADING_ALERT = 'Loading GBIF observed species checklist...';
+        var COMPLEX_POLYGON_FALLBACK_WARNING = 'GBIF rejected this complex polygon. Checklist results are using the selected layer bounding box, so species from outside the boundary may be included.';
         var DOWNLOAD_COLUMNS = [
             'family',
             'genus',
@@ -48,6 +49,22 @@
             alerts.removeTmp();
             alerts.info(LOADING_ALERT);
 
+            return loadChecklistForRequest(searchRequest)
+                .catch(function (err) {
+                    return retryChecklistWithBoundsFallback(searchRequest, err);
+                })
+                .catch(function (err) {
+                    queryResults.isSet = false;
+                    alerts.error('Failed to load GBIF checklist');
+                    console.log('checklist-query-error:', err);
+                    throw err;
+                })
+                .finally(function () {
+                    removeAlert(LOADING_ALERT);
+                });
+        }
+
+        function loadChecklistForRequest(searchRequest) {
             return loadFacetPages(searchRequest, 0, [], 0)
                 .then(function (result) {
                     queryResults.update({
@@ -75,21 +92,21 @@
                     if (result.truncated) {
                         alerts.warn('Checklist is limited to the first ' + CHECKLIST_ROW_LIMIT + ' species by GBIF occurrence count.');
                     }
-                    if (searchRequest.usesBoundsPredicate) {
-                        alerts.warn('The selected layer could not be converted to a polygon; checklist search is using its bounding box.');
-                    }
+                    warnIfBoundsPredicate(searchRequest);
 
                     return queryResults;
-                })
-                .catch(function (err) {
-                    queryResults.isSet = false;
-                    alerts.error('Failed to load GBIF checklist');
-                    console.log('checklist-query-error:', err);
-                    throw err;
-                })
-                .finally(function () {
-                    removeAlert(LOADING_ALERT);
                 });
+        }
+
+        function retryChecklistWithBoundsFallback(searchRequest, err) {
+            var fallbackRequest = queryService.boundsFallbackRequest(searchRequest);
+
+            if (!fallbackRequest) {
+                return $q.reject(err);
+            }
+
+            console.log('checklist-exact-polygon-query-error:', err);
+            return loadChecklistForRequest(fallbackRequest);
         }
 
         function ensureEvidence(row) {
@@ -565,6 +582,14 @@
                 if (currentAlerts[i].msg === msg) {
                     alerts.remove(currentAlerts[i]);
                 }
+            }
+        }
+
+        function warnIfBoundsPredicate(searchRequest) {
+            if (searchRequest.usedBoundsFallback) {
+                alerts.warn(COMPLEX_POLYGON_FALLBACK_WARNING);
+            } else if (searchRequest.usesBoundsPredicate) {
+                alerts.warn('The selected layer could not be converted to a polygon; checklist search is using its bounding box.');
             }
         }
     }

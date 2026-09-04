@@ -17,6 +17,7 @@
             queryPredicate: queryPredicate,
             queryCount: queryCount,
             queryFacet: queryFacet,
+            boundsFallbackRequest: boundsFallbackRequest,
             taxonName: taxonName,
             taxonDetails: taxonDetails,
             countryCodes: countryCodes,
@@ -98,6 +99,31 @@
                 facetOffset: requestOptions.facetOffset || 0,
                 preserveAlerts: true
             });
+        }
+
+        function boundsFallbackRequest(searchRequest) {
+            var request;
+            var boundsQueryString;
+
+            if (!searchRequest || !searchRequest.canUseBoundsFallback || !searchRequest.boundsPredicateBody) {
+                return null;
+            }
+
+            boundsQueryString = searchRequest.boundsQueryString || searchRequest.tileQueryBounds || '';
+            request = angular.extend({}, searchRequest, {
+                queryString: boundsQueryString,
+                predicateBody: angular.copy(searchRequest.boundsPredicateBody),
+                tileQueryExact: boundsQueryString,
+                tileQueryBounds: boundsQueryString,
+                geometryWkt: null,
+                exactGeometryWkt: searchRequest.geometryWkt,
+                exactPredicateBody: angular.copy(searchRequest.predicateBody),
+                usesBoundsPredicate: true,
+                canUseBoundsFallback: false,
+                usedBoundsFallback: true
+            });
+
+            return request;
         }
 
         function taxonName(key) {

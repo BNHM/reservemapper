@@ -16,6 +16,7 @@
         var EXACT_VIEWPORT_MIN_ZOOM = 14;
         var EXACT_VIEWPORT_RECORD_LIMIT = 5000;
         var AGGREGATE_CLICK_RECORD_LIMIT = 50;
+        var COMPLEX_POLYGON_FALLBACK_WARNING = 'GBIF rejected this complex polygon. Results are using the selected layer bounding box, so records outside the boundary may be included.';
         var activeDrilldownSessionId = 0;
         var viewportRequestId = 0;
         var aggregateClickRequestId = 0;
@@ -37,36 +38,9 @@
             drilldownErrorShown = false;
             lastViewportMode = null;
 
-            return queryService.queryCount(searchRequest)
-                .then(function (countResults) {
-                    var totalElements = countResults.totalElements || 0;
-
-                    if (totalElements === 0) {
-                        queryMap._clearMap();
-                        queryResults.update({
-                            querySource: 'gbif',
-                            size: 0,
-                            totalElements: 0,
-                            data: [],
-                            toFetch: 0,
-                            isSet: true,
-                            isCompleteRecordSet: true,
-                            usingTileMap: false,
-                            mapUsesBoundsFallback: false,
-                            searchRequest: searchRequest,
-                            sampleLimit: 0,
-                            drilldownLimit: 0,
-                            drilldownZoom: 0
-                        });
-                        alerts.info('No results found.');
-                        return countResults;
-                    }
-
-                    if (totalElements <= FULL_RECORD_LIMIT) {
-                        return loadCompleteRecordSet(searchRequest, totalElements);
-                    }
-
-                    return loadLargeRecordSet(searchRequest, totalElements);
+            return loadCountedRecordSet(searchRequest)
+                .catch(function (err) {
+                    return retryWithBoundsFallback(searchRequest, err);
                 })
                 .catch(function (err) {
                     queryResults.isSet = false;
@@ -74,6 +48,56 @@
                     console.log('query-error:', err);
                     throw err;
             });
+        }
+
+        function loadCountedRecordSet(searchRequest) {
+            return queryService.queryCount(searchRequest)
+                .then(function (countResults) {
+                    return loadRecordSetForCount(searchRequest, countResults);
+                });
+        }
+
+        function retryWithBoundsFallback(searchRequest, err) {
+            var fallbackRequest = queryService.boundsFallbackRequest(searchRequest);
+
+            if (!fallbackRequest) {
+                return $q.reject(err);
+            }
+
+            console.log('gbif-exact-polygon-query-error:', err);
+            return loadCountedRecordSet(fallbackRequest);
+        }
+
+        function loadRecordSetForCount(searchRequest, countResults) {
+            var totalElements = countResults.totalElements || 0;
+
+            if (totalElements === 0) {
+                queryMap._clearMap();
+                queryResults.update({
+                    querySource: 'gbif',
+                    size: 0,
+                    totalElements: 0,
+                    data: [],
+                    toFetch: 0,
+                    isSet: true,
+                    isCompleteRecordSet: true,
+                    usingTileMap: false,
+                    mapUsesBoundsFallback: false,
+                    searchRequest: searchRequest,
+                    sampleLimit: 0,
+                    drilldownLimit: 0,
+                    drilldownZoom: 0
+                });
+                alerts.info('No results found.');
+                warnIfBoundsPredicate(searchRequest);
+                return countResults;
+            }
+
+            if (totalElements <= FULL_RECORD_LIMIT) {
+                return loadCompleteRecordSet(searchRequest, totalElements);
+            }
+
+            return loadLargeRecordSet(searchRequest, totalElements);
         }
 
         function downloadRecords(searchRequest, options) {
@@ -532,7 +556,9 @@
         }
 
         function warnIfBoundsPredicate(searchRequest) {
-            if (searchRequest.usesBoundsPredicate) {
+            if (searchRequest.usedBoundsFallback) {
+                alerts.warn(COMPLEX_POLYGON_FALLBACK_WARNING);
+            } else if (searchRequest.usesBoundsPredicate) {
                 alerts.warn('The selected layer could not be converted to a polygon; GBIF search is using its bounding box.');
             }
         }

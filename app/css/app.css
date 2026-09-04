@@ -172,6 +172,19 @@
     border-radius: 3px;
 }
 
+.about-reserve-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.about-reserve-links a {
+    display: inline-block;
+}
+
 @media (max-width: 760px) {
     .about-header {
         display: block;
@@ -492,6 +505,41 @@
 
 .sidebar .form-group {
     margin-bottom: 10px;
+}
+
+.reserve-preset-links {
+    margin: 0 0 14px;
+    padding: 0 15px 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.reserve-preset-title {
+    margin-bottom: 7px;
+    color: #333;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.reserve-preset-links a {
+    display: inline-block;
+    margin: 0 8px 6px 0;
+    padding: 3px 7px;
+    border: 1px solid #b8c3c8;
+    border-radius: 3px;
+    background: #f8f8f8;
+    color: #245269;
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+.reserve-preset-links a:hover,
+.reserve-preset-links a:focus {
+    border-color: #245269;
+    background: #fff;
+    color: #122b40;
+    text-decoration: none;
 }
 
 .taxon-autocomplete-menu {

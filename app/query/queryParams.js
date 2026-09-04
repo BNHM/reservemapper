@@ -43,32 +43,44 @@
         }
 
         function buildQuery() {
+            var geometryWkt = params.geometryWkt;
+
             return {
-                queryString: buildGetQuery(params.geometryWkt),
-                predicateBody: buildPredicateBody(),
-                tileQueryExact: buildGetQuery(params.geometryWkt),
+                queryString: buildGetQuery(geometryWkt),
+                predicateBody: buildPredicateBody(geometryWkt),
+                boundsQueryString: buildGetQuery(null),
+                boundsPredicateBody: buildPredicateBody(null),
+                tileQueryExact: buildGetQuery(geometryWkt),
                 tileQueryBounds: buildGetQuery(null),
                 bounds: params.bounds,
-                geometryWkt: params.geometryWkt,
-                usesBoundsPredicate: !hasValue(params.geometryWkt) && !!params.bounds,
+                geometryWkt: geometryWkt,
+                usesBoundsPredicate: !hasValue(geometryWkt) && !!params.bounds,
+                canUseBoundsFallback: hasValue(geometryWkt) && !!params.bounds,
+                usedBoundsFallback: false,
                 hasTextQuery: hasValue(params.queryString)
             };
         }
 
         function buildAreaQuery() {
+            var geometryWkt = params.geometryWkt;
+
             return {
-                queryString: buildAreaGetQuery(params.geometryWkt),
-                predicateBody: buildAreaPredicateBody(),
-                tileQueryExact: buildAreaGetQuery(params.geometryWkt),
+                queryString: buildAreaGetQuery(geometryWkt),
+                predicateBody: buildAreaPredicateBody(geometryWkt),
+                boundsQueryString: buildAreaGetQuery(null),
+                boundsPredicateBody: buildAreaPredicateBody(null),
+                tileQueryExact: buildAreaGetQuery(geometryWkt),
                 tileQueryBounds: buildAreaGetQuery(null),
                 bounds: params.bounds,
-                geometryWkt: params.geometryWkt,
-                usesBoundsPredicate: !hasValue(params.geometryWkt) && !!params.bounds,
+                geometryWkt: geometryWkt,
+                usesBoundsPredicate: !hasValue(geometryWkt) && !!params.bounds,
+                canUseBoundsFallback: hasValue(geometryWkt) && !!params.bounds,
+                usedBoundsFallback: false,
                 hasTextQuery: false
             };
         }
 
-        function buildPredicateBody() {
+        function buildPredicateBody(geometryWkt) {
             var body = {};
             var predicates = [];
 
@@ -76,8 +88,8 @@
                 body.q = params.queryString;
             }
 
-            addWithinPredicate(predicates, params.geometryWkt);
-            if (!hasValue(params.geometryWkt)) {
+            addWithinPredicate(predicates, geometryWkt);
+            if (!hasValue(geometryWkt)) {
                 addBoundsPredicates(predicates, params.bounds);
             }
             addEqualsPredicate(predicates, 'TAXON_KEY', params.taxonKey);
@@ -100,12 +112,12 @@
             return body;
         }
 
-        function buildAreaPredicateBody() {
+        function buildAreaPredicateBody(geometryWkt) {
             var body = {};
             var predicates = [];
 
-            addWithinPredicate(predicates, params.geometryWkt);
-            if (!hasValue(params.geometryWkt)) {
+            addWithinPredicate(predicates, geometryWkt);
+            if (!hasValue(geometryWkt)) {
                 addBoundsPredicates(predicates, params.bounds);
             }
 
