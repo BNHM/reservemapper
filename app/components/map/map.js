@@ -89,184 +89,24 @@
 					var length = m.layer.getChildCount()
 					var currentZoom = this._map.getZoom()
 					var maxZoom = this._map.getMaxZoom()
-					if (!_this.photoOption) {
-						var htmlItems = [];
-						var displayLimit = length > MAX_CLUSTER_FULL_POPUP_RECORDS ? MAX_CLUSTER_LIMITED_POPUP_RECORDS : length;
-						for (var itemIndex = 0; itemIndex < displayLimit; itemIndex++) {
-							if (markerChildren[itemIndex].popupContentCallback) {
-								htmlItems.push(markerChildren[itemIndex].popupContentCallback);
-							}
-						}
-						openRecordHtmlPopup(_this._map, htmlItems, m.latlng || m.layer.getLatLng(), {
-							totalElements: length,
-							title: 'Occurrence records',
-							emptyMessage: 'No records found in this cluster.'
-						});
+					var htmlItems = [];
+					var displayLimit = length > MAX_CLUSTER_FULL_POPUP_RECORDS ? MAX_CLUSTER_LIMITED_POPUP_RECORDS : length;
+
+					if (_this.photoOption && length > MAX_CLUSTER_FULL_POPUP_RECORDS && currentZoom != maxZoom) {
 						return;
 					}
-					if (length > 300 && currentZoom != maxZoom){
-						// prevents clusterclick from opening modal on large clusters
-					} else {
-						var modal = document.getElementById('photoModal')
-						function openModal() {
-							modal.style.display = "block";
-						}
-						var popupContentElement;
-						if (_this.photoOption) {
-							popupContentElement = L.DomUtil.get("modalPopupContent");
-							if (!popupContentElement) {
-								return;
-							}
-							popupContentElement.innerHTML = "";
-						} else {
-							popupContentElement = L.DomUtil.create('div', 'map-popup-content');
-						}
-						if (currentZoom == maxZoom && length > 300) {	
-							//fill popupContentElement with just the first 50 children
-							for (var i = 0; i < 50; i ++){
-								popupContentElement.innerHTML += markerChildren[i].popupContentCallback
-							}
-						}else {
-							//fill popupContentElement with all markerChildren
-							for (var i = 0; i < length; i ++){
-								popupContentElement.innerHTML += markerChildren[i].popupContentCallback
-							}
-						}
 
-						//retrieve each element to be displayed
-						var elements;
-						if (_this.photoOption) {
-							elements = $(popupContentElement).children(".photo");
-						} else {
-							elements = $(popupContentElement).children(".query");
+					for (var itemIndex = 0; itemIndex < displayLimit; itemIndex++) {
+						if (markerChildren[itemIndex].popupContentCallback) {
+							htmlItems.push(markerChildren[itemIndex].popupContentCallback);
 						}
-						var length = elements.length;
+					}
 
-						var counter = 0;
-						//Get direct children of popupContent div
-						elements.each(function(e) {
-							if (e != 0)
-								$(this).hide();
-						});
-
-						// userInfo element holds "showing results...", "results limited to 50...",  and prev next buttons
-						var userInfo = document.createElement('div');
-						if (_this.photoOption) {
-							userInfo.setAttribute('id','userInfo');
-						} else {
-							userInfo.setAttribute('class','map-popup-pager');
-						}
-
-						// previous button
-						var prev = document.createElement('a');
-						prev.appendChild(document.createTextNode('Prev'))
-						prev.setAttribute('href', '#')
-						if (_this.photoOption) {
-							prev.setAttribute('id', 'prev')
-						} else {
-							prev.setAttribute('class', 'map-popup-prev')
-						}
-						userInfo.appendChild(prev)
-						// next button
-						var next = document.createElement('a');
-						next.appendChild(document.createTextNode('Next'))
-						next.setAttribute('href', '#')
-						if (_this.photoOption) {
-							next.setAttribute('id','next')
-						} else {
-							next.setAttribute('class','map-popup-next')
-						}
-						userInfo.appendChild(next)
-						//additional information for the user
-						var text= document.createElement('div');
-						if (_this.photoOption) {
-							text.setAttribute('id','textModalHeader')
-						} else {
-							text.setAttribute('class','map-popup-count')
-						}
-						userInfo.appendChild(text)
-
-						if (length === 50) {	
-							var onlyFifty = document.createElement('p')
-							onlyFifty.appendChild(document.createTextNode('Results limited to 50 from this cluster'))
-							if (_this.photoOption) {
-								onlyFifty.setAttribute('id', 'onlyFifty')
-							} else {
-								onlyFifty.setAttribute('class', 'map-popup-limit')
-							}
-							userInfo.appendChild(onlyFifty)	
-						}
-						
-						//add user controls into the popup information
-						popupContentElement.appendChild(userInfo)
-
-						//next button controller function
-						$(next).click(function(){
-							// hide the current element
-							elements.eq( counter ).hide()
-							// if this is the last one, reset to 0
-							if (counter == length -1) {
-								counter = 0;
-								// increment counter in other cases
-							} else {
-								counter++;
-							}
-							elements.eq( counter ).show()
-							displayChange()
-							return false;
-						});
-
-						//prev button controller function
-						$(prev).click(function(){
-							// hide the current element
-							elements.eq( counter ).hide()
-
-							// if this is the first one, reset to 0
-							if (counter == 0) {
-								counter = length -1;
-							} else {
-								counter--;
-							}
-							elements.eq( counter ).show()
-							displayChange()
-							return false;
-						});
-
-						//populate additional information for the user
-						function displayChange(){
-							var shownElement = counter + 1
-							text.innerHTML = ("Showing result "+ shownElement +" of "+ length)
-						}
-						displayChange()
-
-						// The following code will display each marker element one at a time, after the user clicks a cluster
-						if (_this.photoOption) {
-							openModal()
-						} else {
-							var clusterPopupOptions = getRecordPopupOptions(_this._map);
-							applyRecordPopupBounds(popupContentElement, clusterPopupOptions);
-							L.popup(clusterPopupOptions)
-								.setLatLng(m.latlng || m.layer.getLatLng())
-								.setContent(popupContentElement)
-								.openOn(_this._map);
-						}
-
-						//retrieve close element by ID, on click (x) hide modal and hide popupContent
-						if (_this.photoOption) {
-							document.getElementById("close").onclick = function() {
-								modal.style.display = "none";
-								document.getElementById("modalPopupContent").innerHTML = ""
-							}
-
-							// When user clicks anywhere outside of modal, hide modal and popupContent
-							window.onclick = function(event) {
-								if (event.target == modal) {
-									modal.style.display = "none";
-									document.getElementById("modalPopupContent").innerHTML = ""
-								}
-							}
-						}
-					}	
+					openRecordHtmlPopup(_this._map, htmlItems, m.latlng || m.layer.getLatLng(), {
+						totalElements: length,
+						title: _this.photoOption ? 'CalPhotos records' : 'Occurrence records',
+						emptyMessage: 'No records found in this cluster.'
+					});
 				});
 			},
 
@@ -288,23 +128,7 @@
 					// Handle CalPhotos Popup Content
 					if (_this.photoOption) {
 						popupContentCallback = function(resource) { 
-							//push object containing new scientific name into observations array, if observations array is empty
-							if (resource.observations[0] == undefined){
-								resource.observations.push({scientific_name : 'undefined', url : 'unknown'})
-							} 
-							var retString = "<div class='photo'>"
-							retString += "<a href='" + resource.media_url+ "' target='_blank'><img src='" + resource.media_url + "'></a>";
-							retString += "<ul>"	
-							retString += "<br><strong><i>" + resource.observations[0].scientific_name + "</strong></i>" 
-							retString += "<br><a href='" + resource.remote_resource + "' target='_blank'>Photo Courtesy of CalPhotos</a>" 
-							retString += "<br>License: "+ resource.license 
-							retString += "<br>Photo Taken On " + resource.begin_date 
-							if (resource.authors )
-								retString += "<br>by " + resource.authors 
-							if (resource.locality)
-								retString += "<br>at " + resource.locality
-							retString += "</ul>"
-							return retString; 
+							return buildCalPhotosRecordPopupContent(resource);
 						}
 						genericGeoJSON = resource['geometry']
 					} 
@@ -377,42 +201,15 @@
 						}
 					});
 					//when marker clicked, show information in the popupContent box
-					var modal = document.getElementById('photoModal')
-					function openModal() {
-						modal.style.display = "block";
-					}
 					marker.on('click', function(m,resource) {
-						if (!_this.photoOption) {
-							var markerPopupOptions = getRecordPopupOptions(_this._map);
-							var markerPopupContent = L.DomUtil.create('div', 'map-popup-content');
-							markerPopupContent.innerHTML = m.layer.popupContentCallback;
-							applyRecordPopupBounds(markerPopupContent, markerPopupOptions);
-							L.popup(markerPopupOptions)
-								.setLatLng(m.latlng)
-								.setContent(markerPopupContent)
-								.openOn(_this._map);
-							return;
-						}
-
-						var popupContentElement = L.DomUtil.get("modalPopupContent");
-						if (!popupContentElement) {
-							return;
-						}
-						popupContentElement.innerHTML=m.layer.popupContentCallback;
-						openModal()
-						//retrieve close element by ID, on click (x) hide modal and hide popupContent
-						document.getElementById("close").onclick = function() {
-							modal.style.display = "none";
-							document.getElementById("modalPopupContent").innerHTML = ""
-						}
-
-						// When user clicks anywhere outside of modal, hide modal and popupContent
-						window.onclick = function(event) {
-							if (event.target == modal) {
-								modal.style.display = "none";
-								document.getElementById("modalPopupContent").innerHTML = ""
-							}
-						}
+						var markerPopupOptions = getRecordPopupOptions(_this._map);
+						var markerPopupContent = L.DomUtil.create('div', 'map-popup-content');
+						markerPopupContent.innerHTML = m.layer.popupContentCallback;
+						applyRecordPopupBounds(markerPopupContent, markerPopupOptions);
+						L.popup(markerPopupOptions)
+							.setLatLng(m.latlng)
+							.setContent(markerPopupContent)
+							.openOn(_this._map);
 
 					});
 
@@ -1328,6 +1125,66 @@
 			retString += "</div>";
 			retString += "</div>";
 			return retString;
+		}
+
+		function buildCalPhotosRecordPopupContent(resource) {
+			resource = resource || {};
+			var scientificName = getCalPhotosScientificName(resource);
+			var sourceUrl = sanitizeMediaUrl(resource.remote_resource || resource.url || resource.detail_url || '');
+			var mediaUrl = sanitizeMediaUrl(resource.media_url || resource.image_url || resource.img_url || resource.thumbnail_url || resource.thumbnail || '');
+			var mediaItems = getCalPhotosImageMedia(resource, scientificName, sourceUrl, mediaUrl);
+			var retString = "<div class='query gbif-record-popup calphotos-record-popup'>";
+			retString += "<div class='gbif-record-heading'>";
+			retString += "<div class='gbif-record-name'>" + safePopupValue(scientificName) + "</div>";
+			retString += "<div class='gbif-record-source'>" + safePopupValue(resource.collection_code || resource.collectionCode || 'CalPhotos') + "</div>";
+			retString += "</div>";
+			retString += buildGBIFMediaHtml(mediaItems, {
+				scientificName: scientificName || 'CalPhotos image'
+			});
+			retString += "<dl class='gbif-record-fields'>";
+			retString += buildGBIFFieldHtml('Collection', resource.collection_code || resource.collectionCode);
+			retString += buildGBIFFieldHtml('Event Date', resource.eventDate || resource.begin_date || resource.beginDate);
+			retString += buildGBIFFieldHtml('Photographer', resource.authors || resource.photographer || resource.recordedBy);
+			retString += buildGBIFFieldHtml('Locality', resource.locality);
+			retString += buildGBIFFieldHtml('County', resource.county);
+			retString += buildGBIFFieldHtml('License', resource.license);
+			retString += "</dl>";
+			retString += "<div class='gbif-record-links'>";
+			if (sourceUrl) {
+				retString += "<a href='" + escapeAttribute(sourceUrl) + "' target='_blank' rel='noopener noreferrer'>CalPhotos record</a>";
+			}
+			if (mediaUrl && mediaUrl !== sourceUrl) {
+				retString += "<a href='" + escapeAttribute(mediaUrl) + "' target='_blank' rel='noopener noreferrer'>Image</a>";
+			}
+			retString += "</div>";
+			retString += "</div>";
+			return retString;
+		}
+
+		function getCalPhotosScientificName(resource) {
+			var observations = angular.isArray(resource.observations) ? resource.observations : [];
+
+			return resource.scientificName ||
+				resource.scientific_name ||
+				resource.taxon ||
+				(observations[0] && observations[0].scientific_name) ||
+				'Unknown';
+		}
+
+		function getCalPhotosImageMedia(resource, scientificName, sourceUrl, mediaUrl) {
+			if (!mediaUrl) {
+				return [];
+			}
+
+			return [{
+				url: mediaUrl,
+				previewUrl: mediaUrl,
+				thumbnailUrl: mediaUrl,
+				pageUrl: sourceUrl || mediaUrl,
+				title: scientificName,
+				creator: resource.authors || resource.photographer,
+				license: resource.license
+			}];
 		}
 
 		function buildGBIFFieldHtml(label, value) {

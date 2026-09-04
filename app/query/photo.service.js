@@ -184,6 +184,9 @@
 
             normalized.media_url = normalized.media_url || normalized.image_url || normalized.img_url || normalized.thumbnail_url || normalized.thumbnail;
             normalized.remote_resource = normalized.remote_resource || normalized.url || normalized.detail_url || normalized.references || CALPHOTOS_HOME_URL;
+            normalized.scientificName = normalized.scientificName || normalized.scientific_name || normalized.taxon || normalized.observations[0].scientific_name;
+            normalized.eventDate = normalized.eventDate || normalized.begin_date || normalized.beginDate || normalized.date;
+            normalized.begin_date = normalized.begin_date || normalized.beginDate || normalized.eventDate;
 
             if (!normalized.geometry) {
                 point = getRecordPoint(normalized);
