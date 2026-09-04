@@ -135,8 +135,8 @@
 
 .query-map-popup .leaflet-popup-content {
     min-width: 0;
-    max-width: 360px;
-    max-height: 360px;
+    max-width: 400px;
+    max-height: calc(100vh - 132px);
     overflow: auto;
     margin: 10px 12px;
 }
@@ -161,7 +161,7 @@
 }
 
 .query-map-popup .gbif-record-popup {
-    width: 360px;
+    width: 400px;
     max-width: calc(100vw - 90px);
 }
 
@@ -335,25 +335,111 @@
 
 @media (max-width: 600px) {
     .query-map-popup .leaflet-popup-content {
-        min-width: 240px;
-        max-width: calc(100vw - 70px);
+        min-width: 0;
+        max-width: calc(100vw - 58px);
+        max-height: calc(100vh - 150px);
+        margin: 8px 10px;
     }
 
     .query-map-popup .gbif-record-popup {
         width: auto;
-        max-width: calc(100vw - 70px);
+        max-width: calc(100vw - 78px);
     }
 
     .query-map-popup .gbif-record-primary-link {
-        min-height: 100px;
+        min-height: 86px;
     }
 
     .query-map-popup .gbif-record-primary-media img {
-        max-height: 150px;
+        max-height: 118px;
     }
 
     .query-map-popup .gbif-record-fields {
         grid-template-columns: 1fr;
         gap: 1px;
+    }
+
+    .query-map-popup .gbif-record-name {
+        font-size: 14px;
+    }
+
+    .query-map-popup .map-popup-pager {
+        margin-top: 8px;
+        padding-top: 7px;
+    }
+}
+
+@media (max-width: 760px) {
+    #photoModal {
+        padding: 12px;
+    }
+
+    #photoModal .modal-dialog {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+    }
+
+    #photoModal .modal-content {
+        height: 100%;
+        padding: 0;
+        overflow: auto;
+        background: rgba(0, 0, 0, 0.76);
+    }
+
+    #modal-body {
+        min-height: 100%;
+        padding: 48px 12px 16px;
+    }
+
+    #close {
+        position: fixed;
+        top: 8px;
+        right: 12px;
+        z-index: 2;
+        font-size: 34px;
+    }
+
+    #userInfo {
+        position: static;
+        display: block;
+        height: auto;
+        margin: 0 0 10px;
+        padding: 8px 12px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    #prev,
+    #next {
+        position: static;
+        display: inline-block;
+        margin: 0 14px;
+        font-size: 20px;
+    }
+
+    #modalPopupContent img {
+        position: static;
+        display: block;
+        width: auto;
+        max-width: 100%;
+        max-height: 55vh;
+        margin: 0 auto;
+        border-width: 4px;
+    }
+
+    #modalPopupContent ul {
+        position: static;
+        display: block;
+        width: 100%;
+        margin: 0;
+        padding: 10px 8px 12px;
+        letter-spacing: 0;
+    }
+
+    #modalPopupContent .query {
+        position: static;
+        min-height: 0;
+        padding: 16px;
     }
 }

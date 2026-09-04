@@ -258,21 +258,22 @@
 					visible: true
 				};
 				this._gbifAggregateLayer.on('clusterclick', function (event) {
-					var targetZoom = getAggregateClickZoom(_this._map);
 					var total = getAggregateClusterTotal(event.layer);
 					var bounds = getAggregateClusterBounds(event.layer);
+					var canInspect = canInspectAggregate(total, callbacks);
 
-					_this._map.setView(event.latlng, targetZoom);
 					openGBIFAggregatePopup(_this._map, event.latlng, total, {
-						loading: angular.isFunction(callbacks.onAggregateClick)
+						loading: canInspect && angular.isFunction(callbacks.onAggregateClick),
+						tooLarge: !canInspect,
+						limit: callbacks.maxAggregateClickRecords
 					});
-					if (angular.isFunction(callbacks.onAggregateClick)) {
+					if (canInspect && angular.isFunction(callbacks.onAggregateClick)) {
 						$rootScope.$evalAsync(function () {
 							callbacks.onAggregateClick({
 								bounds: bounds,
 								latlng: event.latlng,
 								total: total,
-								zoom: targetZoom
+								zoom: _this._map.getZoom()
 							});
 						});
 					}
@@ -779,6 +780,7 @@
 		function createGBIFAggregateMarker(latlng, total, mapInstance, state, bounds) {
 			var size = getAggregateMarkerSize(total);
 			var label = formatAggregateCount(total);
+			var canInspect = canInspectAggregate(total, state.callbacks || {});
 			var marker = L.marker(latlng, {
 				icon: L.divIcon({
 					className: 'gbif-aggregate-marker gbif-aggregate-marker-' + getAggregateMarkerBucket(total),
@@ -788,25 +790,25 @@
 				}),
 				keyboard: true,
 				riseOnHover: true,
-				title: label + ' GBIF occurrence records. Click to inspect records.'
+				title: canInspect ? label + ' GBIF occurrence records. Click to inspect records.' : label + ' GBIF occurrence records. Zoom in or add filters to inspect records.'
 			});
 
 			marker.gbifAggregateTotal = total;
 			marker.gbifAggregateBounds = bounds;
 			marker.on('click', function () {
-				var targetZoom = getAggregateClickZoom(mapInstance._map);
-				mapInstance._map.setView(latlng, targetZoom);
 				openGBIFAggregatePopup(mapInstance._map, latlng, total, {
-					loading: !!(state.callbacks && angular.isFunction(state.callbacks.onAggregateClick))
+					loading: canInspect && !!(state.callbacks && angular.isFunction(state.callbacks.onAggregateClick)),
+					tooLarge: !canInspect,
+					limit: state.callbacks && state.callbacks.maxAggregateClickRecords
 				});
 
-				if (state.callbacks && angular.isFunction(state.callbacks.onAggregateClick)) {
+				if (canInspect && state.callbacks && angular.isFunction(state.callbacks.onAggregateClick)) {
 					$rootScope.$evalAsync(function () {
 						state.callbacks.onAggregateClick({
 							bounds: bounds,
 							latlng: latlng,
 							total: total,
-							zoom: targetZoom
+							zoom: mapInstance._map.getZoom()
 						});
 					});
 				}
@@ -817,9 +819,22 @@
 
 		function openGBIFAggregatePopup(map, latlng, total, options) {
 			var message = options && options.loading ? 'Loading records for this map area...' : 'Zoom in to load exact occurrence points.';
+			var limit = options && options.limit;
+
+			if (options && options.tooLarge) {
+				message = 'Too many records to preview here. Zoom in or add filters, then click a smaller aggregate.';
+				if (limit) {
+					message += ' Preview opens at ' + formatAggregateCount(limit) + ' records or fewer.';
+				}
+			}
 
 			L.popup({
 				className: 'query-map-popup gbif-aggregate-popup',
+				autoPan: true,
+				autoPanPadding: [28, 28],
+				autoPanPaddingTopLeft: [28, 72],
+				autoPanPaddingBottomRight: [28, 36],
+				maxHeight: getPopupMaxHeight(map, 180, 120),
 				maxWidth: 260
 			})
 				.setLatLng(latlng)
@@ -831,6 +846,16 @@
 					'</div>'
 				)
 				.openOn(map);
+		}
+
+		function canInspectAggregate(total, callbacks) {
+			var limit = Number(callbacks && callbacks.maxAggregateClickRecords);
+
+			if (!isFinite(limit) || limit <= 0) {
+				return true;
+			}
+
+			return (Number(total) || 0) <= limit;
 		}
 
 		function createGBIFAggregateClusterIcon(cluster) {
@@ -880,14 +905,6 @@
 			}
 
 			return bounds.extend(boundsToAdd.getSouthWest()).extend(boundsToAdd.getNorthEast());
-		}
-
-		function getAggregateClickZoom(map) {
-			var currentZoom = map.getZoom();
-			var maxZoom = map.getMaxZoom() || 18;
-			var zoomStep = currentZoom < 8 ? 3 : 2;
-
-			return Math.min(16, maxZoom, Math.max(Math.floor(currentZoom) + 1, Math.floor(currentZoom) + zoomStep));
 		}
 
 		function getAggregateMarkerSize(total) {
@@ -1039,8 +1056,10 @@
 		}
 
 		function getRecordPopupOptions(map) {
-			var preferredWidth = 390;
-			var preferredHeight = 390;
+			var preferredWidth = 430;
+			var preferredHeight = 620;
+			var topPadding = 72;
+			var bottomPadding = 36;
 			var maxWidth = preferredWidth;
 			var maxHeight = preferredHeight;
 			var size;
@@ -1049,23 +1068,24 @@
 				size = map.getSize();
 				if (size) {
 					maxWidth = Math.min(preferredWidth, Math.max(80, size.x - 44), size.x);
-					maxHeight = Math.min(preferredHeight, Math.max(100, size.y - 58), size.y);
+					maxHeight = Math.min(preferredHeight, Math.max(160, size.y - topPadding - bottomPadding));
 				}
 			}
 
 			return {
 				autoPan: true,
-				autoPanPadding: [20, 20],
+				autoPanPadding: [28, 28],
+				autoPanPaddingTopLeft: [28, topPadding],
+				autoPanPaddingBottomRight: [28, bottomPadding],
 				className: 'query-map-popup',
-				keepInView: true,
 				maxHeight: Math.floor(maxHeight),
 				maxWidth: Math.floor(maxWidth)
 			};
 		}
 
 		function applyRecordPopupBounds(contentElement, popupOptions) {
-			var contentWidth = Math.max(0, (popupOptions.maxWidth || 390) - 30);
-			var contentHeight = Math.max(0, (popupOptions.maxHeight || 390) - 20);
+			var contentWidth = Math.max(0, (popupOptions.maxWidth || 430) - 30);
+			var contentHeight = Math.max(0, (popupOptions.maxHeight || 620) - 20);
 			var records = contentElement && contentElement.querySelectorAll ? contentElement.querySelectorAll('.gbif-record-popup') : [];
 
 			if (!contentElement) {
@@ -1085,6 +1105,11 @@
 		function openSimpleMapPopup(map, latlng, title, message) {
 			L.popup({
 				className: 'query-map-popup gbif-aggregate-popup',
+				autoPan: true,
+				autoPanPadding: [28, 28],
+				autoPanPaddingTopLeft: [28, 72],
+				autoPanPaddingBottomRight: [28, 36],
+				maxHeight: getPopupMaxHeight(map, 180, 120),
 				maxWidth: 300
 			})
 				.setLatLng(latlng)
@@ -1095,6 +1120,19 @@
 					'</div>'
 				)
 				.openOn(map);
+		}
+
+		function getPopupMaxHeight(map, preferredHeight, minimumHeight) {
+			var size;
+
+			if (map && angular.isFunction(map.getSize)) {
+				size = map.getSize();
+				if (size) {
+					return Math.floor(Math.min(preferredHeight, Math.max(minimumHeight, size.y - 108)));
+				}
+			}
+
+			return preferredHeight;
 		}
 
 		function buildGBIFRecordPopupContent(resource) {

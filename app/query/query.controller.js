@@ -4,16 +4,17 @@
     angular.module('map.query')
         .controller('QueryController', QueryController);
 
-    QueryController.$inject = ['$rootScope', '$scope', 'queryParams', 'queryResults', 'queryMap', 'alerts'];
+    QueryController.$inject = ['$rootScope', '$scope', 'queryParams', 'queryResults', 'queryMap', 'alerts', '$window'];
 
-    function QueryController($rootScope, $scope, queryParams, queryResults, queryMap, alerts ) {
+    function QueryController($rootScope, $scope, queryParams, queryResults, queryMap, alerts, $window ) {
+        var MOBILE_VIEWPORT_WIDTH = 760;
         var vm = this;
         vm.alerts = alerts;
         vm.queryResults = queryResults;
         vm.queryParams = queryParams;
         vm.queryParams.queryType = 'query';
 
-        vm.showSidebar = true;
+        vm.showSidebar = !isMobileViewport();
         vm.showMap = true;
         vm.showTable = false;
         vm.showStats = false;
@@ -67,6 +68,11 @@
         $scope.$on('$destroy', deregisterShowMessages);
         $scope.$on('$destroy', deregisterCalphotosUnavailable);
 
+        angular.element($window).on('orientationchange resize', handleViewportChange);
+        $scope.$on('$destroy', function () {
+            angular.element($window).off('orientationchange resize', handleViewportChange);
+        });
+
         $scope.showControl=setActiveControl;
 
         function setActiveControl(state){
@@ -114,6 +120,16 @@
 
         function dismissCalphotosError() {
             vm.showCalphotosError = false;
+        }
+
+        function handleViewportChange() {
+            $scope.$evalAsync(function () {
+                vm.invalidSize = true;
+            });
+        }
+
+        function isMobileViewport() {
+            return Number($window.innerWidth) <= MOBILE_VIEWPORT_WIDTH;
         }
     }
 })();

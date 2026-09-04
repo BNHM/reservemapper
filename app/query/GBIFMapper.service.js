@@ -16,6 +16,7 @@
         var EXACT_VIEWPORT_MIN_ZOOM = 14;
         var EXACT_VIEWPORT_RECORD_LIMIT = 5000;
         var AGGREGATE_CLICK_RECORD_LIMIT = 50;
+        var AGGREGATE_CLICK_TOTAL_LIMIT = 25000;
         var COMPLEX_POLYGON_FALLBACK_WARNING = 'GBIF rejected this complex polygon. Results are using the selected layer bounding box, so records outside the boundary may be included.';
         var activeDrilldownSessionId = 0;
         var viewportRequestId = 0;
@@ -271,6 +272,7 @@
                     onViewportChange: function (bounds, zoom) {
                         handleViewportChange(searchRequest, bounds, zoom, drilldownSessionId);
                     },
+                    maxAggregateClickRecords: AGGREGATE_CLICK_TOTAL_LIMIT,
                     onAggregateClick: function (clickInfo) {
                         handleAggregateClick(searchRequest, clickInfo, drilldownSessionId);
                     }
@@ -307,6 +309,17 @@
         function handleAggregateClick(searchRequest, clickInfo, drilldownSessionId) {
             if (drilldownSessionId !== activeDrilldownSessionId || !clickInfo || !clickInfo.bounds) {
                 return;
+            }
+
+            if (clickInfo.total > AGGREGATE_CLICK_TOTAL_LIMIT) {
+                if (queryMap.openGBIFMessagePopup) {
+                    queryMap.openGBIFMessagePopup(
+                        clickInfo.latlng,
+                        'GBIF aggregate',
+                        'This aggregate contains about ' + formatDisplayCount(clickInfo.total) + ' occurrence records. Zoom in or add filters before opening record previews.'
+                    );
+                }
+                return $q.when();
             }
 
             var requestId = ++aggregateClickRequestId;
@@ -522,6 +535,10 @@
 
         function formatNumber(value) {
             return Number(value).toString();
+        }
+
+        function formatDisplayCount(value) {
+            return String(Math.round(Number(value) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
         function getDrilldownZoom(zoom) {

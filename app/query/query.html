@@ -27,15 +27,16 @@
     </div>
 </div>
 
-<div class="query-page fill-screen">
+<div class="query-page fill-screen" ng-class="{'sidebar-open': vm.showSidebar}">
     <!-- sidebar-->
-    <div ng-show="vm.showSidebar" ng-include="'query/queryForm.html'" class="sidebar"></div>
+    <div id="query-sidebar" ng-show="vm.showSidebar" ng-include="'query/queryForm.html'" class="sidebar"></div>
 
     <!-- sidebar toggle -->
     <div class="sidebar-toggle">
-        <button class="btn btn-default" ng-click="vm.showSidebar = !vm.showSidebar"><span
+        <button type="button" class="btn btn-default" ng-click="vm.showSidebar = !vm.showSidebar" aria-controls="query-sidebar" aria-expanded="{{vm.showSidebar}}"><span
                 class="glyphicon" uib-tooltip="{{ vm.sidebarToggleToolTip }}" tooltip-placement="right"
                 ng-class="{'glyphicon-chevron-left': vm.showSidebar, 'glyphicon-chevron-right': !vm.showSidebar}"></span>
+            <span class="sidebar-toggle-label">{{ vm.showSidebar ? 'Hide filters' : 'Show filters' }}</span>
         </button>
     </div>
     <!-- main content-->
