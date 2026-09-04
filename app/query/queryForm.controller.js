@@ -135,7 +135,9 @@
                     }).then(function (csv) {
                         saveCsv(csv, 'reservemapper.csv');
 
-                        if (results.truncated) {
+                        if (results.failedPages) {
+                            alerts.warn('Downloaded a partial occurrence CSV. ' + results.failedPages + ' GBIF result pages failed while preparing the export.');
+                        } else if (results.truncated) {
                             alerts.warn('Downloaded first ' + results.loadedLimit + ' of ' + results.totalElements + ' GBIF records. Use GBIF occurrence downloads for the full result set.');
                         }
                     });
@@ -152,31 +154,33 @@
         }
 
         function downloadChecklistCsv() {
-            var rows;
-
             if (!queryResults.isSet || queryResults.querySource !== 'gbif-checklist' || vm.downloadInProgress) {
                 return $q.when();
             }
 
-            rows = queryResults.data || [];
             vm.downloadInProgress = true;
-            vm.downloadProgress = rows.length ? 'Preparing 0 of ' + rows.length + ' species names' : '';
+            vm.downloadProgress = 'Preparing checklist CSV';
             usSpinnerService.spin('query-spinner');
 
-            return GBIFChecklistService.ensureTaxonomyForRows(rows, {
+            return GBIFChecklistService.downloadRows(queryResults.searchRequest || queryParams.buildAreaQuery(), {
                 onProgress: function (loaded, limit) {
-                    vm.downloadProgress = 'Preparing ' + loaded + ' of ' + limit + ' species names';
+                    vm.downloadProgress = 'Preparing ' + loaded + ' of up to ' + limit + ' scientific names';
                 }
-            }).then(function (enrichedRows) {
-                return CSV.stringify(buildDownloadRows(enrichedRows, vm.checklistDownloadColumns), {
+            }).then(function (results) {
+                return CSV.stringify(buildDownloadRows(results.data || [], vm.checklistDownloadColumns), {
                     header: vm.checklistDownloadColumns,
                     txtDelim: '"',
                     decimalSep: '.',
                     fieldSep: ',',
                     addByteOrderMarker: true
+                }).then(function (csv) {
+                    saveCsv(csv, 'reservemapper-checklist.csv');
+                    if (results.failed) {
+                        alerts.warn('Downloaded a partial checklist CSV because GBIF stopped responding before all scientific names were loaded.');
+                    } else if (results.truncated) {
+                        alerts.warn('Checklist CSV is limited to the first ' + results.loadedLimit + ' scientific names by GBIF occurrence count.');
+                    }
                 });
-            }).then(function (csv) {
-                saveCsv(csv, 'reservemapper-checklist.csv');
             }).catch(function (err) {
                 alerts.error('Failed to prepare checklist download');
                 console.log('checklist-download-error:', err);

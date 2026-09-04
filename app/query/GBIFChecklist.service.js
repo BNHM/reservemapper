@@ -8,6 +8,7 @@
 
     function GBIFChecklistService(queryService, queryResults, alerts, $q) {
         var SPECIES_FACET = 'SPECIES_KEY';
+        var SCIENTIFIC_NAME_FACET = 'SCIENTIFIC_NAME';
         var YEAR_FACET = 'YEAR';
         var FACET_PAGE_LIMIT = 500;
         var CHECKLIST_ROW_LIMIT = 5000;
@@ -31,6 +32,8 @@
             ensureTaxonomy: ensureTaxonomy,
             ensureTaxonomyForRows: ensureTaxonomyForRows,
             ensureEvidence: ensureEvidence,
+            downloadRows: downloadRows,
+            scientificNameCounts: scientificNameCounts,
             downloadColumns: downloadColumns,
             rowLimit: rowLimit
         };
@@ -199,6 +202,49 @@
             }
         }
 
+        function downloadRows(searchRequest, options) {
+            if (!searchRequest) {
+                return $q.reject(new Error('No GBIF search request is available for checklist download.'));
+            }
+
+            return loadScientificNameFacetPages(searchRequest, 0, [], 0, options || {})
+                .then(function (result) {
+                    var rows = result.rows.map(scientificNameDownloadRow);
+
+                    return {
+                        data: rows,
+                        totalElements: result.occurrenceTotalElements,
+                        loadedLimit: rows.length,
+                        truncated: result.truncated,
+                        failed: result.failed
+                    };
+                }, function (err) {
+                    var fallbackRows = queryResults.data || [];
+
+                    console.log('checklist-download-facet-error:', err);
+                    if (!fallbackRows.length) {
+                        throw err;
+                    }
+
+                    angular.forEach(fallbackRows, syncLegacyFields);
+                    return {
+                        data: fallbackRows,
+                        totalElements: queryResults.occurrenceTotalElements || queryResults.totalElements || fallbackRows.length,
+                        loadedLimit: fallbackRows.length,
+                        truncated: queryResults.checklistTruncated || false,
+                        failed: true
+                    };
+                });
+        }
+
+        function scientificNameCounts(searchRequest, options) {
+            if (!searchRequest) {
+                return $q.reject(new Error('No GBIF search request is available for checklist stats.'));
+            }
+
+            return loadScientificNameFacetPages(searchRequest, 0, [], 0, options || {});
+        }
+
         function downloadColumns() {
             return DOWNLOAD_COLUMNS.slice();
         }
@@ -244,6 +290,53 @@
             });
         }
 
+        function loadScientificNameFacetPages(searchRequest, facetOffset, rows, occurrenceTotalElements, options) {
+            var requestOptions = options || {};
+
+            if (rows.length >= CHECKLIST_ROW_LIMIT) {
+                return $q.when({
+                    rows: rows,
+                    occurrenceTotalElements: occurrenceTotalElements,
+                    truncated: true,
+                    failed: false
+                });
+            }
+
+            return queryService.queryFacet(searchRequest, SCIENTIFIC_NAME_FACET, {
+                facetLimit: FACET_PAGE_LIMIT,
+                facetOffset: facetOffset
+            }).then(function (results) {
+                var counts = (results.facets && results.facets[SCIENTIFIC_NAME_FACET]) || [];
+                var totalOccurrenceRecords = facetOffset === 0 ? results.totalElements : occurrenceTotalElements;
+                var remaining = CHECKLIST_ROW_LIMIT - rows.length;
+
+                rows.push.apply(rows, counts.slice(0, remaining));
+                reportProgress(requestOptions, rows.length);
+
+                if (counts.length < FACET_PAGE_LIMIT || rows.length >= CHECKLIST_ROW_LIMIT) {
+                    return {
+                        rows: rows,
+                        occurrenceTotalElements: totalOccurrenceRecords,
+                        truncated: rows.length >= CHECKLIST_ROW_LIMIT && counts.length === FACET_PAGE_LIMIT,
+                        failed: false
+                    };
+                }
+
+                return loadScientificNameFacetPages(searchRequest, facetOffset + FACET_PAGE_LIMIT, rows, totalOccurrenceRecords, requestOptions);
+            }, function (err) {
+                console.log('checklist-scientific-name-facet-error:', err);
+                if (rows.length) {
+                    return {
+                        rows: rows,
+                        occurrenceTotalElements: occurrenceTotalElements,
+                        truncated: true,
+                        failed: true
+                    };
+                }
+                throw err;
+            });
+        }
+
         function addChecklistRow(rows, count) {
             var speciesKey = Number(count.key);
 
@@ -280,6 +373,53 @@
                 evidenceError: ''
             });
             syncLegacyFields(rows[rows.length - 1]);
+        }
+
+        function scientificNameDownloadRow(count) {
+            var scientificName = count.key === 'Unspecified' ? '' : count.key;
+            var parsedName = parseScientificName(scientificName);
+            var row = {
+                speciesKey: '',
+                occurrenceCount: count.value || 0,
+                scientificName: scientificName,
+                canonicalName: parsedName.canonicalName,
+                vernacularName: '',
+                kingdom: '',
+                phylum: '',
+                'class': '',
+                order: '',
+                family: '',
+                genus: parsedName.genus,
+                specificEpithet: parsedName.specificEpithet,
+                rank: '',
+                taxonomicStatus: '',
+                taxonUrl: '',
+                firstYear: '',
+                lastYear: '',
+                sampleOccurrenceKey: '',
+                sampleOccurrenceUrl: '',
+                sampleEventDate: '',
+                sampleDatasetTitle: '',
+                recordedBy: 'GBIF scientific name checklist',
+                taxonomyStatus: 'facet',
+                taxonomyError: '',
+                evidenceStatus: 'not-loaded',
+                evidenceError: ''
+            };
+
+            syncLegacyFields(row);
+            return row;
+        }
+
+        function parseScientificName(scientificName) {
+            var normalized = String(scientificName || '').replace(/\s+/g, ' ').trim();
+            var parts = normalized.split(' ');
+
+            return {
+                canonicalName: parts.length >= 2 ? parts[0] + ' ' + parts[1] : normalized,
+                genus: parts[0] || '',
+                specificEpithet: parts.length >= 2 ? parts[1] : ''
+            };
         }
 
         function addSpeciesPredicate(baseRequest, speciesKey) {
@@ -397,6 +537,12 @@
             row.remote_resource = row.taxonUrl || (row.speciesKey ? 'https://www.gbif.org/species/' + row.speciesKey : '');
             row.occurrence_count = row.occurrenceCount || 0;
             row.gbif_taxon_key = row.speciesKey || '';
+        }
+
+        function reportProgress(options, loaded) {
+            if (angular.isFunction(options.onProgress)) {
+                options.onProgress(loaded, CHECKLIST_ROW_LIMIT);
+            }
         }
 
         function copyIfValue(row, key, value) {

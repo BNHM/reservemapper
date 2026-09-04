@@ -86,6 +86,7 @@
             );
             var offsets = [];
             var pagesByOffset = {};
+            var failedOffsets = [];
             var nextIndex = 0;
             var loaded = 0;
             var workerCount;
@@ -102,7 +103,8 @@
                     requestedLimit: REQUESTED_DOWNLOAD_RECORD_LIMIT,
                     loadedLimit: 0,
                     apiLimit: GBIF_SEARCH_RECORD_LIMIT,
-                    truncated: false
+                    truncated: false,
+                    failedPages: 0
                 });
             }
 
@@ -135,7 +137,8 @@
                         requestedLimit: REQUESTED_DOWNLOAD_RECORD_LIMIT,
                         loadedLimit: data.length,
                         apiLimit: GBIF_SEARCH_RECORD_LIMIT,
-                        truncated: totalElements > data.length
+                        truncated: totalElements > data.length,
+                        failedPages: failedOffsets.length
                     };
                 })
                 .finally(function () {
@@ -160,6 +163,13 @@
                 }).then(function (results) {
                     pagesByOffset[offset] = results.data || [];
                     loaded += pagesByOffset[offset].length;
+                    if (angular.isFunction(requestOptions.onProgress)) {
+                        requestOptions.onProgress(loaded, recordLimit);
+                    }
+                    return loadNextDownloadPage();
+                }, function (err) {
+                    failedOffsets.push(offset);
+                    console.log('download-page-error:', offset, err);
                     if (angular.isFunction(requestOptions.onProgress)) {
                         requestOptions.onProgress(loaded, recordLimit);
                     }

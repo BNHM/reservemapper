@@ -164,15 +164,20 @@
 	    vm.columnName = 'scientific_name';
 	    vm.valueColumnName = 'occurrence_count';
 	    vm.loadingStats = true;
-	    vm.statsProgress = 'Preparing 0 of ' + (vm.queryResults.data || []).length + ' species names';
+	    vm.statsProgress = 'Loading 0 scientific_name values';
 	    $scope.gridOptions.data = [];
 
-	    return GBIFChecklistService.ensureTaxonomyForRows(vm.queryResults.data || [], {
+	    return GBIFChecklistService.scientificNameCounts(vm.queryResults.searchRequest || queryParams.buildAreaQuery(), {
 		onProgress: function (loaded, limit) {
-		    vm.statsProgress = 'Preparing ' + loaded + ' of ' + limit + ' species names';
+		    vm.statsProgress = 'Loading ' + loaded + ' of up to ' + limit + ' scientific_name values';
 		}
-	    }).then(function () {
-		$scope.gridOptions.data = sumTotal('scientific_name', 'occurrence_count', 'key', 'ascending');
+	    }).then(function (results) {
+		$scope.gridOptions.data = results.rows;
+		if (results.failed) {
+		    alerts.warn('Loaded partial checklist scientific-name stats because GBIF stopped responding before all names were loaded.');
+		} else if (results.truncated) {
+		    alerts.warn('Checklist scientific-name stats are limited to the first ' + results.rows.length + ' names by GBIF occurrence count.');
+		}
 		return $scope.gridOptions.data;
 	    }, function (err) {
 		alerts.error('Failed to load checklist scientific names');
@@ -309,28 +314,6 @@
 		    .rollup(function(v) {return v.length; })
 		    .entries(vm.queryResults.data)
 	    }
-	    return sortRows(groupData, sortTopic, sortDirection);
-	}
-
-	function sumTotal(name, valueName, sortTopic, sortDirection) {
-	    var groupData;
-
-	    vm.columnName = normalizedColumnName(name);
-	    vm.valueColumnName = valueName;
-
-	    groupData = d3.nest()
-		.key(function(d) {
-		    return normalizedGroupValue(fieldValue(d, name));
-		})
-		.rollup(function(values) {
-		    return values.reduce(function(total, item) {
-			var value = Number(fieldValue(item, valueName));
-
-			return total + (isFinite(value) ? value : 0);
-		    }, 0);
-		})
-		.entries(vm.queryResults.data);
-
 	    return sortRows(groupData, sortTopic, sortDirection);
 	}
 
