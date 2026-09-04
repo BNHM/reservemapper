@@ -542,6 +542,34 @@
     text-decoration: none;
 }
 
+.sidebar-powered-by {
+    clear: both;
+    margin: 24px 0 0;
+    padding: 16px 15px 20px;
+    border-top: 1px solid #ddd;
+}
+
+.sidebar-powered-title {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.sidebar-powered-by a {
+    display: inline-block;
+    margin: 0 14px 10px 0;
+    vertical-align: middle;
+}
+
+.sidebar-powered-by img {
+    display: block;
+    max-width: 128px;
+    max-height: 42px;
+}
+
 .taxon-autocomplete-menu {
     z-index: 3000;
     max-height: 260px;
