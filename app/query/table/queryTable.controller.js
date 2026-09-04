@@ -4,22 +4,25 @@
     angular.module('map.query')
         .controller('QueryTableController', QueryTableController);
 
-    QueryTableController.$inject = ['$scope', '$window', 'queryResults'];
+    QueryTableController.$inject = ['$scope', '$window', 'queryResults', 'GBIFChecklistService'];
 
     /**
     Manage the look and feel of the data table.  
     This controller relies heavily on the angular-data-grid package at https://www.npmjs.com/package/angular-data-grid
     */
-    function QueryTableController($scope, $window, queryResults) {
+    function QueryTableController($scope, $window, queryResults, GBIFChecklistService) {
         var vm = this;
         vm.queryResults = queryResults;
 	vm.tableData = []
 
         vm.toGBIF = toGBIF;
+        vm.toGBIFTaxon = toGBIFTaxon;
+        vm.toGBIFOccurrence = toGBIFOccurrence;
         vm.toURL= toURL;
         vm.mediaUrl = mediaUrl;
         vm.mediaPreviewUrl = mediaPreviewUrl;
         vm.mediaLinkUrl = mediaLinkUrl;
+        vm.ensureChecklistEvidence = ensureChecklistEvidence;
 
 	// Control the angular-data-grid options
 	$scope.gridOptions = {
@@ -38,6 +41,26 @@
      	function toGBIF(key) {
             $window.open("http://www.gbif.org/occurrence/" + key);
      	}
+
+        function toGBIFTaxon(key) {
+            if (key) {
+                $window.open("https://www.gbif.org/species/" + key);
+            }
+        }
+
+        function toGBIFOccurrence(key) {
+            if (key) {
+                $window.open("https://www.gbif.org/occurrence/" + key);
+            }
+        }
+
+        function ensureChecklistEvidence(item) {
+            if (vm.queryResults.querySource !== 'gbif-checklist') {
+                return;
+            }
+
+            return GBIFChecklistService.ensureEvidence(item);
+        }
 
         function mediaUrl(item) {
             return mediaPreviewUrl(item);

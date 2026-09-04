@@ -1,0 +1,53 @@
+<div ng-controller="QueryTableController as queryTableVm">
+    <div class="help-block" ng-show="!queryTableVm.queryResults.isSet">Click <strong>Search</strong> on sidebar to
+        display table results
+    </div>
+
+    <div ng-show="queryTableVm.queryResults.isSet">
+        <div class="help-block" ng-show="queryTableVm.queryResults.checklistTruncated">
+            Showing the first {{queryTableVm.queryResults.checklistLimit}} species by GBIF occurrence count.
+        </div>
+	<div grid-data grid-options="gridOptions" grid-actions="gridActions">
+                 <table class="table">
+                     <thead>
+                     <tr>
+			<th sortable='occurrenceCount' class="sortable">occurrenceCount</th>
+			<th sortable='scientificName' class="sortable">scientificName</th>
+			<th sortable='vernacularName' class="sortable">commonName</th>
+			<th sortable='family' class="sortable">family</th>
+			<th sortable='genus' class="sortable">genus</th>
+			<th sortable='specificEpithet' class="sortable">specificEpithet</th>
+			<th sortable='firstYear' class="sortable">firstYear</th>
+			<th sortable='lastYear' class="sortable">lastYear</th>
+			<th sortable='sampleOccurrenceKey' class="sortable">sampleOccurrence</th>
+			<th sortable='speciesKey' class="sortable">gbifTaxon</th>
+                     </tr>
+                     </thead>
+                     <tbody>
+			<tr grid-item ng-init="queryTableVm.ensureChecklistEvidence(item)">
+                        	<td ng-bind-html="item.occurrenceCount"></td>
+                        	<td ng-click="queryTableVm.toGBIFTaxon(item.speciesKey)" ng-bind-html="item.scientificName || item.speciesKey"></td>
+                        	<td ng-bind-html="item.vernacularName"></td>
+                        	<td ng-bind-html="item.family"></td>
+                        	<td ng-bind-html="item.genus"></td>
+                        	<td ng-bind-html="item.specificEpithet"></td>
+                        	<td ng-bind-html="item.firstYear"></td>
+                        	<td ng-bind-html="item.lastYear"></td>
+                        	<td ng-click="queryTableVm.toGBIFOccurrence(item.sampleOccurrenceKey)" ng-bind-html="item.sampleOccurrenceKey || (item.evidenceStatus === 'loading' ? 'Loading...' : '')"></td>
+                        	<td ng-click="queryTableVm.toGBIFTaxon(item.speciesKey)" ng-bind-html="item.speciesKey"></td>
+                    	</tr>
+                     </tbody>
+                 </table>
+		 <div class="form-group">
+                       <grid-pagination max-size="5"
+                             boundary-links="true"
+                             class="pagination-sm"
+                             total-items="paginationOptions.totalItems"
+                             ng-model="paginationOptions.currentPage"
+                             ng-change="reloadGrid()"
+                             items-per-page="paginationOptions.itemsPerPage">
+		     </grid-pagination>
+	         </div>
+ 	</div>
+    </div>
+</div>

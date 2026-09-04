@@ -10,6 +10,7 @@
         var PREDICATE_SEARCH_URL = 'https://api.gbif.org/v1/occurrence/search/predicate';
         var FACET_LIMIT = 20;
         var taxonNameCache = {};
+        var taxonDetailsCache = {};
 
         var queryService = {
             queryJson: queryJson,
@@ -17,6 +18,7 @@
             queryCount: queryCount,
             queryFacet: queryFacet,
             taxonName: taxonName,
+            taxonDetails: taxonDetails,
             countryCodes: countryCodes,
             basisOfRecords: basisOfRecords
         };
@@ -64,6 +66,9 @@
             if (requestOptions.facetLimit !== undefined) {
                 body.facetLimit = requestOptions.facetLimit;
             }
+            if (requestOptions.facetOffset !== undefined) {
+                body.facetOffset = requestOptions.facetOffset;
+            }
 
             if (!requestOptions.preserveAlerts) {
                 alerts.removeTmp();
@@ -82,12 +87,15 @@
             }, options || {}));
         }
 
-        function queryFacet(searchRequest, facetKey) {
+        function queryFacet(searchRequest, facetKey, options) {
+            var requestOptions = options || {};
+
             return queryPredicate(searchRequest, {
                 limit: 0,
                 offset: 0,
                 facets: [facetKey],
-                facetLimit: FACET_LIMIT,
+                facetLimit: requestOptions.facetLimit || FACET_LIMIT,
+                facetOffset: requestOptions.facetOffset || 0,
                 preserveAlerts: true
             });
         }
@@ -108,6 +116,27 @@
                     return name;
                 }, function () {
                     return String(key);
+                });
+        }
+
+        function taxonDetails(key) {
+            if (!key) {
+                return $q.when(emptyTaxonDetails(key));
+            }
+
+            if (taxonDetailsCache[key]) {
+                return $q.when(taxonDetailsCache[key]);
+            }
+
+            return $http.get('https://api.gbif.org/v1/species/' + encodeURIComponent(key))
+                .then(function (response) {
+                    var details = normalizeTaxonDetails(response.data || {}, key);
+
+                    taxonDetailsCache[key] = details;
+                    taxonNameCache[key] = details.canonicalName || details.scientificName || String(key);
+                    return details;
+                }, function () {
+                    return emptyTaxonDetails(key);
                 });
         }
 
@@ -136,6 +165,39 @@
             });
 
             return facetMap;
+        }
+
+        function normalizeTaxonDetails(data, fallbackKey) {
+            var canonicalName = data.canonicalName || data.species || data.scientificName || '';
+
+            return {
+                key: data.key || fallbackKey,
+                scientificName: data.scientificName || canonicalName || String(fallbackKey || ''),
+                canonicalName: canonicalName,
+                vernacularName: data.vernacularName || '',
+                kingdom: data.kingdom || '',
+                phylum: data.phylum || '',
+                'class': data['class'] || '',
+                order: data.order || '',
+                family: data.family || '',
+                genus: data.genus || '',
+                specificEpithet: specificEpithet(canonicalName),
+                rank: data.rank || '',
+                taxonomicStatus: data.taxonomicStatus || ''
+            };
+        }
+
+        function emptyTaxonDetails(key) {
+            return normalizeTaxonDetails({
+                key: key,
+                scientificName: key ? String(key) : ''
+            }, key);
+        }
+
+        function specificEpithet(canonicalName) {
+            var parts = String(canonicalName || '').split(/\s+/);
+
+            return parts.length > 1 ? parts[1] : '';
         }
 
         function basisOfRecords() {

@@ -61,6 +61,10 @@
     margin-left: auto;
 }
 
+.download-progress {
+    margin: 6px 0 0 10px;
+}
+
 .query-messages {
     flex: 1 1 auto;
     padding: 18px 25px;

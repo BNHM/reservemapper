@@ -28,6 +28,7 @@
 
         var params = {
             build: buildQuery,
+            buildAreaQuery: buildAreaQuery,
             clear: clear,
             setGeometryFromGeoJson: setGeometryFromGeoJson,
             geoJsonToWkt: geoJsonToWkt
@@ -51,6 +52,19 @@
                 geometryWkt: params.geometryWkt,
                 usesBoundsPredicate: !hasValue(params.geometryWkt) && !!params.bounds,
                 hasTextQuery: hasValue(params.queryString)
+            };
+        }
+
+        function buildAreaQuery() {
+            return {
+                queryString: buildAreaGetQuery(params.geometryWkt),
+                predicateBody: buildAreaPredicateBody(),
+                tileQueryExact: buildAreaGetQuery(params.geometryWkt),
+                tileQueryBounds: buildAreaGetQuery(null),
+                bounds: params.bounds,
+                geometryWkt: params.geometryWkt,
+                usesBoundsPredicate: !hasValue(params.geometryWkt) && !!params.bounds,
+                hasTextQuery: false
             };
         }
 
@@ -86,6 +100,27 @@
             return body;
         }
 
+        function buildAreaPredicateBody() {
+            var body = {};
+            var predicates = [];
+
+            addWithinPredicate(predicates, params.geometryWkt);
+            if (!hasValue(params.geometryWkt)) {
+                addBoundsPredicates(predicates, params.bounds);
+            }
+
+            if (predicates.length === 1) {
+                body.predicate = predicates[0];
+            } else if (predicates.length > 1) {
+                body.predicate = {
+                    type: 'and',
+                    predicates: predicates
+                };
+            }
+
+            return body;
+        }
+
         function buildGetQuery(geometryWkt) {
             var parts = [];
 
@@ -100,6 +135,22 @@
             if (hasValue(params.fromYear) || hasValue(params.toYear)) {
                 addQueryParam(parts, 'year', (params.fromYear || '') + ',' + (params.toYear || ''));
             }
+
+            if (geometryWkt) {
+                addQueryParam(parts, 'geometry', geometryWkt);
+            } else if (params.bounds) {
+                addBoundsQueryParams(parts, params.bounds);
+            }
+
+            if (parts.length === 0) {
+                parts.push('q=*');
+            }
+
+            return parts.join('&');
+        }
+
+        function buildAreaGetQuery(geometryWkt) {
+            var parts = [];
 
             if (geometryWkt) {
                 addQueryParam(parts, 'geometry', geometryWkt);

@@ -8,6 +8,9 @@
 
     function mapperService(queryService, queryMap, queryResults, alerts, $q) {
         var PAGE_LIMIT = 300;
+        var REQUESTED_DOWNLOAD_RECORD_LIMIT = 100000;
+        var GBIF_SEARCH_RECORD_LIMIT = 100000;
+        var DOWNLOAD_CONCURRENCY = 4;
         var FULL_RECORD_LIMIT = 1000;
         var LARGE_SAMPLE_LIMIT = 300;
         var EXACT_VIEWPORT_MIN_ZOOM = 14;
@@ -20,7 +23,9 @@
         var lastViewportMode = null;
 
         var mapperService = {
-            query: query
+            query: query,
+            downloadRecords: downloadRecords,
+            downloadLimits: downloadLimits
         };
 
         return mapperService;
@@ -68,7 +73,106 @@
                     alerts.error('Failed to load query results');
                     console.log('query-error:', err);
                     throw err;
+            });
+        }
+
+        function downloadRecords(searchRequest, options) {
+            var requestOptions = options || {};
+            var totalElements = Number(requestOptions.totalElements) || 0;
+            var recordLimit = Math.min(
+                REQUESTED_DOWNLOAD_RECORD_LIMIT,
+                GBIF_SEARCH_RECORD_LIMIT,
+                totalElements
+            );
+            var offsets = [];
+            var pagesByOffset = {};
+            var nextIndex = 0;
+            var loaded = 0;
+            var workerCount;
+            var workers = [];
+
+            if (!searchRequest) {
+                return $q.reject(new Error('No GBIF search request is available for download.'));
+            }
+
+            if (recordLimit <= 0) {
+                return $q.when({
+                    data: [],
+                    totalElements: totalElements,
+                    requestedLimit: REQUESTED_DOWNLOAD_RECORD_LIMIT,
+                    loadedLimit: 0,
+                    apiLimit: GBIF_SEARCH_RECORD_LIMIT,
+                    truncated: false
                 });
+            }
+
+            for (var offset = 0; offset < recordLimit; offset += PAGE_LIMIT) {
+                offsets.push(offset);
+            }
+
+            workerCount = Math.min(DOWNLOAD_CONCURRENCY, offsets.length);
+
+            for (var i = 0; i < workerCount; i++) {
+                workers.push(loadNextDownloadPage());
+            }
+
+            if (totalElements > recordLimit) {
+                alerts.warn('Direct GBIF CSV export is limited to ' + recordLimit + ' records. Use GBIF occurrence downloads for larger exports.');
+            }
+            alerts.info('Preparing occurrence CSV...');
+
+            return $q.all(workers)
+                .then(function () {
+                    var data = [];
+
+                    angular.forEach(offsets, function (offset) {
+                        data = data.concat(pagesByOffset[offset] || []);
+                    });
+
+                    return {
+                        data: data,
+                        totalElements: totalElements,
+                        requestedLimit: REQUESTED_DOWNLOAD_RECORD_LIMIT,
+                        loadedLimit: data.length,
+                        apiLimit: GBIF_SEARCH_RECORD_LIMIT,
+                        truncated: totalElements > data.length
+                    };
+                })
+                .finally(function () {
+                    removeAlert('Preparing occurrence CSV...');
+                });
+
+            function loadNextDownloadPage() {
+                var offset;
+                var limit;
+
+                if (nextIndex >= offsets.length) {
+                    return $q.when();
+                }
+
+                offset = offsets[nextIndex++];
+                limit = Math.min(PAGE_LIMIT, recordLimit - offset);
+
+                return queryService.queryPredicate(searchRequest, {
+                    limit: limit,
+                    offset: offset,
+                    preserveAlerts: true
+                }).then(function (results) {
+                    pagesByOffset[offset] = results.data || [];
+                    loaded += pagesByOffset[offset].length;
+                    if (angular.isFunction(requestOptions.onProgress)) {
+                        requestOptions.onProgress(loaded, recordLimit);
+                    }
+                    return loadNextDownloadPage();
+                });
+            }
+        }
+
+        function downloadLimits() {
+            return {
+                requested: REQUESTED_DOWNLOAD_RECORD_LIMIT,
+                api: GBIF_SEARCH_RECORD_LIMIT
+            };
         }
 
         function loadCompleteRecordSet(searchRequest, totalElements) {

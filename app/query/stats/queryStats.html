@@ -7,7 +7,7 @@
         <div ng-show="queryStatsVm.queryResults.querySource === 'gbif'">
             <label class="control-label">Total occurrence records = {{queryStatsVm.totalResults}}</label>
             <label class="control-label" ng-show="!queryStatsVm.queryResults.isCompleteRecordSet">
-                Table/download sample = {{queryStatsVm.queryResults.size}} records
+                Table sample = {{queryStatsVm.queryResults.size}} records
             </label>
         </div>
         <div ng-show="queryStatsVm.queryResults.querySource !== 'gbif'">

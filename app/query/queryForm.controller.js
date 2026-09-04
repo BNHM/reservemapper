@@ -5,9 +5,9 @@
     app.directive('taxonEmptyContents', ['$filter', '$http', taxonEmptyContents]);
     app.directive('taxonAutoComplete', ['$filter', '$http', taxonAutoCompleteDir]);
     app.controller('QueryFormController', QueryFormController);
-    QueryFormController.$inject = ['$scope', '$location', 'GBIFMapperService', 'photoMapperService', 'queryParams', 'photoParams', 'queryService', 'photoService', 'photoViewer', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', '$http', '$q'];
+    QueryFormController.$inject = ['$scope', '$location', 'GBIFMapperService', 'GBIFChecklistService', 'photoMapperService', 'queryParams', 'photoParams', 'queryService', 'photoService', 'photoViewer', 'queryMap', 'queryResults', 'usSpinnerService', 'alerts', 'CSV', '$window', '$http', '$q'];
 
-    function QueryFormController($scope, $location, GBIFMapperService, photoMapperService, queryParams, photoParams, queryService, photoService, photoViewer, queryMap, queryResults, usSpinnerService, alerts, $http, $q ) {
+    function QueryFormController($scope, $location, GBIFMapperService, GBIFChecklistService, photoMapperService, queryParams, photoParams, queryService, photoService, photoViewer, queryMap, queryResults, usSpinnerService, alerts, CSV, $window, $http, $q ) {
         var vm = this;
         var _currentLayer = undefined;
 
@@ -37,12 +37,22 @@
 
         // Prepare data for Download
         vm.downloadColumns = ["basisOfRecord", "institutionCode", "collectionCode", "catalogNumber", "continent", "country", "stateProvince", "locality", "waterBody", "decimalLatitude", "decimalLongitude", "depth", "elevation", "eventDate", "month", "year", "scientificName", "kingdom", "phylum", "class", "order", "family", "genus", "species", "establishmentMeans", "repatriated", "typeStatus", "lastInterpreted", "mediaType", "protocol", "license", "publishingCountry", "publishingOrg", "recordedBy", "key"]
+        vm.checklistDownloadColumns = GBIFChecklistService.downloadColumns();
 
         vm.params = queryParams;
         vm.map = queryMap;
+        vm.queryResults = queryResults;
 
         vm.queryJson = queryJson;
         vm.queryPhotos = queryPhotos;
+        vm.queryChecklists = queryChecklists;
+        vm.downloadOccurrenceCsv = downloadOccurrenceCsv;
+        vm.downloadChecklistCsv = downloadChecklistCsv;
+        vm.downloadLabel = downloadLabel;
+        vm.checklistDownloadLabel = checklistDownloadLabel;
+        vm.downloadInProgress = false;
+        vm.downloadProgress = '';
+        vm.downloadLimits = GBIFMapperService.downloadLimits();
 
         vm.spatialLayerChanged = spatialLayerChanged;
         activate();
@@ -55,13 +65,17 @@
 
         // CSV Download
         $scope.downloadCsv = function (data) {
+            return buildDownloadRows(data || [], vm.downloadColumns);
+        };
+
+        function buildDownloadRows(data, columns) {
             var downloadData = [];
             if (data.length > 0) {
                 angular.forEach(data, function (resource) {
                     var resourceData = [];
-                    angular.forEach(vm.downloadColumns, function (key) {
+                    angular.forEach(columns, function (key) {
                         // display a link to key field
-                        if (key == 'key') {
+                        if (key == 'key' && resource[key]) {
                             var text = 'https://www.gbif.org/occurrence/' + resource[key];
                         }
                         else {
@@ -79,6 +93,136 @@
                 });
             }
             return downloadData;
+        }
+
+        function downloadOccurrenceCsv() {
+            var downloadPromise;
+
+            if (!queryResults.isSet || queryResults.querySource !== 'gbif' || vm.downloadInProgress) {
+                return $q.when();
+            }
+
+            vm.downloadInProgress = true;
+            vm.downloadProgress = '';
+            usSpinnerService.spin('query-spinner');
+
+            if (queryResults.isCompleteRecordSet) {
+                downloadPromise = $q.when({
+                    data: queryResults.data,
+                    totalElements: queryResults.totalElements,
+                    loadedLimit: queryResults.data.length,
+                    truncated: false
+                });
+            } else {
+                downloadPromise = GBIFMapperService.downloadRecords(queryResults.searchRequest || queryParams.build(), {
+                    totalElements: queryResults.totalElements,
+                    onProgress: function (loaded, limit) {
+                        vm.downloadProgress = 'Preparing ' + loaded + ' of ' + limit + ' records';
+                    }
+                });
+            }
+
+            return downloadPromise
+                .then(function (results) {
+                    var rows = buildDownloadRows(results.data || [], vm.downloadColumns);
+
+                    return CSV.stringify(rows, {
+                        header: vm.downloadColumns,
+                        txtDelim: '"',
+                        decimalSep: '.',
+                        fieldSep: ',',
+                        addByteOrderMarker: true
+                    }).then(function (csv) {
+                        saveCsv(csv, 'reservemapper.csv');
+
+                        if (results.truncated) {
+                            alerts.warn('Downloaded first ' + results.loadedLimit + ' of ' + results.totalElements + ' GBIF records. Use GBIF occurrence downloads for the full result set.');
+                        }
+                    });
+                })
+                .catch(function (err) {
+                    alerts.error('Failed to prepare GBIF download');
+                    console.log('download-error:', err);
+                })
+                .finally(function () {
+                    vm.downloadInProgress = false;
+                    vm.downloadProgress = '';
+                    usSpinnerService.stop('query-spinner');
+                });
+        }
+
+        function downloadChecklistCsv() {
+            var rows;
+
+            if (!queryResults.isSet || queryResults.querySource !== 'gbif-checklist' || vm.downloadInProgress) {
+                return $q.when();
+            }
+
+            rows = queryResults.data || [];
+            vm.downloadInProgress = true;
+            vm.downloadProgress = rows.length ? 'Preparing 0 of ' + rows.length + ' species names' : '';
+            usSpinnerService.spin('query-spinner');
+
+            return GBIFChecklistService.ensureTaxonomyForRows(rows, {
+                onProgress: function (loaded, limit) {
+                    vm.downloadProgress = 'Preparing ' + loaded + ' of ' + limit + ' species names';
+                }
+            }).then(function (enrichedRows) {
+                return CSV.stringify(buildDownloadRows(enrichedRows, vm.checklistDownloadColumns), {
+                    header: vm.checklistDownloadColumns,
+                    txtDelim: '"',
+                    decimalSep: '.',
+                    fieldSep: ',',
+                    addByteOrderMarker: true
+                });
+            }).then(function (csv) {
+                saveCsv(csv, 'reservemapper-checklist.csv');
+            }).catch(function (err) {
+                alerts.error('Failed to prepare checklist download');
+                console.log('checklist-download-error:', err);
+            }).finally(function () {
+                vm.downloadInProgress = false;
+                vm.downloadProgress = '';
+                usSpinnerService.stop('query-spinner');
+            });
+        }
+
+        function saveCsv(csv, filename) {
+            var blob = new $window.Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            var urlApi = $window.URL || $window.webkitURL;
+            var link;
+            var url;
+
+            if ($window.navigator.msSaveOrOpenBlob) {
+                $window.navigator.msSaveOrOpenBlob(blob, filename);
+                return;
+            }
+
+            url = urlApi.createObjectURL(blob);
+            link = $window.document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
+            $window.document.body.appendChild(link);
+            link.click();
+            $window.document.body.removeChild(link);
+            urlApi.revokeObjectURL(url);
+        }
+
+        function downloadLabel() {
+            if (vm.downloadInProgress) {
+                return 'Preparing CSV';
+            }
+
+            if (queryResults.querySource === 'gbif' && !queryResults.isCompleteRecordSet) {
+                return 'Download CSV';
+            }
+
+            return 'Download';
+        }
+
+        function checklistDownloadLabel() {
+            return vm.downloadInProgress ? 'Preparing CSV' : 'Download';
         }
 
         /* when a spatial layer is changed, we need to remove all old data on the map, 
@@ -173,6 +317,36 @@
             }
 
             function queryJsonFinally() {
+                usSpinnerService.stop('query-spinner');
+            }
+        }
+
+        function queryChecklists() {
+            usSpinnerService.spin('query-spinner');
+	    // Remove occurrence or photo markers before building the GBIF checklist.
+            queryMap._clearMap();
+            queryMap.setPhoto(false);
+
+            queryResults.clear();
+            zoomLayer()
+                .then(function () {
+                    return GBIFChecklistService.query(queryParams.buildAreaQuery());
+                })
+                .then(queryChecklistsSuccess)
+                .catch(queryChecklistsFailed)
+                .finally(queryChecklistsFinally);
+
+            function queryChecklistsSuccess() {
+                $scope.queryForm.$setPristine(true);
+                if (angular.isFunction($scope.showControl)) {
+                    $scope.showControl('table');
+                }
+            }
+            function queryChecklistsFailed(response) {
+                queryResults.isSet = false;
+            }
+
+            function queryChecklistsFinally() {
                 usSpinnerService.stop('query-spinner');
             }
         }

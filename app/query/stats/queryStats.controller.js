@@ -37,7 +37,9 @@
 	    }
 
 	    //populate the table with institution stats by default
-	    if (isGbifQuery()) {
+	    if (isChecklistQuery()) {
+		$scope.familyCount();
+	    } else if (isGbifQuery()) {
 		$scope.institutionCount();
 	    } else {
 		$scope.collectionCodeCount();
@@ -101,9 +103,49 @@
 	    }
 	    $scope.gridOptions.data = valueTotal('locality', null, 'value', 'ascending')
 	}
+	$scope.classCount = function () {
+	    if (isChecklistQuery()) {
+		return checklistCount('class', 'class');
+	    }
+	    $scope.gridOptions.data = valueTotal('class', null, 'value', 'ascending')
+	}
+	$scope.orderCount = function () {
+	    if (isChecklistQuery()) {
+		return checklistCount('order', 'order');
+	    }
+	    $scope.gridOptions.data = valueTotal('order', null, 'value', 'ascending')
+	}
+	$scope.familyCount = function () {
+	    if (isChecklistQuery()) {
+		return checklistCount('family', 'family');
+	    }
+	    $scope.gridOptions.data = valueTotal('family', null, 'value', 'ascending')
+	}
+	$scope.genusCount = function () {
+	    if (isChecklistQuery()) {
+		return checklistCount('genus', 'genus');
+	    }
+	    $scope.gridOptions.data = valueTotal('genus', null, 'value', 'ascending')
+	}
+	$scope.firstYearCount = function () {
+	    return checklistCount('firstYear', 'firstYear');
+	}
+	$scope.lastYearCount = function () {
+	    return checklistCount('lastYear', 'lastYear');
+	}
 
 	function isGbifQuery() {
 	    return vm.queryResults.querySource === 'gbif';
+	}
+
+	function isChecklistQuery() {
+	    return vm.queryResults.querySource === 'gbif-checklist';
+	}
+
+	function checklistCount(fieldName, columnName) {
+	    vm.columnName = columnName;
+	    $scope.gridOptions.data = valueTotal(fieldName, null, 'value', 'descending');
+	    return $q.when($scope.gridOptions.data);
 	}
 
 	function gbifFacet(facetKey, columnName, resolveTaxonKeys) {

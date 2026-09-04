@@ -22,6 +22,9 @@
             sampleLimit: 0,
             drilldownLimit: 0,
             drilldownZoom: 0,
+            occurrenceTotalElements: 0,
+            checklistLimit: 0,
+            checklistTruncated: false,
             update: update,
             append: append,
             toFetch: 0,
@@ -60,6 +63,9 @@
             queryResults.sampleLimit = 0;
             queryResults.drilldownLimit = 0;
             queryResults.drilldownZoom = 0;
+            queryResults.occurrenceTotalElements = 0;
+            queryResults.checklistLimit = 0;
+            queryResults.checklistTruncated = false;
         }
     }
 })();
